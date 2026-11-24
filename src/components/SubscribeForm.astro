@@ -1,0 +1,104 @@
+---
+import { SITE, withBase } from '@/data/site';
+---
+
+<section
+  class="bento-card p-6"
+  aria-labelledby="subscribe-heading"
+  data-subscribe-widget
+  data-endpoint={SITE.buttondown.formAction}
+  data-hosted={SITE.buttondown.hostedUrl}
+>
+  <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div class="max-w-xl">
+      <p class="font-mono text-xs uppercase tracking-wider text-baby">Email &amp; RSS Updates</p>
+      <h2 id="subscribe-heading" class="mt-1 font-display text-xl font-bold text-ink">
+        Get notified when new engineering notes publish
+      </h2>
+      <p class="mt-1.5 text-sm text-muted">
+        Powered externally by Buttondown with double opt-in and one-click unsubscribe (zero site cookies or tracking). Prefer RSS? Subscribe directly via{' '}
+        <a href={withBase('/rss.xml')} class="font-medium text-baby underline underline-offset-4">
+          /rss.xml
+        </a>.
+      </p>
+    </div>
+
+    <form id="blog-subscribe-form" class="flex w-full flex-col gap-2 sm:flex-row md:w-auto" novalidate>
+      <label for="subscribe-email" class="sr-only">Email address</label>
+      <input
+        id="subscribe-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="you@company.com"
+        class="min-h-[44px] w-full rounded-lg border border-border-strong bg-canvas px-3.5 text-sm text-ink placeholder:text-muted sm:w-64"
+      />
+      <!-- Hidden honeypot field for bot filtering -->
+      <div class="hidden" aria-hidden="true">
+        <label for="subscribe-website">Website</label>
+        <input id="subscribe-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <button
+        id="subscribe-submit"
+        type="submit"
+        class="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-lg bg-coral px-5 text-sm font-semibold text-[var(--accent-on-contrast)] transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        Notify Me
+      </button>
+    </form>
+  </div>
+
+  <p id="subscribe-feedback" role="status" aria-live="polite" class="mt-3 min-h-[1.25rem] text-sm text-muted"></p>
+  <p id="subscribe-fallback" class="mt-1 hidden text-sm">
+    <a
+      href={SITE.buttondown.hostedUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="font-medium text-baby underline underline-offset-4"
+    >
+      Open hosted Buttondown signup page &#8599;
+    </a>
+    {' · '}
+    <a href={withBase('/rss.xml')} class="font-medium text-baby underline underline-offset-4">
+      Subscribe via RSS
+    </a>
+  </p>
+</section>
+
+<script>
+  import { submitSubscription } from '@/lib/subscribe';
+
+  const widget = document.querySelector<HTMLElement>('[data-subscribe-widget]');
+  const form = document.getElementById('blog-subscribe-form') as HTMLFormElement | null;
+  const emailInput = document.getElementById('subscribe-email') as HTMLInputElement | null;
+  const hpInput = document.getElementById('subscribe-website') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('subscribe-submit') as HTMLButtonElement | null;
+  const feedback = document.getElementById('subscribe-feedback');
+  const fallback = document.getElementById('subscribe-fallback');
+
+  if (widget && form && emailInput && submitBtn && feedback) {
+    const endpointUrl = widget.dataset.endpoint || '';
+    const hostedUrl = widget.dataset.hosted || '';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submitBtn.disabled = true;
+      feedback.textContent = 'Submitting subscription request...';
+      fallback?.classList.add('hidden');
+
+      const result = await submitSubscription(emailInput.value, hpInput?.value || '', {
+        endpointUrl,
+        hostedUrl,
+      });
+
+      feedback.textContent = result.message;
+      if (result.status === 'success') {
+        emailInput.value = '';
+      } else if (result.fallbackUrl && fallback) {
+        fallback.classList.remove('hidden');
+      }
+      submitBtn.disabled = false;
+    });
+  }
+</script>

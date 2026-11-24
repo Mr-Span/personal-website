@@ -1,7 +1,10 @@
-name: Deploy Personal Website to GitHub Pages
+name: Deploy Personal Website v2 to GitHub Pages
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -13,6 +16,10 @@ concurrency:
   group: github-pages
   cancel-in-progress: true
 
+env:
+  SITE_URL: ${{ vars.SITE_URL || 'https://mr-span.github.io' }}
+  BASE_PATH: ${{ vars.BASE_PATH != '' && vars.BASE_PATH || (vars.SITE_URL != '' && '' || '/personal-website') }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,21 +30,50 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Stage static site files
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Enable Corepack pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Typecheck, lint & unit tests
         run: |
-          mkdir -p _site
-          cp index.html 404.html robots.txt sitemap.xml .nojekyll _site/
-          cp -r assets _site/assets
+          pnpm check
+          pnpm lint
+          pnpm test:unit
+
+      - name: Build static site & deterministic ATS PDF
+        run: |
+          pnpm build
+          pnpm pdf:build
+          pnpm pdf:verify
+
+      - name: Run hygiene, budget & Playwright E2E/WCAG AA gates
+        run: |
+          pnpm verify:content
+          pnpm verify:budgets
+          pnpm test:e2e
 
       - name: Configure GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 
       - name: Upload static site artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
-          path: _site
+          path: dist
 
   deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -50,3 +86,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+
+      - name: Checkout for live smoke verification
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Verify deployed commit provenance
+        env:
+          LIVE_VERIFY_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_COMMIT_SHA: ${{ github.sha }}
+        run: node scripts/verify-live.mjs

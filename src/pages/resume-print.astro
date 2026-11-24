@@ -1,0 +1,93 @@
+---
+import PrintResumeLayout from '@/layouts/PrintResumeLayout.astro';
+import { getResumeData } from '@/lib/resume-loader';
+
+const resume = getResumeData();
+const pdfMetrics = resume.profile.metrics.filter((m) => m.includeInPdf);
+const pdfCerts = resume.certifications.filter((c) => c.includeInPdf);
+---
+
+<PrintResumeLayout title={`${resume.profile.name} — ATS Resume`}>
+  <!-- Strictly linear single-column HTML for clean ATS text extraction (1-2 pages A4) -->
+  <header>
+    <h1>{resume.profile.name}</h1>
+    <p class="header-meta">
+      <strong>{resume.profile.headline}</strong> &middot; {resume.profile.location} &middot;{' '}
+      <a href={`mailto:${resume.profile.email}`}>{resume.profile.email}</a> &middot;{' '}
+      <a href={resume.profile.links.linkedin}>linkedin.com/in/claudiuspan</a> &middot;{' '}
+      <a href={resume.profile.links.github}>github.com/Mr-Span</a>
+    </p>
+  </header>
+
+  <section>
+    <h2>Profile &amp; Key Impact</h2>
+    <p>{resume.profile.summary}</p>
+    <p class="stack-line">
+      {pdfMetrics.map((m, idx) => (
+        <>
+          <strong>{m.value}</strong> {m.label}
+          {idx < pdfMetrics.length - 1 ? '  |  ' : ''}
+        </>
+      ))}
+    </p>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    {resume.experience.map((exp) => (
+      <div class="entry">
+        <div class="entry-row">
+          <h3>{exp.role} — {exp.company}</h3>
+          <span class="entry-sub">{exp.period} &middot; {exp.location}</span>
+        </div>
+        <ul>
+          {exp.highlights
+            .filter((h) => h.includeInPdf)
+            .map((h) => (
+              <li>{h.text}</li>
+            ))}
+        </ul>
+        <p class="stack-line"><strong>Stack:</strong> {exp.stack.join(', ')}</p>
+      </div>
+    ))}
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    {resume.education.map((edu) => (
+      <div class="entry">
+        <div class="entry-row">
+          <h3>{edu.degree} — {edu.institution}</h3>
+          <span class="entry-sub">{edu.period}</span>
+        </div>
+        {edu.thesis && edu.thesis.includeInPdf && (
+          <p class="stack-line"><strong>Thesis:</strong> {edu.thesis.title}</p>
+        )}
+      </div>
+    ))}
+  </section>
+
+  <section>
+    <h2>Certifications</h2>
+    <ul class="cert-list">
+      {pdfCerts.map((cert) => (
+        <li>
+          <span>
+            <strong>{cert.name}</strong>
+            {cert.credentialCode ? ` (${cert.credentialCode})` : ''} — {cert.issuer}
+          </span>
+          <span class="entry-sub">{cert.issuedDate}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Technical Skills</h2>
+    {resume.skillGroups.map((group) => (
+      <p class="skill-row">
+        <strong>{group.title}:</strong> {group.items.join(', ')}
+      </p>
+    ))}
+  </section>
+</PrintResumeLayout>

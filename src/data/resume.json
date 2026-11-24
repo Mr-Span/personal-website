@@ -1,0 +1,269 @@
+{
+  "profile": {
+    "name": "Claudiu Șpan",
+    "headline": "Applied AI & Automation Engineer",
+    "location": "Cluj-Napoca, Romania",
+    "email": "clauxspan2002@gmail.com",
+    "links": {
+      "github": "https://github.com/Mr-Span",
+      "linkedin": "https://www.linkedin.com/in/claudiuspan",
+      "website": "https://mr-span.github.io/personal-website/"
+    },
+    "summary": "Applied AI & Automation Engineer delivering production workflows that connect enterprise business systems, validated LLM agents, and human-in-the-loop review. Combining 40+ end-to-end automation deliveries at Betfair Romania Development with cyber-physical systems engineering and autonomous drone perception as a technical side venture.",
+    "metrics": [
+      {
+        "value": "40+",
+        "label": "Production automation workflows delivered end to end",
+        "includeInPdf": true
+      },
+      {
+        "value": "~70%",
+        "label": "Reduction in operator data-review time via Agentic AI",
+        "includeInPdf": true
+      },
+      {
+        "value": "6",
+        "label": "Verified technical certifications across AI, AWS, Python & RPA",
+        "includeInPdf": false
+      }
+    ]
+  },
+  "experience": [
+    {
+      "id": "betfair-romania",
+      "company": "Betfair Romania Development",
+      "role": "Automation Engineer (formerly Associate Automation Engineer)",
+      "period": "Feb 2024 – Present",
+      "location": "Cluj-Napoca, Romania",
+      "isSideVenture": false,
+      "highlights": [
+        {
+          "text": "Delivered 40+ distinct automation workflows end to end: stakeholder discovery, AS-IS/TO-BE analysis, solution architecture, implementation, and production hypercare.",
+          "includeInPdf": true
+        },
+        {
+          "text": "Architected an enterprise Agentic AI & human-in-the-loop review system combining UiPath Studio Web, Maestro orchestration, RPA processes, and validated LLM agent prompts — reducing operator verification time by approximately 70% while keeping PII strictly inside the enterprise boundary.",
+          "includeInPdf": true
+        },
+        {
+          "text": "Built and optimized Python-based automation workflows and REST API / JSON data pipelines integrating Salesforce, Amazon Redshift, and internal risk systems with structured logging, error handling, and CI/CD deployments.",
+          "includeInPdf": true
+        }
+      ],
+      "stack": [
+        "UiPath RPA",
+        "REFramework",
+        "Maestro",
+        "Studio Web",
+        "LLM Agents",
+        "Python",
+        "REST APIs",
+        "Amazon Redshift"
+      ]
+    },
+    {
+      "id": "quadyx",
+      "company": "QUADYX",
+      "role": "Co-Founder — Autonomy & Computer Vision (Technical Side Venture)",
+      "period": "Aug 2025 – Present",
+      "location": "Cluj-Napoca, Romania",
+      "isSideVenture": true,
+      "url": "https://quadyx.com/",
+      "highlights": [
+        {
+          "text": "Designed AI-powered drone autonomy pipelines combining ORB-SLAM3 and Depth Anything V2 for real-time monocular spatial perception.",
+          "includeInPdf": true
+        },
+        {
+          "text": "Implemented real-time obstacle detection via point-cloud clustering and computer vision in a hybrid C++/Python architecture.",
+          "includeInPdf": true
+        },
+        {
+          "text": "Built a multi-channel drone communication stack integrating ROS 2, GSM, and IP telemetry with automatic fallback logic and modular Python signal-monitoring services.",
+          "includeInPdf": true
+        }
+      ],
+      "stack": [
+        "ROS 2",
+        "ORB-SLAM3",
+        "Depth Anything V2",
+        "C++",
+        "Python",
+        "OpenCV",
+        "GSM / IP Telemetry"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "utcn-msc",
+      "degree": "MSc. Cyber-Physical Systems",
+      "institution": "Technical University of Cluj-Napoca",
+      "period": "2024 – 2026",
+      "thesis": {
+        "title": "Autonomous Perception & Resilient Multi-Channel Control in Cyber-Physical UAV Systems",
+        "summary": "Research and implementation covering monocular depth estimation, SLAM localization, and multi-channel telemetry resilience.",
+        "includeInPdf": true
+      },
+      "courses": [
+        {
+          "name": "Cyber-Physical Systems Architecture & Control",
+          "focus": "Real-time control loops, deterministic scheduling, and sensor fusion.",
+          "projectSummary": "Modeled fault-tolerant sensor-to-actuator control pipelines with fallback state machines."
+        },
+        {
+          "name": "Applied Computer Vision & Machine Learning",
+          "focus": "Monocular depth estimation, feature tracking, and neural inference pipelines.",
+          "projectSummary": "Benchmarked real-time depth estimation and point-cloud obstacle clustering pipelines."
+        },
+        {
+          "name": "Distributed Systems & Industrial Telemetry",
+          "focus": "Reliable messaging, encryption, and multi-channel communication links.",
+          "projectSummary": "Designed modular Python signal-monitoring services with GSM/IP failover."
+        }
+      ]
+    },
+    {
+      "id": "utcn-bsc",
+      "degree": "BSc. Robotics",
+      "institution": "Technical University of Cluj-Napoca",
+      "period": "2020 – 2024",
+      "thesis": {
+        "title": "Autonomous Robotic Navigation & Vision-Guided Control",
+        "summary": "Engineering foundation combining embedded systems, kinematics, C++/Python software, and sensor-driven navigation.",
+        "includeInPdf": true
+      },
+      "courses": [
+        {
+          "name": "Robotics Kinematics, Dynamics & Control",
+          "focus": "Motion planning, coordinate transforms, and closed-loop stabilization."
+        },
+        {
+          "name": "Embedded Systems & C++ Programming",
+          "focus": "Low-latency software architecture, hardware interfacing, and real-time diagnostics."
+        },
+        {
+          "name": "Artificial Intelligence & Signal Processing",
+          "focus": "Filtering, state estimation, and algorithmic decision systems."
+        }
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "id": "aws-aif-c01",
+      "name": "AWS Certified AI Practitioner",
+      "issuer": "Amazon Web Services (AWS)",
+      "issuedDate": "2025",
+      "credentialCode": "AIF-C01",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "ai",
+      "includeInPdf": true
+    },
+    {
+      "id": "uipath-advanced",
+      "name": "UiPath Advanced RPA Developer",
+      "issuer": "UiPath",
+      "issuedDate": "2024",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "automation",
+      "includeInPdf": true
+    },
+    {
+      "id": "siit-python-agentic-ai",
+      "name": "Python & Agentic AI Engineering",
+      "issuer": "Școala Informala de IT",
+      "issuedDate": "2025",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "ai",
+      "includeInPdf": true
+    },
+    {
+      "id": "siit-python",
+      "name": "Python Development",
+      "issuer": "Școala Informala de IT",
+      "issuedDate": "2024",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "software",
+      "includeInPdf": true
+    },
+    {
+      "id": "nvidia-deep-learning",
+      "name": "Fundamentals of Deep Learning",
+      "issuer": "NVIDIA",
+      "issuedDate": "2024",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "ai",
+      "includeInPdf": true
+    },
+    {
+      "id": "simplilearn-ai",
+      "name": "Artificial Intelligence Program",
+      "issuer": "Simplilearn",
+      "issuedDate": "2025",
+      "verifyUrl": "https://www.linkedin.com/in/claudiuspan/details/certifications/",
+      "domain": "ai",
+      "includeInPdf": true
+    }
+  ],
+  "skillGroups": [
+    {
+      "title": "Applied AI & Agentic Systems",
+      "items": [
+        "LLM Agents",
+        "Agentic AI",
+        "RAG",
+        "LangChain",
+        "Prompt Design & Eval",
+        "Pydantic",
+        "Human-in-the-Loop",
+        "ChromaDB",
+        "TensorFlow",
+        "OpenCV"
+      ]
+    },
+    {
+      "title": "Enterprise Automation & RPA",
+      "items": [
+        "UiPath (Advanced Certified)",
+        "REFramework",
+        "Maestro",
+        "Studio Web",
+        "n8n",
+        "ETL Pipelines",
+        "REST API Integration",
+        "GitHub Actions",
+        "CI/CD"
+      ]
+    },
+    {
+      "title": "Software, Data & Product",
+      "items": [
+        "Python",
+        "C++",
+        "TypeScript",
+        "JavaScript",
+        "FastAPI",
+        "asyncio",
+        "SQL",
+        "PostgreSQL",
+        "Amazon Redshift",
+        "Docker",
+        "React",
+        "Astro",
+        "Git"
+      ]
+    },
+    {
+      "title": "Robotics & Cyber-Physical Systems (Side Venture)",
+      "items": [
+        "ROS 2",
+        "ORB-SLAM3",
+        "Depth Anything V2",
+        "Point-Cloud Clustering",
+        "GSM / IP Telemetry",
+        "Linux (Ubuntu)"
+      ]
+    }
+  ]
+}

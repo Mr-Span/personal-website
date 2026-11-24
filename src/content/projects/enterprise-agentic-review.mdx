@@ -1,0 +1,32 @@
+---
+title: "Customer Profile Aggregation & Agentic AI Summarization"
+tier: "case-study"
+visibility: "anonymized"
+category: ["ai", "automation"]
+featured: true
+order: 1
+outcomeBadge: "~70% Less Review Time"
+summary: "Unified three internal operational platforms and eight Amazon Redshift scripts into a single UiPath Studio Web review workspace with Maestro orchestration, validated LLM summaries, and strict enterprise PII isolation."
+stack: ["UiPath Studio Web", "Maestro", "LLM Agents", "Human-in-the-Loop", "Amazon Redshift", "Python"]
+anonymizationNote: "Internal platform names, proprietary database schemas, and client identifiers are intentionally omitted to comply with enterprise NDA and PII governance."
+architectureFile: "enterprise-agentic-review.architecture.json"
+---
+
+## Problem & Operational Bottleneck
+
+Operations reviewers previously cross-checked three disconnected internal platforms alongside eight Amazon Redshift scripts refreshed only twice daily. Gathering context for a single complex customer review consumed repetitive lookup time and forced decisions on stale snapshots.
+
+## Architecture & Engineering Trade-offs
+
+Rather than replacing governed enterprise tooling with an ungoverned standalone web app, I combined **UiPath Studio Web**, **Maestro orchestration**, two core RPA/API extraction processes, and a **validated LLM summarization agent**:
+
+* **Live aggregation over batch refreshes:** Data is pulled on demand when an operator opens a case, replacing two scheduled daily batch cycles.
+* **Deterministic pre-aggregation:** Structured SQL metrics from Redshift are calculated deterministically before reaching the LLM, preventing arithmetic hallucinations.
+* **Enterprise PII boundary:** Sensitive customer attributes remain strictly inside the enterprise perimeter; outputs pass schema validation before rendering.
+* **Human-in-the-Loop ownership:** The AI agent accelerates comprehension and highlights structured anomalies, while final operational decisions stay 100% with the reviewer.
+
+## Measured Outcome
+
+* Reduced operator data-review time by **approximately 70%** across target review workflows.
+* Eliminated multi-tool context switching while maintaining full auditability and zero external PII egress.
+* Part of **40+ end-to-end production automation workflows** delivered from discovery through hypercare at Betfair Romania Development.

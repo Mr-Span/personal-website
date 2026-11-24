@@ -1,0 +1,25 @@
+---
+title: "QUADYX — Autonomous UAV Perception & Resilient Telemetry"
+tier: "case-study"
+visibility: "anonymized"
+category: ["robotics", "ai"]
+featured: true
+order: 3
+outcomeBadge: "ROS 2 · Hybrid C++/Python"
+summary: "Technical side venture exploring real-time drone spatial perception (ORB-SLAM3 + Depth Anything V2), point-cloud obstacle clustering, and resilient multi-channel GSM/IP telemetry over ROS 2."
+stack: ["ROS 2", "ORB-SLAM3", "Depth Anything V2", "C++", "Python", "OpenCV", "GSM / IP Telemetry"]
+liveUrl: "https://quadyx.com/"
+isSideVenture: true
+anonymizationNote: "Hardware schematics, proprietary radio parameters, and field calibration data are excluded from this public engineering summary."
+architectureFile: "quadyx-autonomy.architecture.json"
+---
+
+## Context (Technical Side Venture)
+
+Built as a co-founded engineering exploration alongside my primary Applied AI & Automation career, **QUADYX** focuses on reliable onboard spatial awareness and communication resilience for autonomous drones.
+
+## System Highlights
+
+* **Real-time spatial perception:** Combines **ORB-SLAM3** visual-inertial tracking with **Depth Anything V2** monocular depth estimation.
+* **Hybrid C++/Python runtime:** Latency-critical tracking and point-cloud obstacle clustering run in C++ / OpenCV while modular orchestration, monitoring, and model evaluation run in Python.
+* **Multi-channel telemetry fallback:** Integrates **ROS 2** with GSM and IP telemetry links overseen by a Python signal-monitoring watchdog that executes automatic failover on link degradation.

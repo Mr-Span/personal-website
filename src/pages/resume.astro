@@ -1,0 +1,172 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CertificationGrid from '@/components/CertificationGrid.astro';
+import { SITE, withBase } from '@/data/site';
+import { getResumeData } from '@/lib/resume-loader';
+
+const resume = getResumeData();
+---
+
+<BaseLayout
+  title={`Resume & CV — ${SITE.name}`}
+  description={`Structured engineering CV, verified credentials, and ATS PDF download for ${SITE.name} — ${SITE.role}.`}
+  canonicalPath="/resume/"
+  includeMonoFont
+  hideResumeSideButton
+>
+  <!-- Zone 1: Classic, Scannable Executive CV Above the Fold -->
+  <header class="bento-card mb-8 flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-center">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-wider text-baby">Curriculum Vitae</p>
+      <h1 class="mt-1 font-display text-3xl font-bold text-ink sm:text-4xl" translate="no">
+        {resume.profile.name}
+      </h1>
+      <p class="mt-1 text-base font-medium text-muted">
+        {resume.profile.headline} &middot; {resume.profile.location}
+      </p>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{resume.profile.summary}</p>
+    </div>
+
+    <div class="no-print flex shrink-0 flex-col gap-2.5 sm:items-end">
+      <a
+        href={withBase('/Claudiu-Span-CV.pdf')}
+        class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-coral px-5 text-sm font-semibold text-[var(--accent-on-contrast)] transition-opacity hover:opacity-90"
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Download ATS PDF
+      </a>
+      <a
+        href={`mailto:${resume.profile.email}`}
+        class="font-mono text-xs text-baby underline-offset-4 hover:underline"
+      >
+        {resume.profile.email}
+      </a>
+    </div>
+  </header>
+
+  <!-- Experience -->
+  <section id="experience" aria-labelledby="exp-heading" class="mb-10 space-y-4">
+    <h2 id="exp-heading" class="font-display text-2xl font-bold text-ink">
+      Experience
+    </h2>
+
+    <div class="space-y-4">
+      {resume.experience.map((exp) => (
+        <article class="bento-card p-6">
+          <div class="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline">
+            <div>
+              <h3 class="font-display text-xl font-bold text-ink">
+                {exp.url ? (
+                  <a href={exp.url} target="_blank" rel="noopener noreferrer" translate="no" class="hover:text-baby">
+                    {exp.company} &#8599;
+                  </a>
+                ) : (
+                  <span translate="no">{exp.company}</span>
+                )}
+              </h3>
+              <p class="text-sm font-semibold text-baby">{exp.role}</p>
+            </div>
+            <div class="text-xs font-mono text-muted sm:text-right">
+              <p class="tabular-nums">{exp.period}</p>
+              <p>{exp.location}</p>
+            </div>
+          </div>
+
+          <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-muted">
+            {exp.highlights.map((h) => (
+              <li>{h.text}</li>
+            ))}
+          </ul>
+
+          <ul class="mt-4 flex flex-wrap gap-1.5" aria-label={`Technologies used at ${exp.company}`}>
+            {exp.stack.map((tech) => (
+              <li class="rounded border border-border-subtle bg-elevated px-2.5 py-0.5 font-mono text-xs text-muted">
+                {tech}
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- All 6 Certifications Visible Simultaneously (2x3 Grid, Ctrl+F searchable) -->
+  <section id="certifications" aria-labelledby="certs-heading" class="mb-10 space-y-4">
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <h2 id="certs-heading" class="font-display text-2xl font-bold text-ink">
+        Certifications ({resume.certifications.length})
+      </h2>
+      <span class="font-mono text-xs text-muted">All verified credentials visible upfront</span>
+    </div>
+    <CertificationGrid certifications={resume.certifications} />
+  </section>
+
+  <!-- Education with native <details> (Ctrl+F searchable via browser Find-in-Page) -->
+  <section id="education" aria-labelledby="edu-heading" class="mb-10 space-y-4">
+    <h2 id="edu-heading" class="font-display text-2xl font-bold text-ink">
+      Education &amp; Academic Coursework
+    </h2>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {resume.education.map((edu) => (
+        <article class="bento-card flex flex-col gap-3 p-5">
+          <div class="flex items-baseline justify-between gap-2">
+            <h3 class="font-display text-lg font-bold text-ink">{edu.degree}</h3>
+            <span class="font-mono text-xs text-baby tabular-nums">{edu.period}</span>
+          </div>
+          <p class="text-sm font-medium text-muted">{edu.institution}</p>
+
+          {edu.thesis && (
+            <div class="rounded-lg border border-border-subtle bg-elevated/60 p-3 text-xs">
+              <p class="font-mono uppercase text-baby">Thesis Focus</p>
+              <p class="mt-1 font-semibold text-ink">{edu.thesis.title}</p>
+              <p class="mt-1 text-muted">{edu.thesis.summary}</p>
+            </div>
+          )}
+
+          <details class="rounded-lg border border-border-subtle bg-canvas/50 p-3 text-sm">
+            <summary class="font-medium text-ink">
+              Key Courses &amp; Projects ({edu.courses.length})
+            </summary>
+            <ul class="mt-3 space-y-2.5 text-xs text-muted">
+              {edu.courses.map((course) => (
+                <li class="border-t border-border-subtle pt-2">
+                  <p class="font-semibold text-ink">{course.name}</p>
+                  <p class="mt-0.5">{course.focus}</p>
+                  {course.projectSummary && (
+                    <p class="mt-0.5 text-baby">Project: {course.projectSummary}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Technical Skills -->
+  <section id="skills" aria-labelledby="skills-heading" class="space-y-4">
+    <h2 id="skills-heading" class="font-display text-2xl font-bold text-ink">
+      Technical Stack
+    </h2>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {resume.skillGroups.map((group) => (
+        <div class="bento-card p-5">
+          <h3 class="font-display text-base font-bold text-ink">{group.title}</h3>
+          <ul class="mt-3 flex flex-wrap gap-1.5">
+            {group.items.map((item) => (
+              <li class="rounded border border-border-subtle bg-elevated px-2.5 py-0.5 font-mono text-xs text-muted">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

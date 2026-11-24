@@ -1,41 +1,48 @@
-/* Design Tokens - Auto-generated */
-/* Do not edit directly - modify tokens.json instead */
-
-/* === PRIMITIVES === */
-:root {
-
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-canvas: #070B12;
+  --bg-surface: #0D1422;
+  --bg-elevated: #131E33;
+  --border-subtle: #1E3250;
+  --border-strong: #2B456B;
+  --text-primary: #F1F5F9;
+  --text-muted: #94A3B8;
+  --accent-primary: #38BDF8;
+  --accent-primary-soft: #7DD3FC;
+  --accent-on-primary: #070B12;
+  --accent-contrast: #FB7185;
+  --accent-on-contrast: #070B12;
+  --accent-signal: #34D399;
+  --accent-on-signal: #070B12;
+  --glow-primary: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 12px 32px rgba(7, 11, 18, 0.55);
+  --shadow-card: 0 8px 24px rgba(2, 6, 15, 0.45);
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-side-cta: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
 }
 
-/* === SEMANTIC === */
-:root {
-  --color-primary: #18181B;
-  --color-on-primary: #FFFFFF;
-  --color-secondary: #3F3F46;
-  --color-on-secondary: #FFFFFF;
-  --color-accent: #2563EB;
-  --color-on-accent: #FFFFFF;
-  --color-background: #FAFAFA;
-  --color-foreground: #09090B;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #09090B;
-  --color-muted: #E8ECF0;
-  --color-muted-foreground: #475569;
-  --color-border: #E4E4E7;
-  --color-destructive: #DC2626;
-  --color-on-destructive: #FFFFFF;
-  --color-ring: #18181B;
-  --font-heading: Archivo, sans-serif;
-  --font-body: "Space Grotesk", sans-serif;
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
-}
-
-/* === COMPONENTS === */
-:root {
-
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-muted: #475569;
+  --accent-primary: #0369A1;
+  --accent-primary-soft: #0284C7;
+  --accent-on-primary: #FFFFFF;
+  --accent-contrast: #BE123C;
+  --accent-on-contrast: #FFFFFF;
+  --accent-signal: #047857;
+  --accent-on-signal: #FFFFFF;
+  --glow-primary: none;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 20px rgba(15, 23, 42, 0.04);
 }

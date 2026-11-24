@@ -1,0 +1,18 @@
+---
+title: "Sample CI Fixture: Isolating PII in Enterprise Agentic AI"
+publishedAt: 2026-11-24
+tags: ["agentic-ai", "security", "architecture"]
+summary: "Isolated unit-test fixture verifying blog MDX frontmatter validation without publishing placeholder posts to dist/."
+published: true
+readingTime: "4 min read"
+---
+
+## Architecture Boundary
+
+```python
+from pydantic import BaseModel
+
+class SummaryResult(BaseModel):
+    grounded: bool
+    citation_pages: list[int]
+```

@@ -1,0 +1,43 @@
+---
+import type { ResumeData } from '@/data/resume.schema';
+
+interface Props {
+  certifications: ResumeData['certifications'];
+}
+
+const { certifications } = Astro.props;
+---
+
+<!-- All 6 certifications visible simultaneously in a scannable 2x3 / 3x2 grid (Ctrl+F friendly, zero circular carousel hiding) -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {certifications.map((cert) => (
+    <article class="bento-card flex flex-col justify-between gap-3 p-4">
+      <div>
+        <div class="flex items-center justify-between gap-2 text-xs">
+          <span class="font-mono uppercase tracking-wider text-baby">{cert.issuer}</span>
+          <span class="font-mono text-muted tabular-nums">{cert.issuedDate}</span>
+        </div>
+        <h3 class="mt-1.5 font-display text-base font-bold text-ink">
+          {cert.name}
+          {cert.credentialCode && (
+            <span class="ml-1.5 rounded border border-border-strong bg-elevated px-1.5 py-0.5 font-mono text-xs font-medium text-coral">
+              {cert.credentialCode}
+            </span>
+          )}
+        </h3>
+      </div>
+
+      {cert.verifyUrl && (
+        <a
+          href={cert.verifyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex min-h-[36px] items-center gap-1 text-xs font-semibold text-baby underline-offset-4 hover:underline"
+        >
+          Verify Credential
+          <span aria-hidden="true">&#8599;</span>
+        </a>
+      )}
+    </article>
+  ))}
+</div>

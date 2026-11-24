@@ -1,0 +1,109 @@
+/* WCAG 2.1 AA Calibrated Design Tokens — Techy Dark Baby Blue + Signal Coral */
+
+:root {
+  color-scheme: dark light;
+
+  /* Default dark polarity tokens */
+  --bg-canvas: #070B12;
+  --bg-surface: #0D1422;
+  --bg-elevated: #131E33;
+  --border-subtle: #1E3250;
+  --border-strong: #2B456B;
+
+  --text-primary: #F1F5F9;
+  --text-muted: #94A3B8;
+
+  --accent-primary: #38BDF8;
+  --accent-primary-soft: #7DD3FC;
+  --accent-on-primary: #070B12;
+
+  --accent-contrast: #FB7185;
+  --accent-on-contrast: #070B12;
+
+  --accent-signal: #34D399;
+  --accent-on-signal: #070B12;
+
+  --surface-tint: rgba(56, 189, 248, 0.08);
+  --contrast-tint: rgba(251, 113, 133, 0.12);
+  --signal-tint: rgba(52, 211, 153, 0.12);
+
+  --glow-primary: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 14px 36px rgba(2, 6, 15, 0.6);
+  --shadow-card: 0 8px 24px rgba(2, 6, 15, 0.42);
+  --ring-focus: #7DD3FC;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Shiki CSS-variables syntax highlighting (Dark) */
+  --astro-code-foreground: #E2E8F0;
+  --astro-code-background: #0A101C;
+  --astro-code-token-constant: #7DD3FC;
+  --astro-code-token-string: #34D399;
+  --astro-code-token-comment: #64748B;
+  --astro-code-token-keyword: #FB7185;
+  --astro-code-token-parameter: #F8FAFC;
+  --astro-code-token-function: #38BDF8;
+  --astro-code-token-string-expression: #34D399;
+  --astro-code-token-punctuation: #94A3B8;
+  --astro-code-token-link: #7DD3FC;
+
+  /* Global Z-Index Hierarchy */
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-side-cta: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]),
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light"]),
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  --text-primary: #0F172A;
+  --text-muted: #475569;
+
+  /* WCAG AA Verified >= 4.5:1 on #FFFFFF and #F8FAFC */
+  --accent-primary: #0369A1;
+  --accent-primary-soft: #0284C7;
+  --accent-on-primary: #FFFFFF;
+
+  --accent-contrast: #BE123C;
+  --accent-on-contrast: #FFFFFF;
+
+  --accent-signal: #047857;
+  --accent-on-signal: #FFFFFF;
+
+  --surface-tint: rgba(3, 105, 161, 0.08);
+  --contrast-tint: rgba(190, 18, 60, 0.08);
+  --signal-tint: rgba(4, 120, 87, 0.09);
+
+  /* Light mode rule: zero glow, crisp 1px borders + subtle shadows */
+  --glow-primary: none;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 20px rgba(15, 23, 42, 0.04);
+  --ring-focus: #0369A1;
+
+  /* Shiki CSS-variables syntax highlighting (Light) */
+  --astro-code-foreground: #0F172A;
+  --astro-code-background: #F1F5F9;
+  --astro-code-token-constant: #0369A1;
+  --astro-code-token-string: #047857;
+  --astro-code-token-comment: #64748B;
+  --astro-code-token-keyword: #BE123C;
+  --astro-code-token-parameter: #1E293B;
+  --astro-code-token-function: #0369A1;
+  --astro-code-token-string-expression: #047857;
+  --astro-code-token-punctuation: #475569;
+  --astro-code-token-link: #0369A1;
+}

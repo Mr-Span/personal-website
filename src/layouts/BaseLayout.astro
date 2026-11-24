@@ -1,0 +1,166 @@
+---
+import '@/styles/global.css';
+import '@/styles/print.css';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import ResumeSideButton from '@/components/ResumeSideButton.astro';
+import { SITE, absoluteUrl, withBase } from '@/data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  ogType?: 'website' | 'article';
+  includeMonoFont?: boolean;
+  hideResumeSideButton?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonicalPath = '/',
+  ogType = 'website',
+  includeMonoFont = false,
+  hideResumeSideButton = false,
+} = Astro.props;
+
+const canonicalUrl = absoluteUrl(canonicalPath);
+const ogImageUrl = absoluteUrl('/og/default.png');
+const fontHref = includeMonoFont
+  ? 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap'
+  : 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap';
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  jobTitle: SITE.role,
+  url: absoluteUrl('/'),
+  email: `mailto:${SITE.email}`,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Cluj-Napoca',
+    addressCountry: 'RO',
+  },
+  worksFor: [
+    { '@type': 'Organization', name: 'Betfair Romania Development' },
+    { '@type': 'Organization', name: 'QUADYX', url: SITE.quadyxUrl },
+  ],
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Technical University of Cluj-Napoca',
+  },
+  sameAs: [SITE.githubUrl, SITE.linkedinUrl, SITE.quadyxUrl],
+};
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE.name} />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#070B12" />
+    <meta name="build-sha" content={SITE.buildSha} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — Engineering Notes`} href={withBase('/rss.xml')} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontHref} rel="stylesheet" />
+
+    <!-- Synchronous pre-paint theme bootstrap (zero FOUC, safe in LinkedIn mobile WebView) -->
+    <script is:inline>
+      (() => {
+        let theme = 'dark';
+        try {
+          const saved = window.localStorage.getItem('claudiu-span-theme-v2');
+          if (saved === 'light' || saved === 'dark') {
+            theme = saved;
+          }
+        } catch {
+          // Storage blocked in strict WebViews; keep default dark polarity
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+        const cs = document.querySelector('meta[name="color-scheme"]');
+        if (cs) cs.setAttribute('content', theme);
+        const tc = document.querySelector('meta[name="theme-color"]');
+        if (tc) tc.setAttribute('content', theme === 'light' ? '#F8FAFC' : '#070B12');
+      })();
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+
+    {SITE.cfBeaconToken && (
+      <script
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: SITE.cfBeaconToken })}
+      ></script>
+    )}
+  </head>
+  <body class="bg-canvas text-ink antialiased selection:bg-baby/25 selection:text-ink">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <Header currentPath={canonicalPath} />
+
+    {!hideResumeSideButton && <ResumeSideButton />}
+
+    <main id="main-content" class="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!-- Theme toggle & cross-tab storage synchronization -->
+    <script is:inline>
+      (() => {
+        function applyTheme(next, persist) {
+          document.documentElement.setAttribute('data-theme', next);
+          const cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute('content', next);
+          const tc = document.querySelector('meta[name="theme-color"]');
+          if (tc) tc.setAttribute('content', next === 'light' ? '#F8FAFC' : '#070B12');
+          const btn = document.getElementById('theme-toggle');
+          if (btn) btn.setAttribute('aria-pressed', next === 'light' ? 'true' : 'false');
+          if (persist) {
+            try {
+              window.localStorage.setItem('claudiu-span-theme-v2', next);
+            } catch {
+              // Storage blocked; theme remains applied for active session
+            }
+          }
+        }
+
+        const btn = document.getElementById('theme-toggle');
+        if (btn) {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          btn.setAttribute('aria-pressed', current === 'light' ? 'true' : 'false');
+          btn.addEventListener('click', () => {
+            const now = document.documentElement.getAttribute('data-theme') || 'dark';
+            applyTheme(now === 'dark' ? 'light' : 'dark', true);
+          });
+        }
+
+        window.addEventListener('storage', (ev) => {
+          if (ev.key === 'claudiu-span-theme-v2' && (ev.newValue === 'light' || ev.newValue === 'dark')) {
+            applyTheme(ev.newValue, false);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

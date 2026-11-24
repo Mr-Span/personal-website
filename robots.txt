@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://mr-span.github.io/personal-website/sitemap.xml

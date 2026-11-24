@@ -1,0 +1,102 @@
+{
+  "projectSlug": "quadyx-autonomy",
+  "title": "QUADYX — Autonomous UAV Perception & Resilient Telemetry (Side Venture)",
+  "stages": ["Visual Input", "Spatial Perception", "Obstacle & Link Guard", "Flight & Ground Link"],
+  "nodes": [
+    {
+      "id": "monocular-cam",
+      "label": "Onboard Camera & IMU",
+      "stage": 0,
+      "lane": 0,
+      "kind": "source",
+      "stackTag": "ROS 2 Nodes",
+      "metricTag": "Real-Time",
+      "inspector": {
+        "role": "Streams synchronized camera frames and inertial telemetry into the onboard ROS 2 perception graph.",
+        "dataBoundary": "Onboard edge compute boundary; zero cloud dependency for flight perception.",
+        "tradeoff": "Monocular camera + IMU lowers payload weight and hardware cost compared to heavy solid-state LiDAR rigs.",
+        "failureBehavior": "Dropped frame sequences trigger staleness watchdogs in the obstacle module."
+      }
+    },
+    {
+      "id": "slam-depth",
+      "label": "ORB-SLAM3 + Depth Anything V2",
+      "stage": 1,
+      "lane": 0,
+      "kind": "agent",
+      "stackTag": "C++ / Python",
+      "metricTag": "3D Spatial",
+      "inspector": {
+        "role": "Fuses visual-inertial SLAM pose tracking with monocular depth estimation for real-time 3D scene understanding.",
+        "dataBoundary": "Local GPU/CPU inference pipeline with bounded frame latency.",
+        "tradeoff": "Hybrid C++/Python split keeps high-frequency tracking deterministic in C++ while allowing rapid model iteration in Python.",
+        "failureBehavior": "Tracking loss degrades gracefully to inertial hold while signaling the safety monitor."
+      }
+    },
+    {
+      "id": "pointcloud-cluster",
+      "label": "Point-Cloud Obstacle Clustering",
+      "stage": 2,
+      "lane": 0,
+      "kind": "process",
+      "stackTag": "OpenCV / C++",
+      "metricTag": "Low Latency",
+      "inspector": {
+        "role": "Converts fused depth maps into spatial point-cloud clusters to flag obstacles along the planned flight corridor.",
+        "dataBoundary": "Deterministic onboard ROS 2 topic contract.",
+        "tradeoff": "Geometric clustering stays explainable and fast on edge hardware compared to opaque end-to-end flight policies.",
+        "failureBehavior": "Unclassified dense clusters expand safety margins automatically."
+      }
+    },
+    {
+      "id": "link-watchdog",
+      "label": "GSM / IP Link Monitor & Failover",
+      "stage": 2,
+      "lane": 1,
+      "kind": "guardrail",
+      "stackTag": "Python Watchdog",
+      "metricTag": "Multi-Channel",
+      "inspector": {
+        "role": "Continuously scores GSM and IP link health (RSSI, packet loss, heartbeat RTT) and switches transport channels automatically.",
+        "dataBoundary": "Encrypted telemetry transport; sanitized operational metrics only.",
+        "tradeoff": "Dual-channel GSM/IP switching adds state-machine complexity but avoids single-link blind spots in field conditions.",
+        "failureBehavior": "If primary GSM link degrades or drops, traffic fails over to IP link; dual-loss triggers deterministic safe-hover/RTH behavior."
+      }
+    },
+    {
+      "id": "gcs-telemetry",
+      "label": "ROS 2 Flight & Ground Telemetry",
+      "stage": 3,
+      "lane": 0,
+      "kind": "human",
+      "stackTag": "ROS 2 / IP",
+      "metricTag": "Supervised",
+      "inspector": {
+        "role": "Delivers real-time health, perception alerts, and operator override controls to the ground control station.",
+        "dataBoundary": "Authenticated operator channel with explicit human override priority.",
+        "tradeoff": "ROS 2 standardized message contracts across perception, monitoring, and telemetry without custom binary framing.",
+        "failureBehavior": "Operator retains immediate takeover authority; degraded links switch to compact heartbeat telemetry."
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "monocular-cam", "to": "slam-depth", "label": "Frames + IMU", "mode": "both" },
+    { "id": "e2", "from": "slam-depth", "to": "pointcloud-cluster", "label": "Pose + depth map", "mode": "nominal" },
+    { "id": "e3", "from": "pointcloud-cluster", "to": "gcs-telemetry", "label": "Obstacle alerts", "mode": "nominal" },
+    { "id": "e4", "from": "slam-depth", "to": "link-watchdog", "label": "Health heartbeat", "mode": "guardrail" },
+    { "id": "e5", "from": "pointcloud-cluster", "to": "link-watchdog", "label": "Safety trigger", "mode": "guardrail" },
+    { "id": "e6", "from": "link-watchdog", "to": "gcs-telemetry", "label": "GSM->IP failover", "mode": "guardrail" }
+  ],
+  "scenarios": {
+    "nominal": {
+      "label": "Nominal Flight Perception",
+      "description": "Synchronized camera/IMU frames drive ORB-SLAM3 + Depth Anything V2, point-cloud obstacle detection, and live ROS 2 telemetry.",
+      "steps": ["monocular-cam", "slam-depth", "pointcloud-cluster", "gcs-telemetry"]
+    },
+    "guardrail": {
+      "label": "Guardrail / GSM Signal Loss",
+      "description": "When primary GSM link degrades or perception confidence drops, the Python link monitor switches to IP fallback and triggers safe-state telemetry.",
+      "steps": ["monocular-cam", "slam-depth", "link-watchdog", "gcs-telemetry"]
+    }
+  }
+}

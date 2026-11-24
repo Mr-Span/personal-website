@@ -1,0 +1,28 @@
+<!-- Progressive Copy-Code enhancer for build-time Shiki code blocks -->
+<script is:inline>
+  (() => {
+    const blocks = document.querySelectorAll('.prose-tech pre');
+    for (const pre of blocks) {
+      if (pre.querySelector('[data-copy-code]')) continue;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('data-copy-code', '');
+      btn.textContent = 'Copy';
+      btn.className =
+        'absolute right-2.5 top-2.5 rounded-md border border-border-strong bg-surface px-2.5 py-1 font-mono text-xs font-medium text-ink transition-colors hover:border-baby hover:text-baby';
+      btn.addEventListener('click', () => {
+        const code = pre.querySelector('code');
+        const text = code ? code.textContent || '' : pre.textContent || '';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            btn.textContent = 'Copied';
+            setTimeout(() => {
+              btn.textContent = 'Copy';
+            }, 1600);
+          });
+        }
+      });
+      pre.appendChild(btn);
+    }
+  })();
+</script>

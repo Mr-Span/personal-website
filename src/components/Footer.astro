@@ -1,0 +1,31 @@
+---
+import { SITE, withBase } from '@/data/site';
+---
+
+<footer class="mt-16 border-t border-border-subtle bg-surface/60">
+  <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <p class="m-0">
+      &copy; <span class="tabular-nums">2026</span> <span translate="no" class="font-medium text-ink">{SITE.name}</span> &middot; {SITE.location}
+    </p>
+    <ul class="flex flex-wrap items-center gap-4">
+      <li>
+        <a href={withBase('/resume/')} class="transition-colors hover:text-baby">Resume</a>
+      </li>
+      <li>
+        <a href={withBase('/Claudiu-Span-CV.pdf')} class="transition-colors hover:text-baby">ATS PDF</a>
+      </li>
+      <li>
+        <a href={withBase('/rss.xml')} class="transition-colors hover:text-baby">RSS</a>
+      </li>
+      <li>
+        <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-baby">GitHub</a>
+      </li>
+      <li>
+        <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-baby">LinkedIn</a>
+      </li>
+      <li>
+        <a href={SITE.quadyxUrl} target="_blank" rel="noopener noreferrer" translate="no" class="transition-colors hover:text-baby">QUADYX</a>
+      </li>
+    </ul>
+  </div>
+</footer>

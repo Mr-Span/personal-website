@@ -1,3 +1,17 @@
+# Dependencies & build outputs
+node_modules/
+dist/
+.astro/
+
+# QA & verification artifacts
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+
+# Raw unoptimized AI media exports (never commit to Git)
+raw-media/
+
 # OS & Editor artifacts
 .DS_Store
 Thumbs.db

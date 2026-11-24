@@ -1,48 +1,42 @@
-# Claudiu Șpan — Personal Website (CV & Portfolio)
+# Claudiu Șpan — Personal Website, CV & Applied AI Portfolio (v2.0)
 
-Live site: **https://mr-span.github.io/personal-website/**
+Static-first personal engineering portfolio, structured CV with build-time ATS PDF generation, interactive System Architecture Visualizers, and MDX technical blog architecture deployed on GitHub Pages.
 
-Personal CV and engineering portfolio showcasing production work in **Applied AI**, **Enterprise Automation & RPA**, and **Autonomous Robotics**.
+- **Design Specification:** [`docs/designs/personal-website-v2.md`](docs/designs/personal-website-v2.md)
+- **Rollback Tag (v1.0 Static):** `v1.0-static-backup`
 
-## Architecture & Highlights
+## Stack
+- **Static Framework:** Astro (`output: 'static'`, `trailingSlash: 'always'`) + TypeScript strict
+- **Styling:** Tailwind CSS v4 + WCAG AA semantic tokens (Dark Baby Blue default + Light toggle)
+- **Interactive Islands:** React + Motion (`LazyMotion`, hydrated strictly via `client:visible`)
+- **Content & Validation:** MDX + Zod Content Collections + Shiki (`css-variables`, 0 KB client JS)
+- **ATS PDF Pipeline:** Playwright headless Chromium rendering `/resume-print/` from `src/data/resume.json` -> `dist/Claudiu-Span-CV.pdf` (CI-verified `1–2` pages, `<= 300 KB`, text-layer parsed)
+- **Syndication:** Build-time `/rss.xml` + static Buttondown `SubscribeAdapter` (zero secrets, GDPR double opt-in)
 
-- **Zero-build static site** (semantic HTML5, modular CSS with design tokens, vanilla JS) — fast loading, easy to maintain, zero runtime dependencies.
-- **Design System**: Minimalism & Swiss Style tokens persisted in `design-system/personal-website/MASTER.md` and `tokens.css`.
-- **Light & Dark Mode**: Respects system preference (`prefers-color-scheme`) with persistent manual toggle and zero theme flash.
-- **Print-ready CV**: Dedicated `@media print` stylesheet for saving a clean CV directly as PDF.
-- **URL-synced project filtering**: Filter projects by domain (`?category=ai|automation|robotics`) with deep-linkable URLs.
-- **Accessibility**: Skip link, semantic landmarks, visible `:focus-visible` states, `aria-live` status updates, and `prefers-reduced-motion` support.
-- **Automated Deployment**: GitHub Actions deploys every push to `main` directly to GitHub Pages via `.github/workflows/deploy.yml`.
+## Local Development (Windows / Linux)
+Clone outside OneDrive (e.g. `C:\Dev\personal-website`) to avoid file-locking on `node_modules/`. Requires **Node.js 22 LTS** and **`pnpm`**.
 
-## Local Preview
-
-Any static HTTP server works (for example Python's built-in server):
-
-```powershell
-python -m http.server 8080
+```bash
+pnpm install --frozen-lockfile
+pnpm dev                 # Local dev server
+pnpm check               # Astro + TypeScript strict check
+pnpm test:unit           # Vitest unit tests (layout compiler, Zod schemas, subscribe adapter)
+pnpm build               # Static build to dist/
+pnpm pdf:build           # Generate dist/Claudiu-Span-CV.pdf and strip internal /resume-print/
+pnpm pdf:verify          # Verify 1-2 pages, <= 300 KB, ATS text extraction
+pnpm verify:content      # Verify zero local paths, NDA denylist, private repo invariants
+pnpm verify:budgets      # Verify .nojekyll, dist/ <= 30 MB, media & JS size caps
+pnpm test:e2e            # Playwright E2E + axe-core WCAG AA (1440px & 375px, Dark & Light)
+pnpm verify:all          # Run full verification gate locally
 ```
 
-Then open `http://localhost:8080`.
+## Deployment & Two-Stage Custom Domain Cutover
+Controlled via environment variables in `.github/workflows/deploy.yml`:
+- **Stage A (GitHub Pages subpath):** `SITE_URL=https://mr-span.github.io`, `BASE_PATH=/personal-website`
+- **Stage B (Custom domain root):** Attach custom domain strictly on `Mr-Span/personal-website` (leaving `Mr-Span.github.io` and `Mr-Span/claux-cv` untouched), enable *Enforce HTTPS*, then rebuild with `SITE_URL=https://<custom-domain>` and `BASE_PATH=""`.
 
-## Project Structure
-
-```text
-.
-├── index.html                           # Main CV & Portfolio page
-├── 404.html                             # Custom GitHub Pages 404 fallback
-├── robots.txt                           # Search crawler rules
-├── sitemap.xml                          # XML sitemap for GitHub Pages
-├── assets/
-│   ├── favicon.svg                      # Monogram favicon
-│   ├── css/styles.css                   # Responsive, themeable & print CSS
-│   └── js/main.js                       # Theme toggle, filters, copy-email, reveal
-├── design-system/
-│   └── personal-website/
-│       ├── MASTER.md                    # Design system source of truth
-│       ├── tokens.css                   # Generated CSS custom properties
-│       └── tokens.json                  # W3C DTCG design tokens
-├── .github/
-│   └── workflows/deploy.yml             # GitHub Pages CI/CD pipeline
-├── AGENTS.md                            # Local agent conventions & hybrid Obsidian pointers
-└── README.md
+## Rollback to v1.0
+```bash
+git checkout v1.0-static-backup
 ```
+Or revert the v2.0 merge commit on `main` to republish `v1.0` via GitHub Actions in under 2 minutes.

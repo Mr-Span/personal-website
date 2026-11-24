@@ -1,0 +1,24 @@
+---
+title: "ElectrocasNicu — Document RAG Agent"
+tier: "case-study"
+visibility: "public"
+category: ["ai"]
+featured: true
+order: 2
+outcomeBadge: "Verified Page Citations"
+summary: "Document RAG assistant for home-appliance manuals and warranties built with decoupled indexing/execution pipelines, ChromaDB local embeddings, Pydantic-validated tool schemas, explicit page citations, and automated tests."
+stack: ["Python", "ChromaDB", "Pydantic", "Streamlit", "RAG", "pytest"]
+repoUrl: "https://github.com/Mr-Span/SpanClaudiu_ElectrocasNicu"
+architectureFile: "electrocasnicu-rag.architecture.json"
+---
+
+## Problem
+
+Generic chatbots hallucinate troubleshooting steps and warranty coverage when answering questions about specific home appliances. For safety- and warranty-sensitive manuals, an ungrounded answer is worse than an explicit refusal.
+
+## Architecture & Key Decisions
+
+* **Decoupled indexing and query runtime:** Document chunking, page-number extraction, and local embedding indexing run independently from the Streamlit execution layer, keeping chat responses fast and reproducible.
+* **Strict Pydantic validation:** Tool inputs and response structures are validated through typed Pydantic schemas that verify every cited document name and page reference against the retrieved ChromaDB context.
+* **Explicit refusal guardrail:** When retrieval confidence drops below threshold or evidence is absent, the agent refuses cleanly rather than speculating.
+* **Automated test suite:** Core retrieval contracts, tool schemas, and citation assertions are backed by automated Python tests.

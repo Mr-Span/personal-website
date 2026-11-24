@@ -1,0 +1,102 @@
+{
+  "projectSlug": "electrocasnicu-rag",
+  "title": "ElectrocasNicu — Grounded Document RAG Agent",
+  "stages": ["Indexing Pipeline", "Vector Retrieval", "Tool & Schema Validation", "User Interface"],
+  "nodes": [
+    {
+      "id": "pdf-manuals",
+      "label": "Appliance Manuals & Warranties",
+      "stage": 0,
+      "lane": 0,
+      "kind": "source",
+      "stackTag": "PDF Corpus",
+      "metricTag": "Page-Indexed",
+      "inspector": {
+        "role": "Ingests manufacturer manuals and warranty PDFs in a decoupled offline indexing pipeline preserving exact file and page metadata.",
+        "dataBoundary": "Local document store; zero external upload required during indexing.",
+        "tradeoff": "Decoupling indexing from chat runtime eliminates cold-start latency and guarantees deterministic chunk boundaries.",
+        "failureBehavior": "Corrupt or unreadable pages are flagged during ingestion rather than silently dropping manual coverage."
+      }
+    },
+    {
+      "id": "chromadb-store",
+      "label": "ChromaDB + Local Embeddings",
+      "stage": 1,
+      "lane": 0,
+      "kind": "storage",
+      "stackTag": "ChromaDB",
+      "metricTag": "Local Vectors",
+      "inspector": {
+        "role": "Performs dense semantic retrieval returning top-k passages paired with mandatory document name and page number metadata.",
+        "dataBoundary": "Local persistent vector database; predictable zero-token embedding cost.",
+        "tradeoff": "Local embeddings trade slight peak recall on obscure phrasing for zero embedding API cost and offline reproducibility.",
+        "failureBehavior": "When similarity scores drop below threshold, retrieval returns an empty verified set to trigger explicit refusal."
+      }
+    },
+    {
+      "id": "rag-agent",
+      "label": "Citation-Grounded Agent",
+      "stage": 2,
+      "lane": 0,
+      "kind": "agent",
+      "stackTag": "Python / LLM",
+      "metricTag": "Tool Calling",
+      "inspector": {
+        "role": "Synthesizes troubleshooting and warranty guidance strictly from retrieved manual passages with inline source/page citations.",
+        "dataBoundary": "Context window restricted strictly to retrieved chunks + conversation state.",
+        "tradeoff": "Strict tool-call contract prevents free-form speculation on electrical safety or warranty eligibility.",
+        "failureBehavior": "Refuses unsupported answers explicitly instead of fabricating warranty clauses."
+      }
+    },
+    {
+      "id": "pydantic-gate",
+      "label": "Pydantic Citation Validator",
+      "stage": 2,
+      "lane": 1,
+      "kind": "guardrail",
+      "stackTag": "Pydantic v2",
+      "metricTag": "Typed Schema",
+      "inspector": {
+        "role": "Validates every tool payload and final answer structure to verify that cited file names and page numbers match retrieved context.",
+        "dataBoundary": "Pure deterministic Python validation layer backed by automated pytest checks.",
+        "tradeoff": "Adds strict schema maintenance overhead when adding tools, but catches citation drift before it reaches users.",
+        "failureBehavior": "Rejects ungrounded outputs and forces a safe 'not found in manual' response."
+      }
+    },
+    {
+      "id": "streamlit-ui",
+      "label": "Streamlit Assistant UI",
+      "stage": 3,
+      "lane": 0,
+      "kind": "human",
+      "stackTag": "Streamlit",
+      "metricTag": "Verified UI",
+      "inspector": {
+        "role": "Presents answers alongside expandable source/page evidence cards for fast human verification.",
+        "dataBoundary": "Stateless session rendering validated response objects.",
+        "tradeoff": "Streamlit minimized frontend boilerplate so engineering effort stayed focused on retrieval precision and automated tests.",
+        "failureBehavior": "Displays clear refusal guidance and suggests supported appliance models when coverage is absent."
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "pdf-manuals", "to": "chromadb-store", "label": "Chunk + page meta", "mode": "both" },
+    { "id": "e2", "from": "chromadb-store", "to": "rag-agent", "label": "Top-k passages", "mode": "nominal" },
+    { "id": "e3", "from": "chromadb-store", "to": "pydantic-gate", "label": "Low confidence / empty", "mode": "guardrail" },
+    { "id": "e4", "from": "rag-agent", "to": "pydantic-gate", "label": "Schema & citation check", "mode": "both" },
+    { "id": "e5", "from": "rag-agent", "to": "streamlit-ui", "label": "Cited answer", "mode": "nominal" },
+    { "id": "e6", "from": "pydantic-gate", "to": "streamlit-ui", "label": "Verified refusal", "mode": "guardrail" }
+  ],
+  "scenarios": {
+    "nominal": {
+      "label": "Nominal Flow",
+      "description": "Manual query retrieves page-indexed passages from ChromaDB, passes Pydantic citation verification, and renders verified answers.",
+      "steps": ["pdf-manuals", "chromadb-store", "rag-agent", "pydantic-gate", "streamlit-ui"]
+    },
+    "guardrail": {
+      "label": "Guardrail / No-Evidence Refusal",
+      "description": "When no passage meets retrieval confidence or a citation fails Pydantic validation, the system outputs an explicit refusal instead of hallucinating.",
+      "steps": ["chromadb-store", "pydantic-gate", "streamlit-ui"]
+    }
+  }
+}
