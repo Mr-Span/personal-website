@@ -39,6 +39,7 @@ export const EducationItemSchema = z.object({
       title: z.string().min(1),
       summary: z.string().min(1),
       includeInPdf: z.boolean(),
+      projectSlug: z.string().min(1).optional(),
     })
     .optional(),
   courses: z.array(CourseItemSchema).min(1),
@@ -70,6 +71,7 @@ export const ResumeSchema = z.object({
     name: z.string().min(1),
     headline: z.string().min(1),
     location: z.string().min(1),
+    pdfLocation: z.string().min(1).optional(),
     email: z.string().email(),
     links: z.object({
       github: z.string().url(),

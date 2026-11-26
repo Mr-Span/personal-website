@@ -1,10 +1,10 @@
 export const SITE = {
   name: 'Claudiu Șpan',
   shortName: 'CȘ',
-  role: 'Applied AI & Automation Engineer',
+  role: 'Applied AI, Automation & Robotics Engineer',
   tagline:
-    'Building production Agentic AI workflows, enterprise RPA pipelines, and autonomous robotics systems.',
-  location: 'Cluj-Napoca, Romania',
+    'Building production Agentic AI workflows, enterprise RPA pipelines, and autonomous cyber-physical robotics systems.',
+  location: 'EU · Romania (Cluj-Napoca) & Spain — Open to Relocation',
   email: 'clauxspan2002@gmail.com',
   githubUrl: 'https://github.com/Mr-Span',
   repoUrl: 'https://github.com/Mr-Span/personal-website',

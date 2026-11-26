@@ -12,25 +12,27 @@ const filters = [
   { id: 'all', label: 'All' },
   { id: 'ai', label: 'Applied AI' },
   { id: 'automation', label: 'Automation & RPA' },
-  { id: 'robotics', label: 'Robotics (Side Venture)' },
+  { id: 'robotics', label: 'Robotics & CPS' },
   { id: 'client-web', label: 'Client Websites' },
 ];
 ---
 
 <BaseLayout
   title={`Projects & Architectures — ${SITE.name}`}
-  description="Interactive system architecture case studies (Enterprise Agentic AI, Document RAG, UAV Autonomy) and public/client software engineering work by Claudiu Șpan."
+  description="Interactive system architecture case studies (Enterprise Agentic AI, Document RAG, UAV Autonomy) and completed robotics, AI, and client engineering projects by Claudiu Șpan."
   canonicalPath="/projects/"
-  includeMonoFont
 >
-  <header class="mb-8 flex flex-col gap-4 border-b border-border-subtle pb-6 md:flex-row md:items-end md:justify-between">
+  <header class="hw-panel mb-10 flex flex-col gap-5 p-6 sm:p-8 md:flex-row md:items-end md:justify-between">
     <div class="max-w-2xl">
-      <p class="font-mono text-xs uppercase tracking-wider text-baby">Portfolio &amp; Case Studies</p>
-      <h1 class="mt-1 font-display text-3xl font-bold text-ink sm:text-4xl">
-        Production Systems, Agentic AI &amp; Client Work
+      <p class="hw-eyebrow text-vermilion">
+        <span class="px-beacon" aria-hidden="true"></span>
+        <span>Portfolio &amp; Case Studies</span>
+      </p>
+      <h1 class="mt-2.5 font-display text-3xl font-bold tracking-[-0.03em] text-ink sm:text-4xl">
+        Production Systems, Robotics &amp; Client Work
       </h1>
-      <p class="mt-2 text-sm text-muted sm:text-base">
-        Tier 1 case studies include interactive SVG architecture diagrams with Nominal and Guardrail/Failure modes. Private client repositories never expose dead GitHub links.
+      <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary sm:text-base">
+        Flagship case studies include interactive SVG architecture diagrams with Nominal and Guardrail/Failure modes. Private repositories never expose dead GitHub links.
       </p>
     </div>
 
@@ -40,12 +42,7 @@ const filters = [
           type="button"
           data-filter={f.id}
           aria-pressed={f.id === 'all' ? 'true' : 'false'}
-          class:list={[
-            'min-h-[40px] rounded-lg border px-3.5 text-xs font-semibold transition-colors',
-            f.id === 'all'
-              ? 'border-baby bg-baby text-[var(--accent-on-primary)]'
-              : 'border-border-strong bg-surface text-muted hover:border-baby hover:text-ink',
-          ]}
+          class="filter-tab"
         >
           {f.label}
         </button>
@@ -56,29 +53,29 @@ const filters = [
   <p id="filter-status" class="sr-only" aria-live="polite"></p>
 
   <section aria-labelledby="tier1-heading" class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 id="tier1-heading" class="font-display text-xl font-bold text-ink">
+    <div class="flex flex-wrap items-baseline justify-between gap-2 pb-1">
+      <h2 id="tier1-heading" class="font-display text-xl font-bold tracking-[-0.025em] text-ink">
         Flagship Case Studies &amp; Interactive Architectures
       </h2>
       <span class="font-mono text-xs text-muted">{caseStudies.length} deep dives</span>
     </div>
 
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+    <div class="swiss-dim-list grid grid-cols-1 gap-4 md:grid-cols-3">
       {caseStudies.map((project) => (
         <ProjectCard project={project} />
       ))}
     </div>
   </section>
 
-  <section aria-labelledby="tier2-heading" class="mt-12 space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 id="tier2-heading" class="font-display text-xl font-bold text-ink">
-        Additional Tools &amp; Client Websites
+  <section aria-labelledby="tier2-heading" class="mt-14 space-y-4">
+    <div class="flex flex-wrap items-baseline justify-between gap-2 pb-1">
+      <h2 id="tier2-heading" class="font-display text-xl font-bold tracking-[-0.025em] text-ink">
+        Completed Hardware Prototypes, AI Tools &amp; Client Sites
       </h2>
       <span class="font-mono text-xs text-muted">{showcaseCards.length} projects</span>
     </div>
 
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2">
+    <div class="swiss-dim-list grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
       {showcaseCards.map((project) => (
         <ProjectCard project={project} compact />
       ))}
@@ -103,9 +100,6 @@ const filters = [
         for (const btn of buttons) {
           const active = btn.getAttribute('data-filter') === category;
           btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-          btn.className = active
-            ? 'min-h-[40px] rounded-lg border border-baby bg-baby px-3.5 text-xs font-semibold text-[var(--accent-on-primary)] transition-colors'
-            : 'min-h-[40px] rounded-lg border border-border-strong bg-surface px-3.5 text-xs font-semibold text-muted transition-colors hover:border-baby hover:text-ink';
         }
 
         if (status) {

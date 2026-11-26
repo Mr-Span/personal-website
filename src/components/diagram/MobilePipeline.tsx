@@ -21,8 +21,8 @@ export function MobilePipeline({
   const scenarioSteps = new Set(graph.scenarios[activeMode].steps);
 
   return (
-    <ol className="space-y-3 md:hidden" aria-label={`${graph.title} vertical architecture steps`}>
-      {graph.nodes.map((node, index) => {
+    <ol className="space-y-2.5 md:hidden" aria-label={`${graph.title} vertical architecture steps`}>
+      {graph.nodes.map((node) => {
         const isInScenario = scenarioSteps.has(node.id);
         const isSelected = selectedId === node.id;
         const isTraced = tracedStepId === node.id;
@@ -35,24 +35,24 @@ export function MobilePipeline({
               onClick={() => onSelect(node, true)}
               aria-pressed={isSelected}
               className={[
-                'flex w-full flex-col gap-1.5 rounded-xl border p-4 text-left transition-colors',
+                'flex w-full flex-col gap-1.5 rounded-[2px] border p-3.5 text-left transition-colors',
                 isTraced
-                  ? 'border-coral bg-elevated'
+                  ? 'border-vermilion bg-elevated'
                   : isSelected
-                    ? 'border-baby bg-elevated'
+                    ? 'border-tech bg-elevated'
                     : isInScenario
-                      ? 'border-border-strong bg-surface'
-                      : 'border-border-subtle bg-surface/50 opacity-60',
+                      ? 'border-interactive bg-canvas'
+                      : 'border-hairline bg-recessed/70 text-muted',
               ].join(' ')}
             >
-              <div className="flex items-center justify-between gap-2 text-xs">
-                <span className="font-mono text-baby">
-                  {String(index + 1).padStart(2, '0')} · {stageName}
-                </span>
-                <span className="font-mono text-muted">{node.stackTag}</span>
+              <div className="flex items-center justify-between gap-2 font-mono text-xs">
+                <span className="text-tech">{stageName}</span>
+                <span className="text-muted">{node.stackTag}</span>
               </div>
-              <span className="font-display text-base font-bold text-ink">{node.label}</span>
-              <span className="text-xs text-muted">Tap to inspect trade-offs &amp; failure behavior</span>
+              <span className="font-display text-base font-semibold text-ink">{node.label}</span>
+              <span className="text-xs text-muted">
+                Tap to inspect trade-offs &amp; failure behavior
+              </span>
             </button>
           </li>
         );

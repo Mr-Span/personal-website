@@ -12,7 +12,7 @@ const pdfCerts = resume.certifications.filter((c) => c.includeInPdf);
   <header>
     <h1>{resume.profile.name}</h1>
     <p class="header-meta">
-      <strong>{resume.profile.headline}</strong> &middot; {resume.profile.location} &middot;{' '}
+      <strong>{resume.profile.headline}</strong> &middot; {resume.profile.pdfLocation ?? resume.profile.location} &middot;{' '}
       <a href={`mailto:${resume.profile.email}`}>{resume.profile.email}</a> &middot;{' '}
       <a href={resume.profile.links.linkedin}>linkedin.com/in/claudiuspan</a> &middot;{' '}
       <a href={resume.profile.links.github}>github.com/Mr-Span</a>

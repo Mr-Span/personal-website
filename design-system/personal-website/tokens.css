@@ -1,48 +1,281 @@
-:root,
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg-canvas: #070B12;
-  --bg-surface: #0D1422;
-  --bg-elevated: #131E33;
-  --border-subtle: #1E3250;
-  --border-strong: #2B456B;
-  --text-primary: #F1F5F9;
-  --text-muted: #94A3B8;
-  --accent-primary: #38BDF8;
-  --accent-primary-soft: #7DD3FC;
-  --accent-on-primary: #070B12;
-  --accent-contrast: #FB7185;
-  --accent-on-contrast: #070B12;
-  --accent-signal: #34D399;
-  --accent-on-signal: #070B12;
-  --glow-primary: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 12px 32px rgba(7, 11, 18, 0.55);
-  --shadow-card: 0 8px 24px rgba(2, 6, 15, 0.45);
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+/* Personal Website v3.0 — Apple Hardware × Warm Cleanroom Industrial 3D/2.5D Design Tokens
+   Canonical specification synced with src/styles/tokens.css
+   Calibrated to strict WCAG 2.1 AA (>= 4.5:1 text / >= 3:1 UI) in Light & Dark themes */
+
+:root {
+  color-scheme: light dark;
+
+  /* Light — Warm Ceramic Industrial Cleanroom */
+  --bg-canvas: #EFECE7;
+  --bg-surface: #F8F6F2;
+  --bg-elevated: #FCFBF9;
+  --bg-recessed: #E6E2DB;
+  --surface-glass: rgba(248, 246, 242, 0.91);
+
+  --border-hairline: #D8D4CC;
+  --border-strong: #C5C0B6;
+  --border-interactive: #948F84;
+
+  --ink-primary: #17181B;
+  --ink-secondary: #3E424A;
+  --ink-muted: #52565E;
+
+  --accent-vermilion: #B33D0E;
+  --accent-vermilion-hover: #96310B;
+  --accent-tech: #025F92;
+  --accent-tech-3d: #38BDF8;
+  --accent-signal: #0F6E4A;
+  --on-accent: #FAF8F5;
+
+  --vermilion-tint: rgba(179, 61, 14, 0.11);
+  --vermilion-ring: rgba(179, 61, 14, 0.28);
+  --tech-tint: rgba(2, 95, 146, 0.10);
+  --signal-tint: rgba(15, 110, 74, 0.10);
+
+  --grid-dot: rgba(23, 24, 27, 0.075);
+  --ring-focus: var(--accent-tech);
+  --backdrop-scrim: rgba(23, 24, 27, 0.24);
+  --hero-veil: rgba(239, 236, 231, 0.84);
+  --rail-2d-bg: #D5D0C8;
+
+  /* Tactile Hardware Lighting & Shadows */
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.80);
+  --shadow-bevel: 0 1px 2px rgba(23, 24, 27, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  --shadow-card: 0 10px 26px -12px rgba(23, 24, 27, 0.13), 0 1px 3px rgba(23, 24, 27, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.84);
+  --shadow-visor: 0 32px 72px -18px rgba(23, 24, 27, 0.24), 0 8px 24px -8px rgba(23, 24, 27, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  --clamp-bg: #E2DED6;
+  --clamp-border: #ABA69C;
+
+  /* 2.5D Industrial Cartridge / Cube Block Tokens */
+  --block-border: #B2ABA0;
+  --block-edge: #D4CEC4;
+  --block-edge-mid: #C1BAAE;
+  --block-edge-dark: #9D9688;
+  --block-edge-deep: #7F786B;
+  --block-top-sheen: rgba(255, 255, 255, 0.96);
+  --block-frame: rgba(255, 255, 255, 0.48);
+  --block-rib: rgba(23, 24, 27, 0.032);
+  --block-rivet: rgba(23, 24, 27, 0.22);
+  --block-inner-bot: rgba(23, 24, 27, 0.12);
+  --block-shadow-rest: rgba(23, 24, 27, 0.26);
+  --block-shadow-hover: rgba(23, 24, 27, 0.36);
+  --pickup-bg: #1E2129;
+  --pickup-border: #101217;
+  --pickup-bar: #CC4B14;
+  --pickup-rim: rgba(255, 255, 255, 0.22);
+
+  /* Unified Apple × Industrial Frosted Header Capsules */
+  --nav-capsule-bg: linear-gradient(180deg, rgba(254, 253, 251, 0.95) 0%, rgba(242, 238, 231, 0.93) 100%);
+  --nav-capsule-border: rgba(185, 179, 168, 0.88);
+  --nav-capsule-shadow: 0 2px 8px -2px rgba(23, 24, 27, 0.09), 0 1px 1.5px rgba(23, 24, 27, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.94), inset 0 -1px 0 rgba(23, 24, 27, 0.05);
+  --nav-seg-active: linear-gradient(180deg, #FFFFFF 0%, #F5F2EC 100%);
+  --nav-seg-shadow: 0 1px 3px rgba(23, 24, 27, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --nav-divider: rgba(23, 24, 27, 0.11);
+  --nav-emblem-bg: linear-gradient(160deg, #252932 0%, #14171D 100%);
+
+  /* Anodized Burnt-Orange CTA Pill (WCAG AA #FAF8F5 text in both Light & Dark) */
+  --cta-bg: linear-gradient(180deg, #CC4B14 0%, #B33D0E 55%, #96310B 100%);
+  --cta-border: rgba(118, 37, 8, 0.65);
+  --cta-shadow: 0 2px 10px -2px rgba(179, 61, 14, 0.38), 0 1px 2px rgba(23, 24, 27, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+
+  /* Hardware Accent Token (pixel drone + LED) */
+  --hw-actuator: #CC4B14;
+
+  /* Non-cyclic font family definitions */
+  --family-display: 'Instrument Sans Variable', 'IBM Plex Sans Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --family-body: 'IBM Plex Sans Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --family-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Calibrated Shiki CSS-variables syntax highlighting (Light >= 4.8:1 on #E6E2DB) */
+  --astro-code-foreground: #17181B;
+  --astro-code-background: #E6E2DB;
+  --astro-code-token-constant: #6B3FA0;
+  --astro-code-token-string: #0F6E4A;
+  --astro-code-token-comment: #52565E;
+  --astro-code-token-keyword: #B33D0E;
+  --astro-code-token-parameter: #17181B;
+  --astro-code-token-function: #025F92;
+  --astro-code-token-string-expression: #0F6E4A;
+  --astro-code-token-punctuation: #3E424A;
+  --astro-code-token-link: #025F92;
+
+  /* Z-index layers */
   --z-base: 0;
-  --z-sticky: 20;
-  --z-side-cta: 30;
-  --z-drawer: 40;
-  --z-modal: 50;
+  --z-stations: 6;
+  --z-hoist: 11;
+  --z-arm: 12;
+  --z-drone: 14;
+  --z-hero-copy: 18;
+  --z-rail-controls: 24;
+  --z-sticky: 40;
+  --z-drawer: 45;
+  --z-modal: 55;
 }
 
-[data-theme="light"] {
+/* OS Dark Default when user has not explicitly pinned Light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-canvas: #111317;
+    --bg-surface: #191C22;
+    --bg-elevated: #20242C;
+    --bg-recessed: #13161B;
+    --surface-glass: rgba(25, 28, 34, 0.92);
+
+    --border-hairline: #2B303B;
+    --border-strong: #3A4150;
+    --border-interactive: #586174;
+
+    --ink-primary: #F2EFE9;
+    --ink-secondary: #C5C9D2;
+    --ink-muted: #989FA9;
+
+    --accent-vermilion: #F5783E;
+    --accent-vermilion-hover: #FF8D57;
+    --accent-tech: #38BDF8;
+    --accent-tech-3d: #38BDF8;
+    --accent-signal: #4ADE80;
+    --on-accent: #111317;
+
+    --vermilion-tint: rgba(245, 120, 62, 0.15);
+    --vermilion-ring: rgba(245, 120, 62, 0.34);
+    --tech-tint: rgba(56, 189, 248, 0.13);
+    --signal-tint: rgba(74, 222, 128, 0.12);
+
+    --grid-dot: rgba(242, 239, 233, 0.065);
+    --backdrop-scrim: rgba(6, 8, 12, 0.58);
+    --hero-veil: rgba(17, 19, 23, 0.80);
+    --rail-2d-bg: #262B35;
+
+    --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --shadow-bevel: 0 1px 2px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --shadow-card: 0 12px 28px -10px rgba(0, 0, 0, 0.58), 0 1px 3px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --shadow-visor: 0 36px 84px -18px rgba(0, 0, 0, 0.80), 0 8px 26px -8px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    --clamp-bg: #252933;
+    --clamp-border: #485060;
+
+    --block-border: #454E62;
+    --block-edge: #151922;
+    --block-edge-mid: #0E1118;
+    --block-edge-dark: #07090D;
+    --block-edge-deep: #020305;
+    --block-top-sheen: rgba(255, 255, 255, 0.14);
+    --block-frame: rgba(255, 255, 255, 0.06);
+    --block-rib: rgba(255, 255, 255, 0.025);
+    --block-rivet: rgba(255, 255, 255, 0.22);
+    --block-inner-bot: rgba(0, 0, 0, 0.44);
+    --block-shadow-rest: rgba(0, 0, 0, 0.74);
+    --block-shadow-hover: rgba(0, 0, 0, 0.88);
+    --pickup-bg: #373E4E;
+    --pickup-border: #555F75;
+    --pickup-bar: #F97316;
+    --pickup-rim: rgba(255, 255, 255, 0.26);
+
+    --nav-capsule-bg: linear-gradient(180deg, rgba(35, 40, 49, 0.94) 0%, rgba(24, 28, 35, 0.96) 100%);
+    --nav-capsule-border: rgba(68, 76, 92, 0.88);
+    --nav-capsule-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.56), 0 1px 2px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+    --nav-seg-active: linear-gradient(180deg, #2C323F 0%, #222731 100%);
+    --nav-seg-shadow: 0 1px 4px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    --nav-divider: rgba(242, 239, 233, 0.12);
+    --nav-emblem-bg: linear-gradient(160deg, #323947 0%, #1B1F28 100%);
+
+    --hw-actuator: #F97316;
+
+    --astro-code-foreground: #F2EFE9;
+    --astro-code-background: #191C22;
+    --astro-code-token-constant: #C69DF0;
+    --astro-code-token-string: #58C496;
+    --astro-code-token-comment: #989FA9;
+    --astro-code-token-keyword: #F5783E;
+    --astro-code-token-parameter: #F2EFE9;
+    --astro-code-token-function: #38BDF8;
+    --astro-code-token-string-expression: #58C496;
+    --astro-code-token-punctuation: #C5C9D2;
+    --astro-code-token-link: #38BDF8;
+  }
+}
+
+/* Explicit Manual Dark Override */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-canvas: #111317;
+  --bg-surface: #191C22;
+  --bg-elevated: #20242C;
+  --bg-recessed: #13161B;
+  --surface-glass: rgba(25, 28, 34, 0.92);
+
+  --border-hairline: #2B303B;
+  --border-strong: #3A4150;
+  --border-interactive: #586174;
+
+  --ink-primary: #F2EFE9;
+  --ink-secondary: #C5C9D2;
+  --ink-muted: #989FA9;
+
+  --accent-vermilion: #F5783E;
+  --accent-vermilion-hover: #FF8D57;
+  --accent-tech: #38BDF8;
+  --accent-tech-3d: #38BDF8;
+  --accent-signal: #4ADE80;
+  --on-accent: #111317;
+
+  --vermilion-tint: rgba(245, 120, 62, 0.15);
+  --vermilion-ring: rgba(245, 120, 62, 0.34);
+  --tech-tint: rgba(56, 189, 248, 0.13);
+  --signal-tint: rgba(74, 222, 128, 0.12);
+
+  --grid-dot: rgba(242, 239, 233, 0.065);
+  --backdrop-scrim: rgba(6, 8, 12, 0.58);
+  --hero-veil: rgba(17, 19, 23, 0.80);
+  --rail-2d-bg: #262B35;
+
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-bevel: 0 1px 2px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --shadow-card: 0 12px 28px -10px rgba(0, 0, 0, 0.58), 0 1px 3px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-visor: 0 36px 84px -18px rgba(0, 0, 0, 0.80), 0 8px 26px -8px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --clamp-bg: #252933;
+  --clamp-border: #485060;
+
+  --block-border: #454E62;
+  --block-edge: #151922;
+  --block-edge-mid: #0E1118;
+  --block-edge-dark: #07090D;
+  --block-edge-deep: #020305;
+  --block-top-sheen: rgba(255, 255, 255, 0.14);
+  --block-frame: rgba(255, 255, 255, 0.06);
+  --block-rib: rgba(255, 255, 255, 0.025);
+  --block-rivet: rgba(255, 255, 255, 0.22);
+  --block-inner-bot: rgba(0, 0, 0, 0.44);
+  --block-shadow-rest: rgba(0, 0, 0, 0.74);
+  --block-shadow-hover: rgba(0, 0, 0, 0.88);
+  --pickup-bg: #373E4E;
+  --pickup-border: #555F75;
+  --pickup-bar: #F97316;
+  --pickup-rim: rgba(255, 255, 255, 0.26);
+
+  --nav-capsule-bg: linear-gradient(180deg, rgba(35, 40, 49, 0.94) 0%, rgba(24, 28, 35, 0.96) 100%);
+  --nav-capsule-border: rgba(68, 76, 92, 0.88);
+  --nav-capsule-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.56), 0 1px 2px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  --nav-seg-active: linear-gradient(180deg, #2C323F 0%, #222731 100%);
+  --nav-seg-shadow: 0 1px 4px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --nav-divider: rgba(242, 239, 233, 0.12);
+  --nav-emblem-bg: linear-gradient(160deg, #323947 0%, #1B1F28 100%);
+
+  --hw-actuator: #F97316;
+
+  --astro-code-foreground: #F2EFE9;
+  --astro-code-background: #191C22;
+  --astro-code-token-constant: #C69DF0;
+  --astro-code-token-string: #58C496;
+  --astro-code-token-comment: #989FA9;
+  --astro-code-token-keyword: #F5783E;
+  --astro-code-token-parameter: #F2EFE9;
+  --astro-code-token-function: #38BDF8;
+  --astro-code-token-string-expression: #58C496;
+  --astro-code-token-punctuation: #C5C9D2;
+  --astro-code-token-link: #38BDF8;
+}
+
+/* Explicit Manual Light Override (beats OS dark media query) */
+:root[data-theme="light"] {
   color-scheme: light;
-  --bg-canvas: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F1F5F9;
-  --border-subtle: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --text-primary: #0F172A;
-  --text-muted: #475569;
-  --accent-primary: #0369A1;
-  --accent-primary-soft: #0284C7;
-  --accent-on-primary: #FFFFFF;
-  --accent-contrast: #BE123C;
-  --accent-on-contrast: #FFFFFF;
-  --accent-signal: #047857;
-  --accent-on-signal: #FFFFFF;
-  --glow-primary: none;
-  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 20px rgba(15, 23, 42, 0.04);
 }

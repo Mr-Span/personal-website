@@ -1,30 +1,51 @@
 ---
 import { SITE, withBase } from '@/data/site';
+import { getResumeData } from '@/lib/resume-loader';
+
+const resume = getResumeData();
 ---
 
-<footer class="mt-16 border-t border-border-subtle bg-surface/60">
-  <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:px-6 lg:px-8">
-    <p class="m-0">
-      &copy; <span class="tabular-nums">2026</span> <span translate="no" class="font-medium text-ink">{SITE.name}</span> &middot; {SITE.location}
+<footer class="relative z-[1] mt-20 border-t border-hairline bg-[var(--surface-glass)] shadow-[var(--inner-highlight)] backdrop-blur-md">
+  <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-8 text-xs text-muted sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <p class="m-0 inline-flex flex-wrap items-center gap-2 font-mono">
+      <span class="px-beacon" aria-hidden="true"></span>
+      <span>
+        &copy; <span class="tabular-nums">2026</span>{' '}
+        <span translate="no" class="font-medium text-ink">{resume.profile.name}</span>{' '}
+        <span class="px-sep mx-0.5 align-middle" aria-hidden="true"></span>{' '}
+        {resume.profile.location}
+      </span>
     </p>
-    <ul class="flex flex-wrap items-center gap-4">
+    <ul class="flex flex-wrap items-center gap-x-2 gap-y-1.5 font-mono">
       <li>
-        <a href={withBase('/resume/')} class="transition-colors hover:text-baby">Resume</a>
+        <a href={withBase('/resume/')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">Resume</a>
       </li>
       <li>
-        <a href={withBase('/Claudiu-Span-CV.pdf')} class="transition-colors hover:text-baby">ATS PDF</a>
+        <a href={withBase('/Claudiu-Span-CV.pdf')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">ATS PDF</a>
       </li>
       <li>
-        <a href={withBase('/rss.xml')} class="transition-colors hover:text-baby">RSS</a>
+        <a href={withBase('/llms.txt')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">/llms.txt</a>
       </li>
       <li>
-        <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-baby">GitHub</a>
+        <a href={withBase('/index.md')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">/index.md</a>
       </li>
       <li>
-        <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-baby">LinkedIn</a>
+        <a href={withBase('/rss.xml')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">RSS</a>
       </li>
       <li>
-        <a href={SITE.quadyxUrl} target="_blank" rel="noopener noreferrer" translate="no" class="transition-colors hover:text-baby">QUADYX</a>
+        <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          GitHub &#8599;
+        </a>
+      </li>
+      <li>
+        <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          LinkedIn &#8599;
+        </a>
+      </li>
+      <li>
+        <a href={SITE.quadyxUrl} target="_blank" rel="noopener noreferrer" translate="no" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          QUADYX &#8599;
+        </a>
       </li>
     </ul>
   </div>

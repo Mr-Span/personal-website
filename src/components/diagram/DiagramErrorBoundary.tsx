@@ -29,14 +29,18 @@ export class DiagramErrorBoundary extends React.Component<Props, State> {
     }
 
     return (
-      <section className="bento-card p-5" aria-label={this.props.graph.title}>
-        <p className="font-mono text-xs uppercase tracking-wider text-baby">Architecture Summary</p>
-        <h3 className="mt-1 font-display text-lg font-bold text-ink">{this.props.graph.title}</h3>
-        <ul className="mt-4 space-y-3">
+      <section className="border border-hairline bg-recessed/70 p-5" aria-label={this.props.graph.title}>
+        <p className="font-mono text-xs uppercase tracking-wider text-vermilion">
+          Architecture Summary
+        </p>
+        <h3 className="mt-1 font-display text-lg font-semibold text-ink">
+          {this.props.graph.title}
+        </h3>
+        <ul className="mt-4 divide-y divide-hairline border-t border-hairline">
           {this.props.graph.nodes.map((node) => (
-            <li key={node.id} className="rounded-lg border border-border-subtle bg-elevated p-3 text-sm">
+            <li key={node.id} className="py-2.5 text-sm">
               <strong className="text-ink">{node.label}</strong> ({node.stackTag}):{' '}
-              <span className="text-muted">{node.inspector.role}</span>
+              <span className="text-ink-secondary">{node.inspector.role}</span>
             </li>
           ))}
         </ul>

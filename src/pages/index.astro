@@ -1,16 +1,20 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import HeroMedia from '@/components/HeroMedia.astro';
-import ProjectCard from '@/components/ProjectCard.astro';
+import KinematicHero from '@/components/KinematicHero.astro';
+import ModuleVisorDialog from '@/components/ModuleVisorDialog.astro';
+import PersonalBadgeDialog from '@/components/PersonalBadgeDialog.astro';
+import CertificationCarousel from '@/components/CertificationCarousel.astro';
+import { buildShowcaseModules } from '@/data/showcase-modules';
 import { SITE, withBase } from '@/data/site';
 import { getResumeData } from '@/lib/resume-loader';
 
 const resume = getResumeData();
 const allProjects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const featuredProjects = allProjects.filter((p) => p.data.featured).slice(0, 3);
+const showcaseModules = buildShowcaseModules(resume, allProjects);
+const caseStudies = allProjects.filter((p) => p.data.tier === 'case-study');
+const additionalProjects = allProjects.filter((p) => p.data.tier === 'showcase-card');
 
-// Zero-post automatic gate: hide Latest Blog Post Bento tile while 0 published articles exist
 const publishedPosts = (await getCollection('blog'))
   .filter((post) => post.data.published)
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
@@ -18,234 +22,351 @@ const latestPost = publishedPosts[0] ?? null;
 ---
 
 <BaseLayout
-  title={`${SITE.name} — ${SITE.role}`}
+  title={`${resume.profile.name} — ${resume.profile.headline}`}
   description={resume.profile.summary}
   canonicalPath="/"
+  fullBleedHero
 >
-  <!-- Hero Section (Clean, Zero Clutter, Single Visual Signature) -->
-  <section aria-labelledby="hero-heading" class="grid grid-cols-1 items-start gap-8 pb-12 pt-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] lg:gap-10">
-    <div class="flex flex-col gap-5">
-      <p class="font-mono text-xs font-medium uppercase tracking-widest text-baby">
-        Applied AI &amp; Automation Systems · Cluj-Napoca
-      </p>
+  <!-- Hero Kinematic Stage + Overhead Cobot + Pixel-Art Intro -> Autonomous Drone -->
+  <KinematicHero resume={resume} modules={showcaseModules} />
+  <ModuleVisorDialog modules={showcaseModules} />
+  <PersonalBadgeDialog />
 
-      <h1 id="hero-heading" translate="no" class="font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-        {SITE.name}
-      </h1>
-
-      <p class="font-display text-xl font-medium text-muted sm:text-2xl">
-        {SITE.role} · Co-Founder at{' '}
-        <a
-          href={SITE.quadyxUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          translate="no"
-          class="text-ink underline decoration-baby/60 underline-offset-4 transition-colors hover:text-baby"
-        >
-          QUADYX
-        </a>{' '}
-        <span class="text-base font-normal text-muted">(Side Venture)</span>
-      </p>
-
-      <p class="max-w-2xl text-base leading-relaxed text-muted">
-        {resume.profile.summary}
-      </p>
-
-      <div class="flex flex-wrap items-center gap-3 pt-1">
-        <a
-          href={withBase('/projects/')}
-          class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-coral px-5 text-sm font-semibold text-[var(--accent-on-contrast)] transition-opacity hover:opacity-90"
-        >
-          Explore Selected Work
-          <span aria-hidden="true">&rarr;</span>
-        </a>
-
-        <a
-          href={withBase('/resume/')}
-          class="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-border-strong bg-surface px-5 text-sm font-semibold text-ink transition-colors hover:border-baby hover:text-baby"
-        >
-          Open Classic Resume
-        </a>
-
-        <a
-          href={withBase('/Claudiu-Span-CV.pdf')}
-          class="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-border-subtle bg-elevated px-4 text-sm font-semibold text-ink transition-colors hover:border-baby hover:text-baby"
-        >
-          Download ATS PDF
-        </a>
-      </div>
-    </div>
-
-    <HeroMedia />
-  </section>
-
-  <!-- Modular Bento Grid -->
-  <section aria-labelledby="bento-overview-heading" class="space-y-8">
-    <h2 id="bento-overview-heading" class="sr-only">Profile Overview and Selected Highlights</h2>
-
-    <div class="grid grid-cols-1 gap-5 md:grid-cols-12">
-      <!-- About / Engineering Principles -->
-      <article class="bento-card flex flex-col justify-between gap-4 p-6 md:col-span-7">
+  <!-- De-Duplicated Below-the-Fold Machined Hardware Editorial Ledger (SSR HTML, Zero Card Soup) -->
+  <div class="mx-auto w-full max-w-7xl space-y-16 px-4 pb-16 pt-14 sm:px-6 lg:px-8">
+    <!-- Selected Flagship Architectures + Completed Showcase Projects -->
+    <section id="home-systems" aria-labelledby="systems-heading">
+      <div class="flex flex-wrap items-end justify-between gap-4 pb-4">
         <div>
-          <p class="font-mono text-xs uppercase tracking-wider text-baby">01 / Engineering Approach</p>
-          <h3 class="mt-1.5 font-display text-2xl font-bold text-ink">
-            Curious explorer with production engineering fundamentals
-          </h3>
-          <p class="mt-3 text-sm leading-relaxed text-muted">
-            My primary work focuses on turning brittle operational processes into governed, production-grade Agentic AI and RPA pipelines — combining deterministic orchestration, strict enterprise PII boundaries, and human-in-the-loop review. Outside enterprise automation, I build autonomous UAV perception and telemetry stacks at QUADYX as a hands-on robotics side venture while finishing my MSc in Cyber-Physical Systems at UTCN.
+          <p class="hw-eyebrow">
+            <span class="px-beacon" aria-hidden="true"></span>
+            <span>System Architectures</span>
+          </p>
+          <h2 id="systems-heading" class="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-ink sm:text-[1.7rem]">
+            Selected Systems &amp; Interactive Architectures
+          </h2>
+          <p class="mt-1 text-sm text-ink-secondary">
+            Production Agentic AI, grounded RAG, UAV autonomy, and completed robotics hardware.
           </p>
         </div>
+        <a
+          href={withBase('/projects/')}
+          class="cta-secondary-bevel btn-press font-mono text-xs"
+        >
+          All {allProjects.length} Projects &rarr;
+        </a>
+      </div>
 
-        <div class="flex flex-wrap items-center gap-4 border-t border-border-subtle pt-4 text-sm">
-          <a href={withBase('/resume/#education')} class="font-medium text-baby underline-offset-4 hover:underline">
-            UTCN MSc &amp; BSc Credentials &rarr;
-          </a>
-          <a href={withBase('/resume/#certifications')} class="font-medium text-ink underline-offset-4 hover:text-baby hover:underline">
-            View All 6 Certifications &rarr;
+      <!-- 3 Flagship Case Studies (Interactive SVG Architecture Visualizers) -->
+      <div class="hw-panel swiss-dim-list overflow-hidden divide-y divide-hairline">
+        {caseStudies.map((project) => {
+          const slug = project.id.replace(/\.mdx$/, '');
+          return (
+            <article class="swiss-dim-item group grid grid-cols-1 gap-3.5 px-5 py-5 transition-colors hover:bg-elevated/80 sm:px-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)_auto] md:items-center md:gap-6">
+              <div class="font-mono text-xs text-muted">
+                <span class="block font-semibold text-vermilion tabular-nums">{project.data.outcomeBadge}</span>
+                <span class="mt-1 block text-[11px] uppercase tracking-[0.06em]">
+                  {project.data.isSideVenture ? 'Side Venture · Architecture' : 'Interactive Case Study'}
+                </span>
+              </div>
+
+              <div class="min-w-0">
+                <h3 class="dim-title font-display text-lg font-bold tracking-[-0.025em] text-ink">
+                  <a
+                    href={withBase(`/projects/${slug}/`)}
+                    class="underline-offset-4 transition-colors hover:text-tech hover:underline"
+                  >
+                    {project.data.title}
+                  </a>
+                </h3>
+                <p class="mt-1.5 text-sm leading-relaxed text-ink-secondary">
+                  {project.data.summary}
+                </p>
+                <p class="mt-2 font-mono text-xs text-muted">
+                  {project.data.stack.join(' · ')}
+                </p>
+              </div>
+
+              <div class="flex shrink-0 items-center md:justify-end">
+                <a
+                  href={withBase(`/projects/${slug}/`)}
+                  class="cta-secondary-bevel btn-press font-mono text-xs"
+                >
+                  <span>Inspect Diagram</span>
+                  <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <!-- Additional Completed Robotics, AI & Client Showcase Projects (Including Agri-Rover) -->
+      <div class="mt-9">
+        <h3 class="hw-eyebrow">
+          <span class="px-beacon px-beacon-tech" aria-hidden="true"></span>
+          <span>Completed Hardware, AI Tools &amp; Client Work ({additionalProjects.length})</span>
+        </h3>
+        <div class="swiss-dim-list mt-3.5 grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+          {additionalProjects.map((project) => {
+            const slug = project.id.replace(/\.mdx$/, '');
+            return (
+              <article
+                id={`home-proj-${slug}`}
+                class="swiss-dim-item hw-cell group flex flex-col justify-between gap-3.5 p-5 hover:-translate-y-0.5"
+              >
+                <div>
+                  <div class="flex flex-wrap items-baseline justify-between gap-2 font-mono text-[11px]">
+                    <span class="font-semibold text-vermilion tabular-nums">{project.data.outcomeBadge}</span>
+                    <span class="uppercase tracking-[0.06em] text-muted">
+                      {project.data.visibility === 'public' && !project.data.repoUrl
+                        ? 'Hardware Prototype'
+                        : project.data.visibility === 'public'
+                          ? 'Public'
+                          : 'Private'}
+                    </span>
+                  </div>
+                  <h4 class="dim-title mt-2 font-display text-base font-bold tracking-[-0.02em] text-ink">
+                    {project.data.title}
+                  </h4>
+                  <p class="mt-1.5 text-sm leading-relaxed text-ink-secondary">
+                    {project.data.summary}
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-hairline pt-3 font-mono text-xs">
+                  <span class="min-w-0 truncate text-muted">{project.data.stack.slice(0, 4).join(' · ')}</span>
+                  <div class="flex shrink-0 items-center gap-3">
+                    {project.data.liveUrl && (
+                      <a
+                        href={project.data.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-semibold text-tech underline-offset-4 hover:underline"
+                      >
+                        Live &#8599;
+                      </a>
+                    )}
+                    {project.data.visibility === 'public' && project.data.repoUrl && (
+                      <a
+                        href={project.data.repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-semibold text-ink underline-offset-4 hover:text-tech hover:underline"
+                      >
+                        Repo &#8599;
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience & Education Ledger -->
+    <section id="home-experience" aria-labelledby="exp-edu-heading" class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3.5">
+          <h2 id="exp-edu-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
+            Experience
+          </h2>
+          <a
+            href={withBase('/resume/#experience')}
+            class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
+          >
+            Full Resume &rarr;
           </a>
         </div>
-      </article>
 
-      <!-- Conditional Right Bento Tile: Latest Published Blog Post OR Verified Credentials Spotlight -->
-      {latestPost ? (
-        <article class="bento-card flex flex-col justify-between gap-4 p-6 md:col-span-5">
-          <div>
-            <p class="font-mono text-xs uppercase tracking-wider text-coral">Latest Engineering Note</p>
-            <h3 class="mt-1.5 font-display text-xl font-bold text-ink">
+        <div class="hw-panel overflow-hidden divide-y divide-hairline">
+          {resume.experience.map((exp) => (
+            <article class="p-5 sm:p-6">
+              <div class="flex flex-col justify-between gap-1.5 sm:flex-row sm:items-baseline">
+                <div>
+                  <h3 class="font-display text-lg font-bold tracking-[-0.02em] text-ink">
+                    {exp.url ? (
+                      <a
+                        href={exp.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        translate="no"
+                        class="underline-offset-4 transition-colors hover:text-tech hover:underline"
+                      >
+                        {exp.company} &#8599;
+                      </a>
+                    ) : (
+                      <span translate="no">{exp.company}</span>
+                    )}
+                  </h3>
+                  <p class="mt-0.5 text-sm font-semibold text-vermilion">{exp.role}</p>
+                </div>
+                <div class="font-mono text-xs text-muted sm:text-right">
+                  <p class="font-medium tabular-nums text-ink">{exp.period}</p>
+                  <p class="mt-0.5">{exp.location}</p>
+                </div>
+              </div>
+
+              <ul class="mt-3.5 list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink-secondary marker:text-vermilion">
+                {exp.highlights.map((h) => (
+                  <li>{h.text}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3.5">
+          <h2 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">Education</h2>
+          <a
+            href={withBase('/resume/#education')}
+            class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
+          >
+            Coursework &rarr;
+          </a>
+        </div>
+
+        <div class="hw-panel overflow-hidden divide-y divide-hairline">
+          {resume.education.map((edu) => (
+            <article class="p-5 sm:p-6">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 class="font-display text-base font-bold tracking-[-0.02em] text-ink">{edu.degree}</h3>
+                <span class="font-mono text-xs font-semibold text-vermilion tabular-nums">{edu.period}</span>
+              </div>
+              <p class="mt-1 text-sm text-ink-secondary">{edu.institution}</p>
+              {edu.thesis && (
+                <p class="mt-3 rounded-[8px] border border-hairline bg-recessed/80 px-3.5 py-2.5 text-xs leading-relaxed text-ink-secondary">
+                  <strong class="font-mono uppercase text-ink">Thesis:</strong> {edu.thesis.title}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+
+        {latestPost && (
+          <div class="hw-cell mt-4 p-5">
+            <p class="hw-eyebrow text-vermilion">
+              <span class="px-beacon" aria-hidden="true"></span>
+              <span>Latest Note</span>
+            </p>
+            <h3 class="mt-1.5 font-display text-base font-bold tracking-[-0.02em] text-ink">
               <a
                 href={withBase(`/blog/${latestPost.id.replace(/\.mdx$/, '')}/`)}
-                class="transition-colors hover:text-baby"
+                class="underline-offset-4 transition-colors hover:text-tech hover:underline"
               >
                 {latestPost.data.title}
               </a>
             </h3>
-            <p class="mt-2 text-sm text-muted">{latestPost.data.summary}</p>
+            <p class="mt-1.5 text-xs leading-relaxed text-ink-secondary">{latestPost.data.summary}</p>
           </div>
-          <div class="flex items-center justify-between border-t border-border-subtle pt-3 text-xs font-mono text-muted">
-            <span>{latestPost.data.readingTime}</span>
-            <a href={withBase('/blog/')} class="font-semibold text-baby hover:underline">
-              All Notes &rarr;
-            </a>
-          </div>
-        </article>
-      ) : (
-        <article class="bento-card flex flex-col justify-between gap-4 p-6 md:col-span-5">
-          <div>
-            <p class="font-mono text-xs uppercase tracking-wider text-signal">Verified Credentials</p>
-            <h3 class="mt-1.5 font-display text-xl font-bold text-ink">
-              6 Standalone Certifications &amp; MSc Track
-            </h3>
-            <ul class="mt-3 space-y-2 text-sm text-muted">
-              {resume.certifications.slice(0, 4).map((cert) => (
-                <li class="flex items-center justify-between gap-2">
-                  <span class="text-ink">{cert.name}</span>
-                  <span class="font-mono text-xs text-baby">{cert.credentialCode || cert.issuer}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div class="flex items-center justify-between border-t border-border-subtle pt-3 text-xs font-semibold">
-            <a href={withBase('/resume/#certifications')} class="text-baby hover:underline">
-              All 6 certifications on /resume &rarr;
-            </a>
-            <a href={withBase('/blog/')} class="text-muted hover:text-ink">
-              Notes &amp; RSS
-            </a>
-          </div>
-        </article>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
 
-    <!-- Core Technical Stack -->
-    <div class="bento-card p-6">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <p class="font-mono text-xs uppercase tracking-wider text-baby">02 / Technical Stack</p>
-          <h3 class="mt-1 font-display text-xl font-bold text-ink">Production Tools &amp; Foundations</h3>
-        </div>
-        <a href={withBase('/resume/#skills')} class="text-sm font-medium text-baby hover:underline">
-          Full Resume Breakdown &rarr;
+    <!-- All Verified Certifications Carried by 2D Retro Pixel Cargo Drones (Organic Right-to-Left Carousel) -->
+    <section id="home-certifications" aria-labelledby="certs-home-heading">
+      <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3">
+        <h2 id="certs-home-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
+          Verified Certifications ({resume.certifications.length})
+        </h2>
+        <a
+          href={withBase('/resume/#certifications')}
+          class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
+        >
+          Full List &rarr;
+        </a>
+      </div>
+      <CertificationCarousel certifications={resume.certifications} />
+    </section>
+
+    <!-- Technical Stack Matrix (4 Typographic Hardware Columns — Zero Pill Soup) -->
+    <section id="home-skills" aria-labelledby="skills-home-heading">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 pb-4">
+        <h2 id="skills-home-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
+          Technical Stack
+        </h2>
+        <a
+          href={withBase('/resume/#skills')}
+          class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
+        >
+          Full Breakdown &rarr;
         </a>
       </div>
 
-      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
         {resume.skillGroups.map((group) => (
-          <div class="rounded-xl border border-border-subtle bg-elevated/60 p-4">
-            <h4 class="font-display text-sm font-bold text-ink">{group.title}</h4>
-            <ul class="mt-2.5 flex flex-wrap gap-1.5">
+          <div class="hw-cell p-5">
+            <h3 class="flex items-center gap-2 border-b border-hairline pb-2.5 font-display text-sm font-semibold tracking-[-0.02em] text-ink">
+              <span class="px-beacon px-beacon-tech" aria-hidden="true"></span>
+              <span>{group.title}</span>
+            </h3>
+            <ul class="mt-3 space-y-1.5 font-mono text-xs text-ink-secondary">
               {group.items.map((item) => (
-                <li class="rounded border border-border-subtle bg-surface px-2 py-0.5 font-mono text-[11px] text-muted">
-                  {item}
-                </li>
+                <li>{item}</li>
               ))}
             </ul>
           </div>
         ))}
       </div>
-    </div>
+    </section>
 
-    <!-- Flagship Selected Projects -->
-    <div class="space-y-4">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="font-mono text-xs uppercase tracking-wider text-baby">03 / Featured Case Studies</p>
-          <h3 class="mt-1 font-display text-2xl font-bold text-ink">
-            Interactive Architectures &amp; Production Systems
-          </h3>
-        </div>
-        <a href={withBase('/projects/')} class="text-sm font-semibold text-baby underline-offset-4 hover:underline">
-          View All {allProjects.length} Projects &rarr;
-        </a>
-      </div>
-
-      <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-        {featuredProjects.map((project) => (
-          <ProjectCard project={project} />
-        ))}
-      </div>
-    </div>
-
-    <!-- Quick Contact -->
-    <section id="contact" aria-labelledby="contact-heading" class="bento-card flex flex-col items-start justify-between gap-5 p-6 md:flex-row md:items-center">
+    <!-- Direct Contact Dock -->
+    <section
+      id="home-contact"
+      aria-labelledby="contact-heading"
+      class="hw-panel flex flex-col items-start justify-between gap-6 p-6 sm:p-8 lg:flex-row lg:items-center"
+    >
       <div>
-        <p class="font-mono text-xs uppercase tracking-wider text-baby">04 / Direct Contact</p>
-        <h3 id="contact-heading" class="mt-1 font-display text-2xl font-bold text-ink">
-          Open to Applied AI &amp; Automation Engineering Roles
-        </h3>
-        <p class="mt-1.5 text-sm text-muted">
-          Reach out directly for engineering interviews, production AI systems, or automation collaborations.
+        <p class="hw-eyebrow">
+          <span class="px-beacon px-beacon-signal" aria-hidden="true"></span>
+          <span>Availability &amp; Direct Channels</span>
+        </p>
+        <h2 id="contact-heading" class="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+          Direct Contact &amp; ATS Channels
+        </h2>
+        <p class="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-secondary">
+          Open to Applied AI, Automation, and Cyber-Physical / Robotics Engineering roles across EU ({resume.profile.location}).
         </p>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2.5">
         <a
-          href={`mailto:${SITE.email}`}
-          class="inline-flex min-h-[44px] items-center rounded-lg bg-baby px-5 text-sm font-semibold text-[var(--accent-on-primary)] transition-opacity hover:opacity-90"
+          href={`mailto:${resume.profile.email}`}
+          class="cta-anodized btn-press"
         >
-          Send Email
+          Email Directly
         </a>
-        <button
-          id="copy-email-btn"
-          type="button"
-          data-email={SITE.email}
-          class="inline-flex min-h-[44px] items-center rounded-lg border border-border-strong bg-elevated px-4 text-sm font-semibold text-ink transition-colors hover:border-baby hover:text-baby"
+        <a
+          href={withBase('/Claudiu-Span-CV.pdf')}
+          class="cta-secondary-bevel btn-press"
         >
-          Copy Email
-        </button>
+          Download ATS PDF &darr;
+        </a>
         <a
           href={SITE.linkedinUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex min-h-[44px] items-center rounded-lg border border-border-subtle bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:border-baby hover:text-baby"
+          class="cta-secondary-bevel btn-press"
         >
           LinkedIn &#8599;
         </a>
+        <a
+          href={SITE.githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta-secondary-bevel btn-press"
+        >
+          GitHub &#8599;
+        </a>
       </div>
     </section>
-    <p id="copy-feedback" role="status" aria-live="polite" class="sr-only"></p>
-  </section>
+  </div>
 
-  <!-- Legacy v1.0 hash/query bridge + Copy email handler -->
+  <!-- Preserve Legacy v1.0 hash/query forwarding (e.g., /?category=ai -> /projects/?category=ai) -->
   <script>
     import { resolveLegacyRedirect } from '@/lib/legacy-bridge';
 
@@ -255,25 +376,15 @@ const latestPost = publishedPosts[0] ?? null;
       import.meta.env.BASE_URL || '/',
     );
     if (redirectTarget) {
+      window.addEventListener(
+        'pageswap',
+        (ev) => {
+          const vt = (ev as { viewTransition?: { skipTransition?: () => void } }).viewTransition;
+          vt?.skipTransition?.();
+        },
+        { once: true },
+      );
       window.location.replace(redirectTarget);
-    }
-
-    const copyBtn = document.getElementById('copy-email-btn');
-    const feedback = document.getElementById('copy-feedback');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        const email = copyBtn.getAttribute('data-email') || '';
-        try {
-          await navigator.clipboard.writeText(email);
-          copyBtn.textContent = 'Email Copied';
-          if (feedback) feedback.textContent = `Copied ${email} to clipboard.`;
-          setTimeout(() => {
-            copyBtn.textContent = 'Copy Email';
-          }, 1800);
-        } catch {
-          if (feedback) feedback.textContent = `Email address: ${email}`;
-        }
-      });
     }
   </script>
 </BaseLayout>

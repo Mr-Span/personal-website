@@ -1,13 +1,18 @@
-/* Clean browser @media print fallback (prevents v1.0 6-page break-inside failure) */
+/* Clean browser @media print fallback (forces Light polarity even when printing from Dark Mode) */
 @media print {
   @page {
     size: A4;
     margin: 12mm;
   }
 
+  :root {
+    color-scheme: light !important;
+  }
+
   html, body {
     background: #FFFFFF !important;
-    color: #0F172A !important;
+    background-image: none !important;
+    color: #151619 !important;
     font-size: 10pt;
     line-height: 1.4;
   }
@@ -15,31 +20,26 @@
   header,
   footer,
   .no-print,
-  [data-resume-side-cta],
-  button,
-  video {
+  [data-kinematic-stage],
+  [data-pixel-drone],
+  dialog,
+  button {
     display: none !important;
-  }
-
-  .bento-card {
-    background: #FFFFFF !important;
-    border: 1px solid #CBD5E1 !important;
-    box-shadow: none !important;
-    break-inside: auto !important;
-    padding: 0.75rem !important;
   }
 
   section, article {
     break-inside: auto !important;
+    background: #FFFFFF !important;
+    box-shadow: none !important;
   }
 
   h1, h2, h3 {
     break-after: avoid;
-    color: #0F172A !important;
+    color: #151619 !important;
   }
 
   a {
-    color: #0F172A !important;
+    color: #151619 !important;
     text-decoration: none !important;
   }
 }

@@ -8,11 +8,17 @@ import { getResumeData } from '../../src/lib/resume-loader';
 import { loadCompiledArchitecture } from '../../src/lib/architecture-loader';
 
 describe('Canonical Zod Schemas', () => {
-  it('validates src/data/resume.json with all 6 certifications present via loader', () => {
+  it('validates src/data/resume.json with all 10 interleaved certifications present via loader', () => {
     const parsed = ResumeSchema.parse(resumeJson);
     const loaded = getResumeData();
-    expect(parsed.certifications.length).toBe(6);
+    expect(parsed.certifications.length).toBe(10);
     expect(loaded.certifications.some((c) => c.credentialCode === 'AIF-C01')).toBe(true);
+    // Guarantee zero consecutive duplicate issuers across the circular carousel wrap-around
+    for (let i = 0; i < parsed.certifications.length; i++) {
+      const cur = parsed.certifications[i];
+      const next = parsed.certifications[(i + 1) % parsed.certifications.length];
+      expect(cur.issuer.toLowerCase()).not.toBe(next.issuer.toLowerCase());
+    }
   });
 
   it('loads and compiles architecture files from disk via architecture-loader', () => {

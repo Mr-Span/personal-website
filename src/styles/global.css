@@ -1,51 +1,78 @@
 @import "tailwindcss";
+@import "./fonts.css";
 @import "./tokens.css";
 
-@theme {
+@theme inline {
   --color-canvas: var(--bg-canvas);
+  --color-recessed: var(--bg-recessed);
   --color-surface: var(--bg-surface);
   --color-elevated: var(--bg-elevated);
-  --color-border-subtle: var(--border-subtle);
-  --color-border-strong: var(--border-strong);
-  --color-ink: var(--text-primary);
-  --color-muted: var(--text-muted);
-  --color-baby: var(--accent-primary);
-  --color-baby-soft: var(--accent-primary-soft);
-  --color-coral: var(--accent-contrast);
+  --color-hairline: var(--border-hairline);
+  --color-strong: var(--border-strong);
+  --color-interactive: var(--border-interactive);
+  --color-ink: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-muted: var(--ink-muted);
+  --color-vermilion: var(--accent-vermilion);
+  --color-vermilion-hover: var(--accent-vermilion-hover);
+  --color-tech: var(--accent-tech);
   --color-signal: var(--accent-signal);
-  --font-display: var(--font-display);
-  --font-sans: var(--font-body);
-  --font-mono: var(--font-mono);
+  --color-on-accent: var(--on-accent);
+  --font-display: var(--family-display);
+  --font-sans: var(--family-body);
+  --font-mono: var(--family-mono);
+}
+
+/* Progressive Cross-Document MPA View Transitions (zero-JS) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 }
 
 @layer base {
   html {
     background-color: var(--bg-canvas);
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    scroll-behavior: smooth;
+    color: var(--ink-primary);
+    font-family: var(--family-body);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
     margin: 0;
     min-height: 100dvh;
     background-color: var(--bg-canvas);
-    color: var(--text-primary);
+    color: var(--ink-primary);
     overflow-x: clip;
-    line-height: 1.65;
+    line-height: 1.56;
+    transition: background-color 240ms ease, color 240ms ease;
   }
 
   h1, h2, h3, h4 {
-    font-family: var(--font-display);
-    letter-spacing: -0.025em;
-    color: var(--text-primary);
-    line-height: 1.18;
+    font-family: var(--family-display);
+    letter-spacing: -0.03em;
+    color: var(--ink-primary);
+    line-height: 1.12;
   }
 
   code, pre, .font-mono {
-    font-family: var(--font-mono);
+    font-family: var(--family-mono);
+  }
+
+  /* Prevent synthetic browser faux-bold on IBM Plex Mono (bundled weights are strictly 400 & 500) */
+  .font-mono.font-semibold,
+  .font-mono.font-bold,
+  .font-mono strong {
+    font-weight: 500;
   }
 
   a, button, summary, input, [tabindex] {
@@ -59,56 +86,1493 @@
   button, [role="button"], summary {
     cursor: pointer;
   }
+
+  button:active:not(:disabled),
+  a.btn-press:active {
+    transform: scale(0.98);
+  }
 }
 
-/* Skip link */
-.skip-link {
-  position: absolute;
-  left: 1rem;
-  top: -100%;
-  z-index: var(--z-modal);
-  padding: 0.625rem 1rem;
-  background: var(--accent-primary);
-  color: var(--accent-on-primary);
+@layer components {
+  /* Square Pixel Status Beacon & Unified Section Eyebrows (Zero Dot-Grid Clutter) */
+  .px-beacon {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    background: var(--accent-vermilion);
+    flex-shrink: 0;
+  }
+
+  .px-beacon-tech {
+    background: var(--accent-tech);
+  }
+
+  .px-beacon-signal {
+    background: var(--accent-signal);
+  }
+
+  .px-sep {
+    display: inline-block;
+    width: 3.5px;
+    height: 3.5px;
+    border-radius: 0.5px;
+    background: var(--accent-vermilion);
+    opacity: 0.72;
+    flex-shrink: 0;
+  }
+
+  .hw-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-bevel);
+    font-family: var(--family-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  /* Apple × Industrial Hardware Domain Capsule (Matches Top-Panel Satin Capsules) */
+  .pixel-caption-bar {
+    position: relative;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 7px 10px;
+    padding: 6px 14px;
+    border-radius: 11px;
+    border: 1px solid var(--nav-capsule-border);
+    background: var(--nav-capsule-bg);
+    box-shadow: var(--nav-capsule-shadow);
+    font-family: var(--family-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+  }
+
+  @media (min-width: 640px) {
+    .pixel-caption-bar {
+      font-size: 11px;
+      letter-spacing: 0.11em;
+      padding: 7px 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pixel-caption-bar[data-state='visible'] {
+      animation: pixel-bar-unfold 220ms steps(5, end) both;
+    }
+  }
+
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100%;
+    z-index: 90;
+    padding: 0.625rem 1rem;
+    background: var(--accent-vermilion);
+    color: var(--on-accent);
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 0.75rem;
+  }
+
+  /* =========================================================================
+     FLOATING FROSTED TOP NAVIGATION — Apple × Industrial Hardware Capsules
+     ========================================================================= */
+  .top-nav-shell {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    height: 62px;
+    background: var(--surface-glass);
+    backdrop-filter: blur(22px) saturate(155%);
+    -webkit-backdrop-filter: blur(22px) saturate(155%);
+    border-bottom: 1px solid var(--border-hairline);
+    box-shadow: var(--inner-highlight);
+    transition: background-color 240ms ease, border-color 240ms ease;
+  }
+
+  .nav-capsule {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 3px;
+    border-radius: 11px;
+    background: var(--nav-capsule-bg);
+    border: 1px solid var(--nav-capsule-border);
+    box-shadow: var(--nav-capsule-shadow);
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .brand-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 3.5px;
+    border-radius: 12px;
+    background: var(--nav-capsule-bg);
+    border: 1px solid var(--nav-capsule-border);
+    box-shadow: var(--nav-capsule-shadow);
+    color: var(--ink-primary);
+    text-decoration: none;
+    line-height: 1;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+.brand-capsule:hover {
+  border-color: var(--accent-vermilion);
+  box-shadow: var(--nav-capsule-shadow), 0 0 0 2.5px var(--vermilion-tint);
+}
+
+.brand-capsule:active {
+  transform: translateY(1px);
+}
+
+.brand-pocket {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  padding: 0 8px;
+  border-radius: 8.5px;
+  background: var(--cs-pocket-bg);
+  border: 1px solid var(--cs-pocket-border);
+  box-shadow: var(--cs-pocket-shadow);
+  flex-shrink: 0;
+}
+
+.brand-claux-svg {
+  width: 58px;
+  height: 16px;
+}
+
+@media (min-width: 640px) {
+  .brand-pocket {
+    padding: 0 12px;
+  }
+
+  .brand-claux-svg {
+    width: 72px;
+    height: 20px;
+  }
+}
+
+.pixel-crisp {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.nav-seg-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  border: 1px solid transparent;
+  transition: color 160ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.nav-seg-link::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--accent-vermilion);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 160ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-seg-link:hover {
+  color: var(--ink-primary);
+  background: var(--nav-seg-active);
+  border-color: var(--border-hairline);
+  box-shadow: var(--nav-seg-shadow);
+}
+
+.nav-seg-link:hover::before {
+  opacity: 0.6;
+  transform: scale(0.85);
+}
+
+.nav-seg-link[aria-current="page"] {
+  color: var(--ink-primary);
   font-weight: 600;
-  border-radius: 0.5rem;
+  background: var(--nav-seg-active);
+  border-color: var(--vermilion-ring);
+  box-shadow: var(--nav-seg-shadow);
+}
+
+.nav-seg-link[aria-current="page"]::before {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 0 6px var(--accent-vermilion);
+}
+
+.bevel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  min-width: 32px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.bevel-btn:hover {
+  color: var(--ink-primary);
+  background: var(--nav-seg-active);
+  border-color: var(--border-hairline);
+  box-shadow: var(--nav-seg-shadow);
+}
+
+.bevel-btn[aria-pressed="true"] {
+  color: var(--accent-vermilion);
+  background: var(--vermilion-tint);
+  border-color: var(--vermilion-ring);
+}
+
+.nav-sep {
+  width: 1px;
+  height: 15px;
+  background: var(--nav-divider);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.cta-anodized {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 11px 0 13px;
+  border-radius: 11px;
+  background: var(--cta-bg);
+  color: #FAF8F5;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--cta-border);
+  box-shadow: var(--cta-shadow);
+  white-space: nowrap;
+  transition: filter 160ms ease, box-shadow 160ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-anodized:hover {
+  filter: brightness(1.07);
+}
+
+.cta-secondary-bevel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--nav-capsule-bg);
+  border: 1px solid var(--nav-capsule-border);
+  box-shadow: var(--nav-capsule-shadow);
+  color: var(--ink-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.cta-secondary-bevel:hover {
+  border-color: var(--accent-tech);
+  color: var(--accent-tech);
+}
+
+/* Theme toggle icon visibility */
+.theme-opt-dark {
+  display: inline-flex;
+}
+.theme-opt-light {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-opt-dark {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .theme-opt-light {
+    display: inline-flex;
+  }
+}
+
+:root[data-theme="dark"] .theme-opt-dark {
+  display: none;
+}
+:root[data-theme="dark"] .theme-opt-light {
+  display: inline-flex;
+}
+:root[data-theme="light"] .theme-opt-dark {
+  display: inline-flex;
+}
+:root[data-theme="light"] .theme-opt-light {
+  display: none;
+}
+
+/* =========================================================================
+   2.5D UPRIGHT INDUSTRIAL CARTRIDGE / CUBE CARDS (Recovered & Elevated)
+   ========================================================================= */
+.card-dock-3d {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .card-dock-3d {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-dock-3d {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(12px, 1.25vw, 18px);
+    align-items: stretch;
+  }
+}
+
+/* Fixed bay wrapper anchoring the CNC-milled desk well beneath each molded monolith */
+.tile-bay-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 6px;
+}
+
+.tile-desk-well {
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  bottom: -1px;
+  height: 32px;
+  border-radius: 14px;
+  background: var(--mono-well-bg);
+  border: 1px solid var(--mono-well-ring);
+  box-shadow: var(--mono-well-inset);
+  z-index: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  pointer-events: none;
+  transition: border-color 220ms ease;
+}
+
+@media (min-width: 1024px) {
+  .tile-desk-well {
+    left: -3.5px;
+    right: -3.5px;
+    height: 34px;
+  }
+}
+
+.tile-desk-well::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: 5px;
+  height: 11px;
+  border-radius: 6px;
+  border: 1px solid var(--mono-well-ring);
+  opacity: 0.52;
+}
+
+.tile-desk-well::after {
+  content: "";
+  width: 26px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: var(--mono-well-mark);
+  opacity: 0.52;
+  transition: opacity 220ms ease, width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* S1 Molded Fillet Unified Ceramic-over-Aluminum 3D Monolith */
+.tile-card {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-height: 186px;
+  padding: 0;
+  border-radius: 13px;
+  overflow: hidden;
   text-decoration: none;
+  background: var(--mono-face-mid);
+  border: 1px solid var(--mono-shell-ring);
+  box-shadow: var(--mono-shadow-rest);
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms ease;
 }
 
-.skip-link:focus {
-  top: 1rem;
+@media (min-width: 1024px) {
+  .tile-card {
+    min-height: clamp(202px, 25vh, 232px);
+  }
 }
 
-/* Bento surface cards */
-.bento-card {
+@media (min-width: 1024px) and (max-height: 780px) {
+  .tile-card {
+    min-height: 170px;
+  }
+}
+
+/* Zone 1: Integrated Smooth 3D Top Roof Plane */
+.tile-roof {
+  position: relative;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(90deg, var(--mono-roof-side-shade) 0%, transparent 11%, transparent 89%, var(--mono-roof-side-shade) 100%),
+    linear-gradient(180deg, var(--mono-roof-back) 0%, var(--mono-roof-mid) 56%, var(--mono-roof-front) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 var(--mono-shoulder-highlight);
+  transition: opacity 160ms ease;
+}
+
+@media (min-width: 1024px) {
+  .tile-roof {
+    height: 19px;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 780px) {
+  .tile-roof {
+    height: 15px;
+  }
+}
+
+/* Soft organic S1 fillet shoulder blending roof smoothly into the ceramic front face */
+.tile-roof::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 5px;
+  background: linear-gradient(180deg, var(--mono-shoulder-highlight) 0%, var(--mono-shoulder-fold) 42%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Recessed Robot Latch Pocket milled directly into the middle of the top roof thickness */
+.tile-detent {
+  position: relative;
+  width: 52px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--mono-pocket-bg);
+  box-shadow:
+    var(--mono-pocket-shadow),
+    0 1px 0 var(--mono-pocket-rim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 210ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms ease;
+}
+
+@media (min-width: 1024px) {
+  .tile-detent {
+    width: 56px;
+    height: 8.5px;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 780px) {
+  .tile-detent {
+    width: 50px;
+    height: 7.5px;
+  }
+}
+
+.tile-detent::after {
+  content: "";
+  width: 24px;
+  height: 2.8px;
+  border-radius: 999px;
+  background: var(--pickup-bar);
+  transition: background-color 180ms ease, width 210ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms ease;
+}
+
+/* Zone 2: Seamless Matte Ceramic Front Face */
+.tile-face {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 14px 11px;
+  background:
+    linear-gradient(90deg, var(--mono-face-edge-l) 0%, transparent 4%, transparent 96%, var(--mono-face-edge-r) 100%),
+    linear-gradient(180deg, var(--mono-face-top) 0%, var(--mono-face-mid) 62%, var(--mono-face-bot) 100%);
+  transition: opacity 160ms ease;
+}
+
+@media (min-width: 1024px) {
+  .tile-face {
+    padding: 13px 15px 11px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1380px) {
+  .tile-face {
+    padding: 12px 12px 10px;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 780px) {
+  .tile-face {
+    padding: 10px 12px 9px;
+  }
+}
+
+/* Zone 3: Integrated Brushed Aluminum Lower Plinth */
+.tile-plinth {
+  position: relative;
+  height: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--mono-alu-top) 0%, var(--mono-alu-mid) 52%, var(--mono-alu-bot) 100%);
+  box-shadow:
+    inset 0 1px 0 var(--mono-seam-dark),
+    inset 0 2px 0 var(--mono-seam-light),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1px 16px 0;
+  transition: opacity 160ms ease;
+}
+
+@media (min-width: 1024px) {
+  .tile-plinth {
+    height: 11px;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 780px) {
+  .tile-plinth {
+    height: 9px;
+  }
+}
+
+.tile-plinth-pad {
+  width: 22px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: var(--mono-alu-pad);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):hover,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]).is-hovered,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):focus-visible {
+    transform: translate3d(0, -13px, 0) scale(1.014);
+    border-color: var(--mono-shell-ring-hover);
+    box-shadow: var(--mono-shadow-hover);
+    z-index: 4;
+  }
+
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):hover .tile-detent,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]).is-hovered .tile-detent,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):focus-visible .tile-detent {
+    width: 64px;
+  }
+
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):hover .tile-detent::after,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]).is-hovered .tile-detent::after,
+  .card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):focus-visible .tile-detent::after {
+    width: 32px;
+    background: var(--accent-tech-3d);
+    box-shadow: 0 0 8px var(--accent-tech-3d);
+  }
+
+  .card-dock-3d:not(.is-releasing) .tile-bay-slot:has(.tile-card:not(.is-picked):not([data-just-released="true"]):is(:hover, :focus-visible, .is-hovered)) .tile-desk-well::after {
+    opacity: 1;
+    width: 38px;
+  }
+
+  /* WCAG-safe color-step dimming on sibling cards (never drops opacity below contrast threshold!) */
+  .card-dock-3d:not(.is-releasing):has(.tile-card:not(.is-picked):not([data-just-released="true"]):is(:hover, :focus-visible, .is-hovered))
+    .tile-card:not(:is(:hover, :focus-visible, .is-hovered, .is-picked)) .dim-title {
+    color: var(--ink-secondary);
+  }
+}
+
+.tile-card.is-grabbing {
+  transform: translate3d(0, -4px, 0);
+  border-color: var(--mono-shell-ring-hoist);
+}
+
+.tile-card.is-grabbing .tile-detent {
+  width: 64px;
+}
+
+.tile-card.is-grabbing .tile-detent::after {
+  width: 34px;
+  background: var(--accent-vermilion);
+  box-shadow: 0 0 8px var(--accent-vermilion);
+}
+
+/* Block physically disappears completely when lifted by the 3D robot, leaving ONLY the CNC desk well behind */
+.tile-card.is-picked {
+  opacity: 0;
+  pointer-events: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transform: translate3d(0, 0, 0);
+  transition: none;
+}
+
+.tile-bay-slot:has(.tile-card.is-picked) .tile-desk-well {
+  border-color: var(--vermilion-ring);
+}
+
+.tile-bay-slot:has(.tile-card.is-picked) .tile-desk-well::after {
+  opacity: 1;
+  width: 40px;
+}
+
+.tile-icon-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  color: var(--ink-primary);
+  flex-shrink: 0;
+  box-shadow: var(--inner-highlight);
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]):hover .tile-icon-box,
+.card-dock-3d:not(.is-releasing) .tile-card:not(.is-picked):not([data-just-released="true"]).is-hovered .tile-icon-box {
+  border-color: var(--vermilion-ring);
+  background: var(--vermilion-tint);
+  color: var(--accent-vermilion);
+}
+
+.tile-chip {
+  font-size: 9.5px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) and (max-width: 1380px) {
+  .tile-chip {
+    font-size: 9px;
+    padding: 1.5px 4.5px;
+  }
+}
+
+/* Physically Hoisted S1 Monolith Proxy Locked 1:1 to 3D Gripper Jaws (exact visual twin of .tile-card) */
+.hoist-card {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-hoist);
+  pointer-events: none;
+  display: none;
+  flex-direction: column;
+  text-align: left;
+  padding: 0;
+  border-radius: 13px;
+  overflow: hidden;
+  background: var(--mono-face-mid);
+  border: 1px solid var(--mono-shell-ring-hoist);
+  transform-origin: center top;
+  box-shadow: var(--mono-shadow-hoist);
+  transition:
+    opacity 135ms ease-out,
+    border-color 140ms ease-out,
+    box-shadow 160ms ease-out;
+  will-change: transform, opacity;
+}
+
+.hoist-card.active {
+  display: flex;
+}
+
+.hoist-card.is-docking,
+.hoist-card.is-settling {
+  border-color: var(--mono-shell-ring);
+  box-shadow: var(--mono-shadow-rest);
+}
+
+.hoist-card .tile-detent {
+  width: 64px;
+}
+
+.hoist-card .tile-detent::after {
+  width: 34px;
+  background: var(--accent-vermilion);
+  box-shadow: 0 0 8px var(--accent-vermilion);
+}
+
+.hoist-card.is-docking .tile-detent,
+.hoist-card.is-settling .tile-detent {
+  width: 56px;
+}
+
+.hoist-card.is-docking .tile-detent::after,
+.hoist-card.is-settling .tile-detent::after {
+  width: 24px;
+  background: var(--pickup-bar);
+  box-shadow: none;
+}
+
+/* Gentle, non-jarring veil on Hero Center During Physical Hoist + lift carried object & 3D gripper in front of hero copy */
+body.arm-hoisting [data-hero-copy] {
+  opacity: 0.42;
+}
+
+body.arm-hoisting #arm-canvas {
+  z-index: 22;
+}
+
+body.arm-hoisting .hoist-card.active,
+body.arm-hoisting .badge-pull-proxy.active {
+  z-index: 21;
+}
+
+/* =========================================================================
+   RIGHT-EDGE CERAMIC MONOBLOC PERSONAL BADGE (C2 SHAPE + C3 RETRO STITCH)
+   Deeply tucked on right edge to avoid accidental hover; 3D lean-in on hover;
+   pulled leftward to center stage by the 3D CNC robotic arm on click.
+   ========================================================================= */
+.personal-badge-dock {
+  position: absolute;
+  right: 0;
+  top: clamp(198px, 36%, 298px);
+  z-index: var(--z-badge);
+  width: 248px;
+  height: 344px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  /* Lower-right pivot swings the top portrait corner out cleanly to expose ~1/3 of portrait face while keeping lower text tucked */
+  transform-origin: 100% 86%;
+  transform: translate3d(152px, -50%, 0) perspective(920px) rotateY(-16deg) rotateZ(-23deg) scale(0.85);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+@media (min-width: 1024px) and (max-height: 780px) {
+  .personal-badge-dock {
+    top: clamp(178px, 34%, 242px);
+    transform: translate3d(152px, -50%, 0) perspective(920px) rotateY(-16deg) rotateZ(-23deg) scale(0.77);
+  }
+}
+
+.personal-badge-dock:focus-visible {
+  outline: none;
+}
+
+.personal-badge-dock:focus-visible .personal-badge-shell {
+  filter: drop-shadow(0 0 0 2px var(--ring-focus)) drop-shadow(0 16px 24px var(--badge-shadow));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]):hover,
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]).is-hovered,
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]):focus-visible {
+    /* Slides out diagonally revealing ~60% of the badge on hover */
+    transform: translate3d(104px, -50%, 0) perspective(920px) rotateY(-9deg) rotateZ(-19deg) scale(0.92);
+    transition-timing-function: linear(0, 0.46 16%, 1.06 42%, 0.98 66%, 1.01 84%, 1);
+  }
+
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]):hover .badge-hole-rim,
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]).is-hovered .badge-hole-rim,
+  .personal-badge-dock:not(.is-picked):not([data-just-released="true"]):focus-visible .badge-hole-rim {
+    stroke: var(--accent-tech-3d);
+  }
+}
+
+.personal-badge-dock.is-grabbing {
+  transform: translate3d(102px, -50%, 0) perspective(920px) rotateY(-8deg) rotateZ(-18deg) scale(0.92);
+}
+
+.personal-badge-dock.is-grabbing .badge-hole-rim {
+  stroke: var(--accent-vermilion);
+}
+
+.personal-badge-dock.is-picked {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mobile / Tablet (< 1024px) Slim Stitched Right-Edge Pull-Tab */
+.personal-badge-mobile-tab {
+  position: absolute;
+  right: 0;
+  top: 14px;
+  z-index: var(--z-badge);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 44px;
+  padding-left: 4px;
+  border-radius: 10px 0 0 10px;
+  background: linear-gradient(180deg, var(--badge-plate-top) 0%, var(--badge-plate-bot) 100%);
+  border: 1.5px solid var(--badge-plate-stroke);
+  border-right: none;
+  color: var(--ink-primary);
+  box-shadow: -4px 6px 16px -4px var(--badge-shadow), var(--inner-highlight);
+}
+
+.personal-badge-mobile-tab::before {
+  content: "";
+  position: absolute;
+  inset: 4px 0 4px 4px;
+  border-radius: 6px 0 0 6px;
+  border: 1.2px dashed var(--badge-stitch);
+  border-right: none;
+  pointer-events: none;
+}
+
+.mobile-tab-lug {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 18px;
+  border-radius: 3px 0 0 3px;
+  background: var(--pickup-bg);
+  border: 1px solid var(--pickup-border);
+  border-right: none;
+}
+
+/* Shared Ceramic Monobloc Shell & Vector Plate */
+.personal-badge-shell {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 16px 24px var(--badge-shadow));
+}
+
+.badge-plate-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Live anchor marker & flush rim highlight centered inside the punched lanyard hole (x=50%, y=20.5/366=5.60%) */
+.badge-hole-anchor {
+  position: absolute;
+  left: 50%;
+  top: 5.6%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.badge-hole-rim {
+  stroke: transparent;
+  transition: stroke 180ms ease;
+}
+
+.badge-hole-rim.is-clamped {
+  stroke: var(--accent-vermilion);
+}
+
+/* Docked & Proxy Inner Content */
+.badge-dock-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 18% 8.5% 5.5%;
+  box-sizing: border-box;
+}
+
+.badge-portrait-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.55 / 1;
+  flex: none;
+  overflow: hidden;
+  background: var(--badge-photo-bg);
+  /* Parallel chamfered top shoulders matching the C2 badge trapezoid */
+  clip-path: polygon(14.4% 0%, 85.6% 0%, 100% 17%, 100% 100%, 0% 100%, 0% 17%);
+}
+
+.badge-portrait-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 60%;
+}
+
+.badge-portrait-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.badge-spoken-languages {
+  font-family: var(--family-body);
+  font-size: 11px;
+  line-height: 1.38;
+  color: var(--ink-muted);
+}
+
+.badge-preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.badge-bio-preview {
+  font-family: var(--family-body);
+  font-size: 11.5px;
+  line-height: 1.42;
+  color: var(--ink-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.badge-dock-foot {
+  padding-top: 6px;
+}
+
+.badge-mini-icon-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.badge-mini-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  border-radius: 6px;
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 1rem;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-bevel);
+  color: var(--ink-secondary);
+}
+
+/* Floating Lanyard-Hole-Carried Ceramic Badge Proxy (1:1 synced to 3D Robot Arm) */
+.badge-pull-proxy {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 248px;
+  height: 344px;
+  z-index: var(--z-hoist);
+  pointer-events: none;
+  display: none;
+  /* Transform origin matches exact center of punched lanyard hole (124px, 19.27px = 50%, 5.60%) */
+  transform-origin: 50% 5.6%;
+  filter: drop-shadow(0 24px 36px var(--badge-shadow));
+  transition: filter 160ms ease-out;
+  will-change: transform;
+}
+
+.badge-pull-proxy.active {
+  display: block;
+}
+
+.badge-pull-proxy.is-docking {
+  filter: drop-shadow(0 16px 24px var(--badge-shadow));
+}
+
+.badge-pull-proxy.is-docking .badge-proxy-outline {
+  stroke: var(--badge-plate-stroke);
+}
+
+.badge-pull-proxy.is-docking .badge-hole-rim {
+  stroke: transparent;
+}
+
+/* Opened Native <dialog id="personal-badge-dialog" closedby="any">
+   Entry settles smoothly in-place from robot hand-off; exit is instant on close so the 3D proxy takes over with zero double-badge ghost! */
+dialog.dialog-badge {
+  margin: auto;
+  max-width: none;
+  padding: 14px;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  color: var(--ink-primary);
+  opacity: 0;
+  transition: none;
+}
+
+dialog.dialog-badge[open] {
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  transition: opacity 150ms ease-out, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.dialog-badge[open] {
+    transform: scale(1);
+
+    @starting-style {
+      opacity: 0.72;
+      transform: scale(0.985);
+    }
+  }
+}
+
+.badge-modal-card {
+  position: relative;
+  width: min(340px, calc(100vw - 32px));
+  aspect-ratio: 264 / 366;
+  filter: drop-shadow(0 28px 46px var(--badge-shadow));
+  transform: perspective(960px) rotateX(var(--badge-tilt-x, 0deg)) rotateY(var(--badge-tilt-y, 0deg));
+  transition: transform 160ms ease-out;
+  will-change: transform;
+}
+
+.badge-modal-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 17.5% 8.5% 4.8%;
+  box-sizing: border-box;
+}
+
+.badge-close-form {
+  position: absolute;
+  top: 11.8%;
+  right: 29.5%;
+  transform: translate(50%, -50%);
+  z-index: 5;
+}
+
+.badge-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-muted);
+  transition: color 150ms ease, transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.badge-close-btn:hover {
+  color: var(--accent-vermilion);
+  transform: scale(1.1);
+}
+
+.badge-close-btn:focus-visible {
+  outline: 2px solid var(--ring-focus);
+  outline-offset: -2px;
+}
+
+.badge-modal-bio-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-block: 7px 4px;
+}
+
+.badge-modal-bio {
+  font-family: var(--family-body);
+  font-size: 12.2px;
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+
+.badge-modal-languages {
+  font-family: var(--family-body);
+  font-size: 11.8px;
+  line-height: 1.38;
+  color: var(--ink-muted);
+}
+
+.badge-contact-footer {
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+.badge-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.badge-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 36px;
+  padding: 5px 4px;
+  border-radius: 8px;
+  background: var(--nav-capsule-bg);
+  border: 1px solid var(--nav-capsule-border);
+  box-shadow: var(--nav-capsule-shadow);
+  color: var(--ink-primary);
+  text-decoration: none;
+  font-family: var(--family-mono);
+  font-size: 9px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 110ms ease;
+}
+
+.badge-icon-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.badge-icon-btn:hover {
+  border-color: var(--accent-vermilion);
+  color: var(--accent-vermilion);
+  box-shadow: var(--nav-capsule-shadow), 0 0 0 2px var(--vermilion-tint);
+}
+
+.badge-icon-btn.is-confirmed {
+  border-color: var(--accent-signal);
+  color: var(--accent-signal);
+  background: var(--signal-tint);
+}
+
+.badge-contact-readout {
+  margin-top: 4px;
+  min-height: 14px;
+  line-height: 14px;
+  text-align: center;
+  font-family: var(--family-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 350px) {
+  .badge-modal-bio {
+    font-size: 11px;
+  }
+
+  .badge-modal-languages {
+    font-size: 10.5px;
+  }
+
+  .badge-icon-btn {
+    min-height: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .personal-badge-dock,
+  .badge-pull-proxy,
+  .badge-modal-card,
+  dialog.dialog-badge {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}
+
+/* Reusable Tactile Hardware Surface for Below-the-Fold & Subpages */
+.hw-panel {
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-card);
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-.bento-card-interactive:hover {
-  border-color: var(--accent-primary);
-  box-shadow: var(--glow-primary), var(--shadow-card);
-  transform: translateY(-1px);
+.hw-cell {
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  box-shadow: var(--shadow-bevel);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Theme toggle icon visibility driven by data-theme (zero flicker / AT safe) */
-[data-theme="dark"] .theme-opt-dark {
-  display: none;
-}
-[data-theme="light"] .theme-opt-light {
-  display: none;
+.hw-cell:hover {
+  border-color: var(--border-interactive);
 }
 
-/* Native <dialog> modal scroll containment (MWG dialog guide) */
+/* Color-Step Sibling Dimming for Below-the-Fold Lists */
+@media (hover: hover) and (pointer: fine) {
+  .swiss-dim-list:has(.swiss-dim-item:is(:hover, :focus-visible))
+    .swiss-dim-item:not(:is(:hover, :focus-visible)) .dim-title {
+    color: var(--ink-muted);
+  }
+}
+
+/* Filter Tabs */
+.filter-tab {
+  min-height: 38px;
+  padding: 0 0.95rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-bevel);
+  color: var(--ink-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: border-color 160ms ease-out, background-color 160ms ease-out, color 160ms ease-out;
+}
+
+.filter-tab:hover {
+  border-color: var(--ink-primary);
+  color: var(--ink-primary);
+}
+
+.filter-tab[aria-pressed="true"] {
+  border-color: var(--cta-border);
+  background: var(--cta-bg);
+  color: #FAF8F5;
+  box-shadow: var(--cta-shadow);
+}
+
+/* =========================================================================
+   NATIVE <dialog> FROSTED INSPECTION VISOR & SPOTLIGHT ⌘K PALETTE
+   ========================================================================= */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  background: var(--backdrop-scrim);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog[open]::backdrop {
+    @starting-style {
+      opacity: 0;
+    }
+  }
+}
+
+/* Frosted Inspection Visor (<dialog class="dialog-visor">) */
+dialog.dialog-visor {
+  padding: 0;
+  margin: max(74px, env(safe-area-inset-top) + 68px) auto auto;
+  width: min(790px, calc(100vw - 32px));
+  max-height: calc(100dvh - 88px);
+  overflow: visible;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--visor-bg);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-visor);
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+@media (min-width: 768px) {
+  dialog.dialog-visor {
+    margin: auto;
+    min-height: min(460px, calc(100dvh - 120px));
+    max-height: calc(100dvh - 40px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.dialog-visor {
+    transform: scale(0.95) translateY(6px);
+    transition: opacity 190ms ease-out, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+dialog.dialog-visor[open] {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.dialog-visor[open] {
+    transform: scale(1) translateY(0);
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.95) translateY(6px);
+    }
+  }
+}
+
+/* Top Physical Gripper Clamp Receiver on Frosted Visor */
+.visor-clamp {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 13px;
+  border-radius: 5px;
+  background: var(--clamp-bg);
+  border: 1.5px solid var(--clamp-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+}
+
+.visor-clamp-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent-vermilion);
+  box-shadow: 0 0 6px var(--accent-vermilion);
+}
+
+.visor-clamp-bar {
+  width: 22px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--ink-muted);
+}
+
+/* Apple-Style Sliding Segmented Control */
+.segmented-control {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  user-select: none;
+}
+
+.segmented-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  border-radius: 7px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 2px 6px rgba(23, 24, 27, 0.10), var(--inner-highlight);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.segmented-control[data-active="engineer"] .segmented-thumb {
+  transform: translateX(100%);
+}
+
+/* Spotlight Command Palette (<dialog class="dialog-cmd">) — 0ms instant open */
+dialog.dialog-cmd {
+  padding: 0;
+  margin: clamp(48px, 11vh, 108px) auto auto;
+  width: min(560px, calc(100vw - 24px));
+  max-height: calc(100dvh - 120px);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--visor-bg);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-visor);
+  transition: none;
+  animation: none;
+}
+
+dialog.dialog-cmd[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Architecture Inspector bottom sheet */
 dialog.inspector-modal {
   padding: 0;
-  border: 1px solid var(--border-subtle);
-  border-radius: 1rem 1rem 0 0;
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px 16px 0 0;
+  background: var(--visor-bg);
+  backdrop-filter: blur(24px) saturate(155%);
+  color: var(--ink-primary);
   width: 100%;
   max-width: 100%;
   max-height: 82dvh;
@@ -120,52 +1584,305 @@ dialog.inspector-modal[open] {
   flex-direction: column;
 }
 
-dialog.inspector-modal:modal {
-  overscroll-behavior: contain;
+/* Pure CSS stroke trace animation for ArchitectureVisualizer */
+@media (prefers-reduced-motion: no-preference) {
+  .arch-trace-path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: arch-edge-draw 420ms ease-out forwards;
+  }
 }
 
-dialog.inspector-modal::backdrop {
-  background: rgba(7, 11, 18, 0.72);
+/* Mobile 2D Linear Rail Carriage Indicator (< 1024px, 0 KB Three.js) */
+.mobile-rail-bar {
+  height: 22px;
+  width: 100%;
+  background: var(--bg-recessed);
+  border-bottom: 1px solid var(--border-hairline);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.mobile-rail-track {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--rail-2d-bg);
+  border: 1px solid var(--border-strong);
   overflow: hidden;
-  overscroll-behavior: contain;
+}
+
+.mobile-rail-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent-vermilion), var(--accent-tech));
+  transform-origin: left center;
+  transform: scaleX(0.12);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .mobile-rail-fill {
+      animation: mobile-rail-progress 1ms linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+/* =========================================================================
+   D1 OVERHEAD DRONE-CARRIED ORGANIC CERTIFICATION CAROUSEL
+   Single-row right-to-left squadron with staggered organic flight, twin
+   center-belly suspension chains, WCAG 2.2.2 Pause/Play & reduced-motion.
+   ========================================================================= */
+.cert-carousel-shell {
+  position: relative;
+  width: 100%;
+}
+
+.cert-marquee-window {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 20px 6px 24px;
+  contain: layout style;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cert-marquee-window {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  }
+}
+
+.cert-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cert-marquee-track {
+    animation: cert-marquee-scroll 54s linear infinite;
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cert-marquee-clone {
+    display: none;
+  }
+}
+
+.cert-carousel-shell[data-paused="true"] .cert-marquee-track,
+.cert-carousel-shell[data-in-view="false"] .cert-marquee-track,
+.cert-carousel-shell:has(.cert-marquee-window:hover) .cert-marquee-track,
+.cert-carousel-shell:has(.cert-marquee-window:focus-within) .cert-marquee-track {
+  animation-play-state: paused;
+}
+
+.cert-marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-right: 24px;
+  flex-shrink: 0;
+}
+
+.cert-flight-unit {
+  position: relative;
+  flex-shrink: 0;
+  /* Individual transform property base identity (prevents stacking-context jumps on hover) */
+  translate: 0 var(--base-y, 0px);
+  scale: 1;
+  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cert-flight-unit:hover,
+.cert-flight-unit:focus-within {
+  z-index: 4;
+  translate: 0 calc(var(--base-y, 0px) - 5px);
+}
+
+.cert-flight-bob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cert-flight-bob {
+    animation: cert-drone-bob var(--bob-dur, 4.3s) ease-in-out var(--bob-delay, 0s) infinite;
+  }
+}
+
+.cert-drone-wrap {
+  position: relative;
+  z-index: 3;
+  margin-bottom: -4px;
+  rotate: var(--drone-pitch, -5deg);
+  scale: 1;
+  transition: rotate 220ms cubic-bezier(0.22, 1, 0.36, 1), scale 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cert-flight-unit:hover .cert-drone-wrap,
+.cert-flight-unit:focus-within .cert-drone-wrap {
+  rotate: 0deg;
+  scale: 1.07;
+}
+
+.cert-drone-svg {
+  display: block;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.18));
+}
+
+.cert-prop-wide {
+  opacity: 1;
+}
+
+.cert-prop-narrow {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cert-prop-wide {
+    animation: cert-blade-spin-a 220ms steps(2, jump-none) infinite;
+  }
+
+  .cert-prop-narrow {
+    animation: cert-blade-spin-b 220ms steps(2, jump-none) infinite;
+  }
+}
+
+.cert-cables-svg {
+  display: block;
+  width: 112px;
+  height: 20px;
+  margin-bottom: -1px;
+  pointer-events: none;
+}
+
+.cert-payload-sway {
+  transform-origin: 50% 0%;
+  rotate: 0deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cert-payload-sway {
+    animation: cert-payload-pendulum var(--sway-dur, 5.1s) ease-in-out var(--bob-delay, 0s) infinite;
+  }
+}
+
+.cert-carousel-shell[data-paused="true"] .cert-flight-bob,
+.cert-carousel-shell[data-paused="true"] .cert-payload-sway,
+.cert-carousel-shell[data-paused="true"] .cert-prop-wide,
+.cert-carousel-shell[data-paused="true"] .cert-prop-narrow,
+.cert-carousel-shell[data-in-view="false"] .cert-flight-bob,
+.cert-carousel-shell[data-in-view="false"] .cert-payload-sway,
+.cert-carousel-shell[data-in-view="false"] .cert-prop-wide,
+.cert-carousel-shell[data-in-view="false"] .cert-prop-narrow {
+  animation-play-state: paused;
+}
+
+.cert-banner-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 274px;
+  min-height: 76px;
+  padding: 10px 13px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  border: 1px solid var(--mono-shell-ring);
+  box-shadow: var(--mono-shadow-rest), var(--inner-highlight);
+  text-decoration: none;
+  scroll-margin-inline: 48px;
+  transition: border-color 180ms ease, box-shadow 200ms ease, background-color 180ms ease;
+}
+
+.cert-banner-card:hover,
+.cert-banner-card:focus-visible {
+  border-color: var(--mono-shell-ring-hover);
+  box-shadow: var(--mono-shadow-hover), var(--inner-highlight);
+}
+
+.cert-brand-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 7px;
+  background: var(--cert-logo-bg);
+  border: 1px solid var(--border-hairline);
+  box-shadow: var(--inner-highlight);
+}
+
+.cert-banner-issuer {
+  font-family: var(--family-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent-vermilion);
+  line-height: 1.15;
+}
+
+.cert-banner-name {
+  margin-top: 1px;
+  font-family: var(--family-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.24;
+  color: var(--ink-primary);
+}
+
+.cert-banner-meta {
+  font-family: var(--family-mono);
+  font-size: 10px;
+  color: var(--ink-muted);
 }
 
 /* MDX Prose styling */
 .prose-tech {
-  color: var(--text-primary);
+  color: var(--ink-primary);
   max-width: 72ch;
 }
 
 .prose-tech h2 {
   margin-top: 2.25rem;
   margin-bottom: 0.85rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.45rem;
+  font-weight: 600;
   scroll-margin-top: 5.5rem;
 }
 
 .prose-tech h3 {
   margin-top: 1.75rem;
   margin-bottom: 0.65rem;
-  font-size: 1.1875rem;
+  font-size: 1.15rem;
   font-weight: 600;
   scroll-margin-top: 5.5rem;
 }
 
 .prose-tech p {
-  margin-bottom: 1.1rem;
-  color: var(--text-muted);
+  margin-bottom: 1.05rem;
+  color: var(--ink-secondary);
 }
 
 .prose-tech strong {
-  color: var(--text-primary);
+  color: var(--ink-primary);
   font-weight: 600;
 }
 
 .prose-tech ul, .prose-tech ol {
   margin-bottom: 1.15rem;
   padding-left: 1.35rem;
-  color: var(--text-muted);
+  color: var(--ink-secondary);
 }
 
 .prose-tech ul {
@@ -185,40 +1902,104 @@ dialog.inspector-modal::backdrop {
   overflow-x: auto;
   padding: 1rem 1.15rem;
   margin: 1.25rem 0;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
   background: var(--astro-code-background) !important;
   font-size: 0.875rem;
   line-height: 1.6;
 }
 
 .prose-tech code:not(pre code) {
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.375rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--accent-primary);
+  padding: 0.12rem 0.4rem;
+  border-radius: 5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  color: var(--accent-tech);
   font-size: 0.875em;
 }
 
 .prose-tech a {
-  color: var(--accent-primary);
+  color: var(--accent-tech);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+@keyframes arch-edge-draw {
+  to {
+    stroke-dashoffset: 0;
   }
+}
 
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+@keyframes pixel-bar-unfold {
+  0% {
+    opacity: 0;
+    transform: translateY(2px) scaleX(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleX(1);
+  }
+}
+
+@keyframes mobile-rail-progress {
+  from {
+    transform: scaleX(0.08);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes cert-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes cert-drone-bob {
+  0%,
+  100% {
+    translate: 0 calc(var(--bob-amp, 6px) * -1);
+  }
+  50% {
+    translate: 0 var(--bob-amp, 6px);
+  }
+}
+
+@keyframes cert-payload-pendulum {
+  0%,
+  100% {
+    rotate: calc(var(--sway-deg, 1.4deg) * -1);
+  }
+  50% {
+    rotate: var(--sway-deg, 1.4deg);
+  }
+}
+
+@keyframes cert-blade-spin-a {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes cert-blade-spin-b {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }

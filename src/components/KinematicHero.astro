@@ -1,0 +1,366 @@
+---
+import type { ResumeData } from '@/data/resume.schema';
+import PersonalBadgeDock from '@/components/PersonalBadgeDock.astro';
+import {
+  PIXEL_GLYPHS,
+  type ModuleIconKey,
+  type ShowcaseModule,
+} from '@/data/showcase-modules';
+
+interface Props {
+  resume: ResumeData;
+  modules: ShowcaseModule[];
+}
+
+const { resume, modules } = Astro.props;
+
+const PIXEL_PALETTE: Record<string, string> = {
+  k: 'var(--ink-primary)',
+  s: 'var(--ink-secondary)',
+  m: 'var(--ink-muted)',
+  w: 'var(--bg-elevated)',
+  b: 'var(--accent-tech)',
+  c: 'var(--accent-tech-3d)',
+  o: 'var(--hw-actuator)',
+  r: 'var(--ink-secondary)',
+  p: 'var(--ink-secondary)',
+};
+
+function pixelRects(grid: readonly string[]) {
+  const rects: Array<{ x: number; y: number; fill: string }> = [];
+  grid.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const ch = row[x];
+      if (ch === '.') continue;
+      rects.push({ x, y, fill: PIXEL_PALETTE[ch] || 'var(--ink-primary)' });
+    }
+  });
+  return rects;
+}
+
+const glyphRectLists = PIXEL_GLYPHS.map((g) => ({
+  id: g.id,
+  label: g.label,
+  rects: pixelRects(g.grid),
+}));
+
+const chipGlyph = glyphRectLists[0];
+
+const ICON_PATHS: Record<ModuleIconKey, string> = {
+  profile: '<circle cx="12" cy="8" r="4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>',
+  uav: '<circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l10 10M17 7L7 17"/><rect x="10" y="10" width="4" height="4" rx="1"/>',
+  automation: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M10 6.5h4.5a3 3 0 0 1 3 3V14M6.5 10v4.5a3 3 0 0 0 3 3H14"/>',
+  rag: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>',
+  rover: '<rect x="4" y="9" width="16" height="7" rx="2"/><circle cx="7.5" cy="18.5" r="2"/><circle cx="16.5" cy="18.5" r="2"/><path d="M12 9V5m-3 0h6"/>',
+  connect: '<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
+};
+---
+
+<!-- Mobile 2D Linear Rail Carriage Bar (< 1024px, 0 KB Three.js) -->
+<div class="mobile-rail-bar lg:hidden" aria-hidden="true">
+  <div class="mobile-rail-track">
+    <div class="mobile-rail-fill"></div>
+  </div>
+</div>
+
+<!-- Full-Bleed 3D Kinematic Hero Stage (Three.js PBR Gantry + 6-DOF UR Cobot + 6 Upright 2.5D Industrial Cartridges) -->
+<section
+  aria-labelledby="hero-heading"
+  data-kinematic-stage
+  class="relative flex w-full flex-col justify-between overflow-x-clip border-b border-hairline pb-7 pt-5 lg:min-h-[clamp(620px,calc(100svh-62px),860px)] lg:pb-8 lg:pt-14"
+>
+  <!-- Three.js WebGL 3D Heavy CNC Gantry & 6-DOF UR Cobot Canvas (Desktop >= 1024px & pointer:fine only) -->
+  <canvas
+    id="arm-canvas"
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 z-[var(--z-arm)] hidden h-full w-full lg:block"
+  ></canvas>
+
+  <!-- Center Editorial Identity Stage (Readable Over Cleanroom Backdrop & Soft Radial Veil) -->
+  <div
+    data-hero-copy
+    class="relative z-[var(--z-hero-copy)] mx-auto my-auto flex max-w-3xl flex-col items-center px-4 py-4 text-center transition-[opacity,transform] duration-300 sm:px-6 lg:py-6"
+  >
+    <!-- Subtle cleanroom radial veil behind typography so foreground text stays >= 12:1 even when 3D arm sweeps behind -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -inset-x-10 -inset-y-1 -z-10 hidden lg:block"
+      style="background: radial-gradient(ellipse 72% 72% at 50% 50%, var(--hero-veil) 45%, transparent 100%);"
+    ></div>
+
+    <!-- Reserved 38px 9x9 Pixel-Art Intro Strip -> UAV Quadrotor detaches into autonomous webpage flight -->
+    <div id="pixel-intro-strip" class="relative mb-3.5 flex min-h-[38px] w-full items-center justify-center">
+      <div
+        id="pixel-glyph-row"
+        data-state="hidden"
+        aria-hidden="true"
+        class="pixel-glyph-row flex items-center justify-center gap-3.5"
+      >
+        {glyphRectLists.map((g, idx) => (
+          <svg
+            data-pixel-glyph={g.id}
+            data-glyph-index={idx}
+            viewBox="0 0 9 9"
+            width="28"
+            height="28"
+            shape-rendering="crispEdges"
+            class="pixel-glyph-svg"
+          >
+            {g.rects.map((r) => (
+              <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+            ))}
+          </svg>
+        ))}
+      </div>
+
+      <!-- Apple × Industrial Hardware Domain Capsule & 9x9 Chip Emblem -->
+      <div
+        id="pixel-domain-caption"
+        data-state="visible"
+        class="pixel-caption-bar"
+      >
+        <svg
+          viewBox="0 0 9 9"
+          width="15"
+          height="15"
+          shape-rendering="crispEdges"
+          aria-hidden="true"
+          class="shrink-0"
+        >
+          {chipGlyph.rects.map((r) => (
+            <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+          ))}
+        </svg>
+        <span>Applied AI</span>
+        <span class="px-sep" aria-hidden="true"></span>
+        <span>Enterprise Automation</span>
+        <span class="px-sep" aria-hidden="true"></span>
+        <span>Robotics</span>
+      </div>
+    </div>
+
+    <!-- Immediate Byte-0 SSR Hero Identity + Mockup Signature Display -->
+    <h1
+      id="hero-heading"
+      translate="no"
+      class="font-display text-[clamp(2.35rem,4.6vw,4.05rem)] font-bold leading-[1.03] tracking-[-0.036em] text-ink"
+    >
+      {resume.profile.name}
+    </h1>
+
+    <blockquote class="hero-subtitle hero-quote-text mx-auto mt-3.5 max-w-[40rem] text-balance font-sans text-[clamp(1.02rem,1.42vw,1.22rem)] font-normal leading-[1.52] tracking-[-0.01em] text-ink-secondary">
+      &ldquo;Science can amuse and fascinate us all, but it is{' '}
+      <span class="font-semibold text-ink">engineering</span> that changes the
+      world<span class="text-vermilion">.</span>&rdquo;{' '}
+      <cite class="not-italic whitespace-nowrap font-normal text-[0.88em] text-muted">
+        &mdash;&nbsp;Isaac Asimov
+      </cite>
+    </blockquote>
+  </div>
+
+  <!-- Right-Edge Tucked Ceramic Monobloc Personal Badge (C2 shape + C3 stitch, pulled from left by 3D arm) -->
+  <PersonalBadgeDock />
+
+  <!-- Bottom 6 Molded 3D Ceramic-over-Aluminum Monolith Cards Seated in CNC Desk Wells -->
+  <div class="hero-dock-wrap relative z-[var(--z-stations)] mx-auto mt-5 w-full max-w-[1640px] px-4 sm:px-6 lg:mt-4 lg:px-8">
+    <div class="card-dock-3d" data-station-dock>
+      {modules.map((mod, idx) => (
+        <div class="tile-bay-slot">
+          <!-- Fixed CNC-milled desk well that stays anchored on the surface when the monolith lifts -->
+          <div class="tile-desk-well" aria-hidden="true"></div>
+
+          <a
+            href={mod.href}
+            data-station-index={idx}
+            data-station-href={mod.href}
+            class="tile-card group"
+          >
+            <!-- Zone 1: Integrated 3D Top Roof Plane with Recessed Center Robot Latch -->
+            <div class="tile-roof" aria-hidden="true">
+              <span class="tile-detent"></span>
+            </div>
+
+            <!-- Zone 2: Seamless Matte Ceramic Front Face -->
+            <div class="tile-face">
+              <div>
+                <div class="tile-cat-row mb-2.5 flex items-center gap-1.5 xl:gap-2">
+                  <span class="tile-icon-box" aria-hidden="true">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      set:html={ICON_PATHS[mod.iconKey]}
+                    />
+                  </span>
+                  <span class="truncate font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-muted xl:text-[10.5px] xl:tracking-[0.09em]">
+                    {mod.category}
+                  </span>
+                </div>
+
+                <h2 class="tile-title dim-title font-display text-[17px] font-bold leading-snug tracking-[-0.025em] text-ink lg:text-[18px]">
+                  {mod.title}
+                </h2>
+
+                {mod.cardHighlights && mod.cardHighlights.length > 0 ? (
+                  <ul class="tile-spec-list mt-1.5 space-y-1 text-[11px] leading-[1.35] text-muted xl:text-[11.5px]">
+                    {mod.cardHighlights.map((item) => (
+                      <li>
+                        <span class="font-medium text-ink-secondary">{item.term}</span>
+                        <span aria-hidden="true"> &mdash; </span>
+                        <span>{item.desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="tile-summary mt-1.5 text-[11.5px] leading-[1.42] text-muted xl:text-[12.5px] xl:leading-relaxed">
+                    {mod.cardSummary}
+                  </p>
+                )}
+              </div>
+
+              <div class="tile-footer mt-3 flex items-center justify-between gap-1.5 border-t border-hairline pt-2.5 font-mono">
+                <div class="flex flex-wrap items-center gap-1 xl:gap-1.5">
+                  {mod.chips.map((chip) => (
+                    <span class="tile-chip">{chip}</span>
+                  ))}
+                </div>
+                <span
+                  aria-hidden="true"
+                  class="shrink-0 text-xs font-medium text-tech transition-transform group-hover:translate-x-0.5"
+                >
+                  &rarr;
+                </span>
+              </div>
+            </div>
+
+            <!-- Zone 3: Integrated Brushed Aluminum Lower Plinth -->
+            <div class="tile-plinth" aria-hidden="true">
+              <span class="tile-plinth-pad"></span>
+              <span class="tile-plinth-pad"></span>
+            </div>
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Physically Hoisted S1 Monolith Proxy Synced 1:1 to 3D Gripper Jaws -->
+<div id="hoist-card" class="hoist-card" aria-hidden="true"></div>
+
+<style>
+  .pixel-glyph-row[data-state='hidden'] {
+    display: none;
+  }
+
+  .pixel-caption-bar[data-state='hidden'] {
+    display: none;
+  }
+
+  .pixel-glyph-svg {
+    opacity: 0;
+    transform: scale(0.45) translateY(8px);
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease-out;
+  }
+
+  .pixel-glyph-svg.is-in {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  .pixel-glyph-svg.is-out {
+    opacity: 0;
+    transform: scaleX(1.3) scaleY(0.16) rotate(-22deg);
+    transition: transform 230ms cubic-bezier(0.4, 0, 0.2, 1), opacity 190ms ease-in;
+  }
+
+  .pixel-glyph-svg.is-takeoff {
+    opacity: 1;
+    transform: scale(1.24) translateY(-8px);
+    transition: transform 210ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Compact short-desktop vertical rhythm so all 6 cartridges fit 100% above the fold at 1280x720 */
+  @media (min-width: 1024px) and (max-height: 780px) {
+    [data-kinematic-stage] {
+      min-height: calc(100svh - 62px);
+      padding-top: 2.75rem;
+      padding-bottom: 1.15rem;
+    }
+
+    [data-hero-copy] {
+      padding-top: 0.25rem;
+      padding-bottom: 0.35rem;
+    }
+
+    #pixel-intro-strip {
+      min-height: 30px;
+      margin-bottom: 0.45rem;
+    }
+
+    #hero-heading {
+      font-size: clamp(2.15rem, 3.85vw, 3.2rem);
+    }
+
+    .hero-subtitle {
+      margin-top: 0.45rem;
+    }
+
+    .hero-quote-text {
+      font-size: clamp(0.95rem, 1.35vw, 1.12rem);
+    }
+
+    .hero-dock-wrap {
+      margin-top: 0.6rem;
+    }
+
+    .tile-cat-row {
+      margin-bottom: 0.5rem;
+    }
+
+    .tile-title {
+      font-size: 16px;
+    }
+
+    .tile-footer {
+      margin-top: 0.65rem;
+      padding-top: 0.5rem;
+    }
+  }
+</style>
+
+<!-- Progressive Client Hydration: Conditional Desktop-Only Dynamic Import of Three.js 3D Cobot & Drone -->
+<script>
+  // Conditional Desktop-Only Dynamic Import (0 KB Three.js / cobot JS downloaded on mobile < 1024px or touch!)
+  const stageEl = document.querySelector('[data-kinematic-stage]') as HTMLElement | null;
+  if (stageEl && typeof window.matchMedia === 'function') {
+    const mq = window.matchMedia('(min-width: 1024px) and (pointer: fine)');
+    let activeController: { destroy: () => void } | null = null;
+    let loading = false;
+
+    const syncRuntime = async () => {
+      if (mq.matches && !activeController && !loading) {
+        loading = true;
+        try {
+          const mod = await import('@/lib/kinematic-runtime');
+          if (mq.matches) {
+            activeController = mod.mountKinematicRuntime(stageEl);
+          }
+        } finally {
+          loading = false;
+        }
+      } else if (!mq.matches && activeController) {
+        activeController.destroy();
+        activeController = null;
+      }
+    };
+
+    syncRuntime();
+    mq.addEventListener('change', syncRuntime);
+  }
+</script>

@@ -3,16 +3,19 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-// Import core lib directly to avoid pdf-parse's top-level test-file quirk in ESM/CLI environments
 const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
 const MAX_BYTES = 300 * 1024;
 const REQUIRED_TOKENS = [
   'Claudiu',
   'Betfair',
+  'Mar 2022',
+  'Jan 2027',
   '40+',
   '70%',
   'QUADYX',
+  'Agri-Rover',
+  'Spain',
   'AWS',
   'Technical University of Cluj-Napoca',
   'clauxspan2002@gmail.com',
@@ -32,8 +35,10 @@ async function main() {
   const buf = fs.readFileSync(pdfPath);
   const parsed = await pdfParse(buf);
 
-  if (parsed.numpages < 1 || parsed.numpages > 2) {
-    throw new Error(`ATS PDF page count ${parsed.numpages} violates strict 1..2 page ceiling.`);
+  if (parsed.numpages !== 1) {
+    throw new Error(
+      `ATS PDF page count ${parsed.numpages} violates strict 1-page A4 target (check print spacing).`,
+    );
   }
 
   const text = parsed.text || '';
@@ -43,7 +48,7 @@ async function main() {
   }
 
   console.log(
-    `ATS PDF verified: ${parsed.numpages} page(s), ${(stat.size / 1024).toFixed(1)} KB, all ${REQUIRED_TOKENS.length} core tokens extracted.`,
+    `ATS PDF verified: ${parsed.numpages} page A4, ${(stat.size / 1024).toFixed(1)} KB, all ${REQUIRED_TOKENS.length} core tokens extracted.`,
   );
 }
 

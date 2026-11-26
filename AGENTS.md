@@ -5,19 +5,22 @@ Working guide for AI agents contributing to this repository.
 ## Project & Deployment
 - **Public Repository:** `https://github.com/Mr-Span/personal-website`
 - **Active Local Dev Clone:** `C:\Dev\personal-website` (outside OneDrive to avoid `node_modules/` file-locking on Windows)
-- **Hosting:** 100% static on GitHub Pages with custom domain (`CNAME` via Repository Settings -> Pages), deployed via `.github/workflows/deploy.yml`
-- **Stack (v2.0):** Astro (`output: 'static'`, `trailingSlash: 'always'`), TypeScript strict, Tailwind CSS v4, React + Motion (`LazyMotion`) islands (`client:visible`), MDX + Zod Content Collections, Shiki (`css-variables`), Playwright ATS PDF pipeline
-- **Design Document:** `docs/designs/personal-website-v2.md`
+- **Hosting:** 100% static on GitHub Pages with optional custom domain, deployed via `.github/workflows/deploy.yml`
+- **Stack (v2.1):** Astro 5 (`output: 'static'`, `trailingSlash: 'always'`), TypeScript strict, Tailwind CSS v4 (`@theme inline`), self-hosted IBM Plex superfamily, React islands (`client:visible`, zero `motion` dependency — pure CSS trace animation), vanilla TS desktop-only kinematic engine + autonomous pixel drone (`< 5 KB` gzip, `0 KB` loaded on mobile), MDX + Zod Content Collections, Shiki (`css-variables`), Playwright ATS PDF pipeline, build-time `/llms.txt` & `/index.md`
+- **Design Document:** `docs/designs/personal-website-v2-swiss-kinematic.md`
 - **Rollback Baseline:** Git tag `v1.0-static-backup`
 
-## Design System & UI Quality
-- Visual source of truth: `design-system/personal-website/MASTER.md`, `design-system/personal-website/tokens.css`, and `src/styles/tokens.css`.
-- **Polarity:** Techy Dark Mode default (`#070B12`, `#0D1422`, Baby Blue `#38BDF8`/`#7DD3FC`, Signal Coral `#FB7185`, Signal Mint `#34D399`) + Light Mode toggle (`#F8FAFC`, `#FFFFFF`, Sky-700 `#0369A1`, Rose-700 `#BE123C`, Emerald-700 `#047857`).
-- **Zero Clutter:** No fake telemetry HUDs, no decorative micro-badges, no hover-open Resume overlays, no circular carousels hiding certifications.
-- Maintain WCAG 2.1 AA contrast (`>= 4.5:1` normal text) in both Light and Dark themes, visible `:focus-visible`, `prefers-reduced-motion: reduce`, and Lighthouse `>= 95` (Perf/A11y/BP/SEO) at `1440px` and `375px`.
+## Design System & UI Quality (Anti-AI-Slop — Swiss Cleanroom × Braun/CAD)
+- Visual source of truth: `src/styles/tokens.css`, `src/styles/global.css`, and `docs/designs/personal-website-v2-swiss-kinematic.md`.
+- **Polarity:** OS `prefers-color-scheme` default (`<meta name="color-scheme" content="light dark">`) + persistent manual toggle (`localStorage` key `claudiu-span-theme-v2`):
+  - **Light (Warm Cleanroom Vellum):** `#F5F2EB` canvas, `#ECE8DF` recessed/surface, `#151619` ink, `#B33A10` vermilion, `#0B5D8A` blueprint tech blue.
+  - **Dark (Anodized Graphite Cleanroom):** `#141413` canvas, `#1C1C1A` surface, `#F2EFE9` ink, `#F07241` / `#E35F32` vermilion, `#6DBCE3` desaturated steel-cyan, plus dedicated `--hw-*` orthographic hardware tokens.
+- **Geometry & Restraint:** `0px–2px` border radius, `1px` architectural hairlines, color-step sibling dimming (`>= 5.4:1` AA), zero `.bento-card` containeritis, zero `Space Grotesk`/`Inter`/`JetBrains Mono`, zero pill soup, zero floating right-edge tabs.
+- **Authorized Interactive Signatures:** Desktop-only (`>= 1024px`, fine pointer) overhead 2D orthographic cobot arm on linear rail (background layer underneath readable hero copy) + toggleable live IK telemetry + WCAG 2.2.2 Pause toggle + `9×9` pixel-art intro transforming the UAV glyph into an autonomous flying pixel drone.
+- Maintain WCAG 2.1 AA contrast (`>= 4.5:1` normal text, `>= 3:1` non-text), visible `:focus-visible`, `prefers-reduced-motion`, native `<dialog>` modals, and strict transfer/JS budgets (`< 300 KB` desktop, `< 220 KB` mobile with `0 KB` kinematic JS).
 
 ## Data & Security Invariants
-- Single source of truth for `/resume` and `/Claudiu-Span-CV.pdf`: `src/data/resume.json` (validated via Zod, rendered via Playwright `/resume-print/` -> CI verified `1–2` pages & `<= 300 KB`).
+- Single source of truth for `/`, `/resume/`, `/Claudiu-Span-CV.pdf`, `/llms.txt`, and `/index.md`: `src/data/resume.json` + `src/content/projects/*.mdx` (validated via Zod, rendered via Playwright `/resume-print/` -> CI verified strictly 1 page A4 & `<= 300 KB`).
 - **Private Repos:** Zod strictly forbids `repoUrl` when `visibility !== 'public'`.
-- **Public Repo Security:** Never commit secrets, tokens, private notes, raw Google AI Pro exports (`raw-media/`), local Windows paths, or unredacted personal certificate files containing PII/CNP/EXIF.
+- **Public Repo Security:** Never commit secrets, tokens, private notes, local Windows paths, or unredacted personal certificate files containing PII/CNP/EXIF.
 - Keep `Mr-Span/claux-cv` and `Mr-Span.github.io` completely independent and untouched.

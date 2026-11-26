@@ -9,7 +9,7 @@
       btn.setAttribute('data-copy-code', '');
       btn.textContent = 'Copy';
       btn.className =
-        'absolute right-2.5 top-2.5 rounded-md border border-border-strong bg-surface px-2.5 py-1 font-mono text-xs font-medium text-ink transition-colors hover:border-baby hover:text-baby';
+        'absolute right-2.5 top-2.5 rounded-[2px] border border-interactive bg-canvas px-2.5 py-1 font-mono text-xs font-medium text-ink transition-colors hover:border-ink hover:bg-surface';
       btn.addEventListener('click', () => {
         const code = pre.querySelector('code');
         const text = code ? code.textContent || '' : pre.textContent || '';

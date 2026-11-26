@@ -8,30 +8,26 @@ import { SITE, withBase } from '@/data/site';
   description="The requested page could not be found. Navigate to Home, Projects, or Resume."
   canonicalPath="/404.html"
 >
-  <section class="bento-card mx-auto my-12 max-w-xl p-8 text-center">
-    <p class="font-mono text-xs uppercase tracking-widest text-coral">404 · Not Found</p>
-    <h1 class="mt-2 font-display text-3xl font-bold text-ink">Page not found</h1>
-    <p class="mt-3 text-sm text-muted">
-      The link may be outdated after upgrading to v2.0. Jump straight to the main sections below.
+  <section class="hw-panel mx-auto my-12 max-w-xl p-8 text-center">
+    <p class="hw-eyebrow text-vermilion">
+      <span class="px-beacon" aria-hidden="true"></span>
+      <span>404</span>
+      <span class="px-sep" aria-hidden="true"></span>
+      <span>Not Found</span>
+    </p>
+    <h1 class="mt-3 font-display text-3xl font-semibold tracking-[-0.03em] text-ink">Page not found</h1>
+    <p class="mt-3 text-sm leading-relaxed text-ink-secondary">
+      The requested route does not exist or moved during the portfolio upgrade. Jump directly to the main sections below.
     </p>
 
-    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-      <a
-        href={withBase('/')}
-        class="inline-flex min-h-[44px] items-center rounded-lg bg-baby px-5 text-sm font-semibold text-[var(--accent-on-primary)]"
-      >
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+      <a href={withBase('/')} class="cta-anodized btn-press">
         Home
       </a>
-      <a
-        href={withBase('/projects/')}
-        class="inline-flex min-h-[44px] items-center rounded-lg border border-border-strong bg-elevated px-4 text-sm font-semibold text-ink hover:border-baby"
-      >
+      <a href={withBase('/projects/')} class="cta-secondary-bevel btn-press">
         Projects
       </a>
-      <a
-        href={withBase('/resume/')}
-        class="inline-flex min-h-[44px] items-center rounded-lg border border-border-strong bg-elevated px-4 text-sm font-semibold text-ink hover:border-baby"
-      >
+      <a href={withBase('/resume/')} class="cta-secondary-bevel btn-press">
         Resume
       </a>
     </div>

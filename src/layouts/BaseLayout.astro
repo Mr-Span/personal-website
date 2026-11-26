@@ -1,18 +1,21 @@
 ---
 import '@/styles/global.css';
 import '@/styles/print.css';
+import instrumentSansLatinUrl from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
+import plexSansLatinUrl from '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?url';
+import plexMono400Url from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import ResumeSideButton from '@/components/ResumeSideButton.astro';
+import CommandPalette from '@/components/CommandPalette.astro';
 import { SITE, absoluteUrl, withBase } from '@/data/site';
+import { getResumeData } from '@/lib/resume-loader';
 
 interface Props {
   title: string;
   description: string;
   canonicalPath?: string;
   ogType?: 'website' | 'article';
-  includeMonoFont?: boolean;
-  hideResumeSideButton?: boolean;
+  fullBleedHero?: boolean;
 }
 
 const {
@@ -20,26 +23,24 @@ const {
   description,
   canonicalPath = '/',
   ogType = 'website',
-  includeMonoFont = false,
-  hideResumeSideButton = false,
+  fullBleedHero = false,
 } = Astro.props;
 
+const resume = getResumeData();
 const canonicalUrl = absoluteUrl(canonicalPath);
 const ogImageUrl = absoluteUrl('/og/default.png');
-const fontHref = includeMonoFont
-  ? 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap'
-  : 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap';
 
 const personJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: SITE.name,
-  jobTitle: SITE.role,
+  name: resume.profile.name,
+  jobTitle: resume.profile.headline,
   url: absoluteUrl('/'),
-  email: `mailto:${SITE.email}`,
+  email: `mailto:${resume.profile.email}`,
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Cluj-Napoca',
+    addressRegion: 'EU (Romania & Spain — Open to Relocation)',
     addressCountry: 'RO',
   },
   worksFor: [
@@ -55,19 +56,29 @@ const personJsonLd = {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="author" content={SITE.name} />
-    <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#070B12" />
+    <meta name="author" content={resume.profile.name} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#EFECE7" />
     <meta name="build-sha" content={SITE.buildSha} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
-    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — Engineering Notes`} href={withBase('/rss.xml')} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${resume.profile.name} — Engineering Notes`}
+      href={withBase('/rss.xml')}
+    />
+
+    <!-- Preload critical self-hosted WOFF2 faces -->
+    <link rel="preload" href={instrumentSansLatinUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={plexSansLatinUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={plexMono400Url} as="font" type="font/woff2" crossorigin />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -77,28 +88,27 @@ const personJsonLd = {
     <meta property="og:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href={fontHref} rel="stylesheet" />
-
-    <!-- Synchronous pre-paint theme bootstrap (zero FOUC, safe in LinkedIn mobile WebView) -->
+    <!-- Synchronous pre-paint OS-following + persisted override theme bootstrap (zero FOUC, WebView safe) -->
     <script is:inline>
       (() => {
-        let theme = 'dark';
+        const KEY = 'claudiu-span-theme-v2';
+        let saved = null;
         try {
-          const saved = window.localStorage.getItem('claudiu-span-theme-v2');
-          if (saved === 'light' || saved === 'dark') {
-            theme = saved;
-          }
+          const val = window.localStorage.getItem(KEY);
+          if (val === 'light' || val === 'dark') saved = val;
         } catch {
-          // Storage blocked in strict WebViews; keep default dark polarity
+          // Storage blocked in strict WebViews; keep OS polarity
         }
-        document.documentElement.setAttribute('data-theme', theme);
+        const osDark =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const effective = saved || (osDark ? 'dark' : 'light');
+
+        document.documentElement.setAttribute('data-theme', effective);
         const cs = document.querySelector('meta[name="color-scheme"]');
-        if (cs) cs.setAttribute('content', theme);
+        if (cs) cs.setAttribute('content', saved || 'light dark');
         const tc = document.querySelector('meta[name="theme-color"]');
-        if (tc) tc.setAttribute('content', theme === 'light' ? '#F8FAFC' : '#070B12');
+        if (tc) tc.setAttribute('content', effective === 'dark' ? '#111317' : '#EFECE7');
       })();
     </script>
 
@@ -112,52 +122,91 @@ const personJsonLd = {
       ></script>
     )}
   </head>
-  <body class="bg-canvas text-ink antialiased selection:bg-baby/25 selection:text-ink">
+  <body class="bg-canvas text-ink antialiased selection:bg-vermilion/20 selection:text-ink">
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <Header currentPath={canonicalPath} />
 
-    {!hideResumeSideButton && <ResumeSideButton />}
-
-    <main id="main-content" class="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
-      <slot />
-    </main>
+    {fullBleedHero ? (
+      <main id="main-content" class="relative z-[1] w-full">
+        <slot />
+      </main>
+    ) : (
+      <main id="main-content" class="relative z-[1] mx-auto w-full max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+        <slot />
+      </main>
+    )}
 
     <Footer />
+    <CommandPalette />
 
-    <!-- Theme toggle & cross-tab storage synchronization -->
+    <!-- Two-state OS-aware theme toggle & cross-tab synchronization -->
     <script is:inline>
       (() => {
-        function applyTheme(next, persist) {
-          document.documentElement.setAttribute('data-theme', next);
-          const cs = document.querySelector('meta[name="color-scheme"]');
-          if (cs) cs.setAttribute('content', next);
-          const tc = document.querySelector('meta[name="theme-color"]');
-          if (tc) tc.setAttribute('content', next === 'light' ? '#F8FAFC' : '#070B12');
-          const btn = document.getElementById('theme-toggle');
-          if (btn) btn.setAttribute('aria-pressed', next === 'light' ? 'true' : 'false');
-          if (persist) {
-            try {
-              window.localStorage.setItem('claudiu-span-theme-v2', next);
-            } catch {
-              // Storage blocked; theme remains applied for active session
-            }
+        const KEY = 'claudiu-span-theme-v2';
+        const mq =
+          typeof window.matchMedia === 'function'
+            ? window.matchMedia('(prefers-color-scheme: dark)')
+            : null;
+
+        function getOsPolarity() {
+          return mq && mq.matches ? 'dark' : 'light';
+        }
+
+        function getSaved() {
+          try {
+            const v = window.localStorage.getItem(KEY);
+            return v === 'light' || v === 'dark' ? v : null;
+          } catch {
+            return null;
           }
+        }
+
+        function applyTheme(override) {
+          const effective = override || getOsPolarity();
+          document.documentElement.setAttribute('data-theme', effective);
+          const cs = document.querySelector('meta[name="color-scheme"]');
+          if (cs) cs.setAttribute('content', override || 'light dark');
+          const tc = document.querySelector('meta[name="theme-color"]');
+          if (tc) tc.setAttribute('content', effective === 'dark' ? '#111317' : '#EFECE7');
         }
 
         const btn = document.getElementById('theme-toggle');
         if (btn) {
-          const current = document.documentElement.getAttribute('data-theme') || 'dark';
-          btn.setAttribute('aria-pressed', current === 'light' ? 'true' : 'false');
           btn.addEventListener('click', () => {
-            const now = document.documentElement.getAttribute('data-theme') || 'dark';
-            applyTheme(now === 'dark' ? 'light' : 'dark', true);
+            const current =
+              document.documentElement.getAttribute('data-theme') || getOsPolarity();
+            const target = current === 'dark' ? 'light' : 'dark';
+            const osNow = getOsPolarity();
+            if (target === osNow) {
+              try {
+                window.localStorage.removeItem(KEY);
+              } catch {
+                // Storage blocked; apply for session
+              }
+              applyTheme(null);
+            } else {
+              try {
+                window.localStorage.setItem(KEY, target);
+              } catch {
+                // Storage blocked; apply for session
+              }
+              applyTheme(target);
+            }
+          });
+        }
+
+        if (mq) {
+          mq.addEventListener('change', () => {
+            if (!getSaved()) applyTheme(null);
           });
         }
 
         window.addEventListener('storage', (ev) => {
-          if (ev.key === 'claudiu-span-theme-v2' && (ev.newValue === 'light' || ev.newValue === 'dark')) {
-            applyTheme(ev.newValue, false);
+          if (ev.key === KEY) {
+            const next =
+              ev.newValue === 'light' || ev.newValue === 'dark' ? ev.newValue : null;
+            applyTheme(next);
           }
         });
       })();

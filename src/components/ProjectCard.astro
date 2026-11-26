@@ -1,6 +1,5 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import FallbackCover from './FallbackCover.astro';
 import { withBase } from '@/data/site';
 
 interface Props {
@@ -15,51 +14,55 @@ const slug = project.id.replace(/\.mdx$/, '');
 const visibilityLabel =
   data.visibility === 'anonymized'
     ? data.isSideVenture
-      ? 'Side Venture · Architecture Summary'
+      ? 'Side Venture · Architecture'
       : 'Anonymized Enterprise Case Study'
     : data.visibility === 'public'
-      ? data.liveUrl
-        ? 'Public Repo + Live'
-        : 'Public Repo'
+      ? data.repoUrl
+        ? data.liveUrl
+          ? 'Public Repo + Live'
+          : 'Public Repo'
+        : 'Academic Hardware Prototype'
       : 'Client / Private Repo';
 ---
 
 <article
-  class="bento-card bento-card-interactive flex flex-col justify-between gap-4 p-5"
+  id={slug}
+  class:list={[
+    'swiss-dim-item group flex flex-col justify-between gap-4 transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5',
+    compact
+      ? 'hw-cell p-5'
+      : 'hw-panel p-5 hover:border-interactive sm:p-6',
+  ]}
   data-project-card
   data-categories={data.category.join(' ')}
 >
-  <div class="flex flex-col gap-3.5">
-    {!compact && (
-      data.coverAsset ? (
-        <div class="aspect-[16/9] w-full overflow-hidden rounded-xl border border-border-subtle bg-elevated">
-          <img
-            src={withBase(data.coverAsset)}
-            alt={`${data.title} visual cover`}
-            width="640"
-            height="360"
-            loading="lazy"
-            decoding="async"
-            class="h-full w-full object-cover"
-          />
-        </div>
-      ) : (
-        <FallbackCover title={data.title} tier={data.tier} />
-      )
+  <div class="flex flex-col gap-3">
+    {!compact && data.coverAsset && (
+      <div class="aspect-[16/9] w-full overflow-hidden rounded-[8px] border border-hairline bg-recessed shadow-[var(--inner-highlight)]">
+        <img
+          src={withBase(data.coverAsset)}
+          alt={`${data.title} visual cover`}
+          width="640"
+          height="360"
+          loading="lazy"
+          decoding="async"
+          class="h-full w-full object-cover"
+        />
+      </div>
     )}
 
-    <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-      <span class="font-mono font-medium text-baby">{visibilityLabel}</span>
-      <span class="rounded-md border border-border-subtle bg-elevated px-2 py-0.5 font-mono text-ink tabular-nums">
+    <div class="flex flex-wrap items-baseline justify-between gap-2 font-mono text-[11px]">
+      <span class="uppercase tracking-[0.06em] text-muted">{visibilityLabel}</span>
+      <span class="font-semibold text-vermilion tabular-nums">
         {data.outcomeBadge}
       </span>
     </div>
 
-    <h3 class="font-display text-lg font-bold text-ink">
+    <h3 class="dim-title font-display text-lg font-bold leading-snug tracking-[-0.025em] text-ink">
       {data.tier === 'case-study' ? (
         <a
           href={withBase(`/projects/${slug}/`)}
-          class="transition-colors hover:text-baby"
+          class="underline-offset-4 transition-colors hover:text-tech hover:underline"
         >
           {data.title}
         </a>
@@ -68,26 +71,22 @@ const visibilityLabel =
       )}
     </h3>
 
-    <p class="text-sm leading-relaxed text-muted">{data.summary}</p>
+    <p class="text-sm leading-relaxed text-ink-secondary">{data.summary}</p>
   </div>
 
-  <div class="flex flex-col gap-3 border-t border-border-subtle pt-3.5">
-    <ul class="flex flex-wrap gap-1.5" aria-label={`Stack used in ${data.title}`}>
-      {data.stack.slice(0, 6).map((tech) => (
-        <li class="rounded-md border border-border-subtle bg-elevated px-2 py-0.5 font-mono text-xs text-muted">
-          {tech}
-        </li>
-      ))}
-    </ul>
+  <div class="flex flex-col gap-3 border-t border-hairline pt-3.5">
+    <p class="m-0 font-mono text-xs text-muted">
+      {data.stack.slice(0, 6).join(' · ')}
+    </p>
 
-    <div class="flex flex-wrap items-center gap-4 text-sm font-medium">
+    <div class="flex flex-wrap items-center gap-4 font-mono text-xs font-medium">
       {data.tier === 'case-study' && (
         <a
           href={withBase(`/projects/${slug}/`)}
-          class="inline-flex min-h-[36px] items-center gap-1.5 text-baby underline-offset-4 hover:underline"
+          class="inline-flex min-h-[36px] items-center gap-1.5 font-semibold text-tech underline-offset-4 hover:underline"
         >
-          Inspect Architecture &amp; Case Study
-          <span aria-hidden="true">&rarr;</span>
+          <span>Inspect Architecture &amp; Case Study</span>
+          <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
         </a>
       )}
       {data.liveUrl && (
@@ -95,7 +94,7 @@ const visibilityLabel =
           href={data.liveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex min-h-[36px] items-center gap-1 text-ink underline-offset-4 hover:text-baby hover:underline"
+          class="inline-flex min-h-[36px] items-center gap-1 font-semibold text-ink underline-offset-4 hover:text-tech hover:underline"
         >
           Live Site
           <span aria-hidden="true">&#8599;</span>
