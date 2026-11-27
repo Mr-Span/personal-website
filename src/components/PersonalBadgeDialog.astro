@@ -294,6 +294,7 @@ import { BADGE_SVG_PATHS, PERSONAL_BADGE } from '@/data/personal-badge';
 
     triggerDesktop?.addEventListener('click', () => triggerBadgeInspect(true));
     triggerMobile?.addEventListener('click', () => triggerBadgeInspect(false));
+    window.addEventListener('claux:open-badge', () => triggerBadgeInspect(false));
 
     // Blur restored focus on desktop trigger after Esc so hover/focus lean-in never sticks
     const blurRestoredTrigger = () => {

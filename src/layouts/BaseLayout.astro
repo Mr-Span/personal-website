@@ -6,7 +6,6 @@ import plexSansLatinUrl from '@fontsource-variable/ibm-plex-sans/files/ibm-plex-
 import plexMono400Url from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import CommandPalette from '@/components/CommandPalette.astro';
 import { SITE, absoluteUrl, withBase } from '@/data/site';
 import { getResumeData } from '@/lib/resume-loader';
 
@@ -29,6 +28,7 @@ const {
 const resume = getResumeData();
 const canonicalUrl = absoluteUrl(canonicalPath);
 const ogImageUrl = absoluteUrl('/og/default.png');
+const isHome = canonicalPath === '/' || canonicalPath === '';
 
 const personJsonLd = {
   '@context': 'https://schema.org',
@@ -88,8 +88,11 @@ const personJsonLd = {
     <meta property="og:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Block view-transition snapshot until header DOM & theme state settle -->
+    <link rel="expect" href="#site-header" blocking="render" />
+
     <!-- Synchronous pre-paint OS-following + persisted override theme bootstrap (zero FOUC, WebView safe) -->
-    <script is:inline>
+    <script is:inline {...({ blocking: 'render' } as Record<string, string>)}>
       (() => {
         const KEY = 'claudiu-span-theme-v2';
         let saved = null;
@@ -137,8 +140,7 @@ const personJsonLd = {
       </main>
     )}
 
-    <Footer />
-    <CommandPalette />
+    <Footer isHome={isHome} />
 
     <!-- Two-state OS-aware theme toggle & cross-tab synchronization -->
     <script is:inline>

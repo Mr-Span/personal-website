@@ -2,51 +2,212 @@
 import { SITE, withBase } from '@/data/site';
 import { getResumeData } from '@/lib/resume-loader';
 
+interface Props {
+  isHome?: boolean;
+}
+
+const { isHome = false } = Astro.props;
 const resume = getResumeData();
 ---
 
-<footer class="relative z-[1] mt-20 border-t border-hairline bg-[var(--surface-glass)] shadow-[var(--inner-highlight)] backdrop-blur-md">
-  <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-8 text-xs text-muted sm:flex-row sm:items-center sm:px-6 lg:px-8">
-    <p class="m-0 inline-flex flex-wrap items-center gap-2 font-mono">
-      <span class="px-beacon" aria-hidden="true"></span>
-      <span>
-        &copy; <span class="tabular-nums">2026</span>{' '}
+<footer class="relative z-[1] mt-16 border-t border-hairline bg-[var(--surface-glass)] shadow-[var(--inner-highlight)] backdrop-blur-md">
+  <div class="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 text-xs text-muted sm:px-6 lg:px-8">
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <p class="m-0 font-mono leading-relaxed">
+        <span class="px-beacon mr-2 align-middle" aria-hidden="true"></span>&copy;{' '}
+        <span class="tabular-nums">2026</span>{' '}
         <span translate="no" class="font-medium text-ink">{resume.profile.name}</span>{' '}
-        <span class="px-sep mx-0.5 align-middle" aria-hidden="true"></span>{' '}
-        {resume.profile.location}
-      </span>
-    </p>
-    <ul class="flex flex-wrap items-center gap-x-2 gap-y-1.5 font-mono">
+        <span class="px-sep mx-1 align-middle" aria-hidden="true"></span>{' '}
+        EU (Cluj-Napoca &amp; Spain)
+      </p>
+
+      <div class="flex flex-wrap items-center gap-2">
+        {isHome && (
+          <button
+            id="footer-open-badge"
+            type="button"
+            class="footer-badge-btn btn-press"
+          >
+            Open Badge
+          </button>
+        )}
+
+        <span class="inline-flex items-center gap-2">
+          <button
+            id="footer-copy-email"
+            type="button"
+            data-email={resume.profile.email}
+            class="footer-copy-btn btn-press"
+          >
+            Copy Email
+          </button>
+          <span
+            id="footer-copy-status"
+            role="status"
+            aria-live="polite"
+            class="font-mono text-[11px] font-medium text-signal"
+          ></span>
+        </span>
+      </div>
+    </div>
+
+    <ul class="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 border-t border-hairline pt-4 font-mono">
       <li>
-        <a href={withBase('/resume/')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">Resume</a>
+        <a href={withBase('/Claudiu-Span-CV.pdf')} class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          ATS PDF
+        </a>
       </li>
       <li>
-        <a href={withBase('/Claudiu-Span-CV.pdf')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">ATS PDF</a>
-      </li>
-      <li>
-        <a href={withBase('/llms.txt')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">/llms.txt</a>
-      </li>
-      <li>
-        <a href={withBase('/index.md')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">/index.md</a>
-      </li>
-      <li>
-        <a href={withBase('/rss.xml')} class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">RSS</a>
-      </li>
-      <li>
-        <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+        <a href={SITE.githubUrl} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
           GitHub &#8599;
         </a>
       </li>
       <li>
-        <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+        <a href={SITE.linkedinUrl} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
           LinkedIn &#8599;
         </a>
       </li>
       <li>
-        <a href={SITE.quadyxUrl} target="_blank" rel="noopener noreferrer" translate="no" class="inline-flex rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+        <a href={SITE.quadyxUrl} target="_blank" rel="noopener noreferrer" translate="no" class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
           QUADYX &#8599;
+        </a>
+      </li>
+      <li>
+        <a href={withBase('/llms.txt')} class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          /llms.txt
+        </a>
+      </li>
+      <li>
+        <a href={withBase('/index.md')} class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          /index.md
+        </a>
+      </li>
+      <li>
+        <a href={withBase('/rss.xml')} class="inline-flex min-h-[32px] items-center rounded-md px-2 py-1 transition-colors hover:bg-recessed hover:text-ink">
+          RSS
         </a>
       </li>
     </ul>
   </div>
 </footer>
+
+<style>
+  .footer-badge-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 13px;
+    border-radius: 7px;
+    background: linear-gradient(180deg, var(--badge-plate-top) 0%, var(--badge-plate-bot) 100%);
+    border: 1px solid var(--badge-plate-stroke);
+    box-shadow: var(--shadow-bevel);
+    color: var(--ink-primary);
+    font-family: var(--family-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    transition: border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .footer-badge-btn::after {
+    content: "";
+    position: absolute;
+    inset: 2.5px;
+    border-radius: 4.5px;
+    border: 1px dashed var(--badge-stitch);
+    pointer-events: none;
+  }
+
+  .footer-badge-btn:hover {
+    border-color: var(--accent-vermilion);
+    color: var(--accent-vermilion);
+  }
+
+  .footer-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 7px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-bevel);
+    color: var(--ink-primary);
+    font-family: var(--family-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+  }
+
+  .footer-copy-btn:hover {
+    border-color: var(--border-interactive);
+  }
+
+  .footer-copy-btn[data-copied="true"] {
+    border-color: var(--accent-signal);
+    color: var(--accent-signal);
+    background: var(--signal-tint);
+  }
+</style>
+
+<script>
+  const openBadgeBtn = document.getElementById('footer-open-badge');
+  openBadgeBtn?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('claux:open-badge'));
+  });
+
+  const copyEmailBtn = document.getElementById('footer-copy-email') as HTMLButtonElement | null;
+  const copyStatus = document.getElementById('footer-copy-status');
+  if (copyEmailBtn && copyStatus) {
+    let copyTimer: number | null = null;
+    copyEmailBtn.addEventListener('click', async () => {
+      const email = copyEmailBtn.dataset.email || '';
+      if (!email) return;
+
+      if (copyTimer !== null) {
+        window.clearTimeout(copyTimer);
+        copyTimer = null;
+      }
+      copyEmailBtn.removeAttribute('data-copied');
+      copyStatus.textContent = '';
+
+      let copied = false;
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(email);
+          copied = true;
+        }
+      } catch {
+        copied = false;
+      }
+
+      if (copied) {
+        copyEmailBtn.setAttribute('data-copied', 'true');
+        requestAnimationFrame(() => {
+          copyStatus.textContent = 'Copied \u2713';
+        });
+      } else {
+        try {
+          if (typeof window.prompt === 'function') {
+            window.prompt('Copy email address:', email);
+          } else {
+            window.location.href = `mailto:${email}`;
+          }
+        } catch {
+          window.location.href = `mailto:${email}`;
+        }
+        requestAnimationFrame(() => {
+          copyStatus.textContent = email;
+        });
+      }
+
+      copyTimer = window.setTimeout(() => {
+        copyEmailBtn.removeAttribute('data-copied');
+        copyStatus.textContent = '';
+        copyTimer = null;
+      }, 2400);
+    });
+  }
+</script>

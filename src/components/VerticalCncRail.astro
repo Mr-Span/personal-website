@@ -1,0 +1,515 @@
+---
+import { PIXEL_GLYPHS, RAIL_EDUCATION_GLYPH, type RailStationId } from '@/data/showcase-modules';
+
+interface RailStation {
+  id: RailStationId;
+  label: string;
+  href: string;
+  glyphId: string;
+}
+
+const STATIONS: readonly RailStation[] = [
+  { id: 'experience', label: 'Experience', href: '#experience', glyphId: 'gripper' },
+  { id: 'education', label: 'Education', href: '#education', glyphId: 'education' },
+  { id: 'projects', label: 'Projects', href: '#projects', glyphId: 'chip' },
+  { id: 'certifications', label: 'Certs', href: '#certifications', glyphId: 'uav' },
+  { id: 'stack', label: 'Stack', href: '#stack', glyphId: 'terminal' },
+];
+
+const SHUTTLE_PALETTE: Record<string, string> = {
+  k: '#F2EFE9',
+  s: '#C5C9D2',
+  m: '#989FA9',
+  w: '#20242C',
+  b: '#38BDF8',
+  c: '#38BDF8',
+  o: '#F97316',
+  r: '#C5C9D2',
+  p: '#C5C9D2',
+};
+
+const STATION_ICON_PALETTE: Record<string, string> = {
+  k: 'var(--ink-primary)',
+  s: 'var(--ink-secondary)',
+  m: 'var(--ink-muted)',
+  w: 'var(--bg-elevated)',
+  b: 'var(--accent-tech)',
+  c: 'var(--accent-tech-3d)',
+  o: 'var(--hw-actuator)',
+  r: 'var(--ink-secondary)',
+  p: 'var(--ink-secondary)',
+};
+
+const glyphMap = new Map<string, readonly string[]>([
+  ...PIXEL_GLYPHS.map((g) => [g.id, g.grid] as const),
+  ['education', RAIL_EDUCATION_GLYPH],
+]);
+
+function buildRects(grid: readonly string[], palette: Record<string, string>, fallback: string) {
+  const rects: Array<{ x: number; y: number; fill: string }> = [];
+  grid.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const ch = row[x];
+      if (ch === '.') continue;
+      rects.push({ x, y, fill: palette[ch] || fallback });
+    }
+  });
+  return rects;
+}
+
+const stationGlyphs = STATIONS.map((station) => {
+  const grid = glyphMap.get(station.glyphId) ?? [];
+  return {
+    station: station.id,
+    shuttleRects: buildRects(grid, SHUTTLE_PALETTE, '#F2EFE9'),
+    iconRects: buildRects(grid, STATION_ICON_PALETTE, 'var(--ink-primary)'),
+  };
+});
+---
+
+<aside
+  id="vertical-cnc-rail"
+  data-cnc-rail
+  data-state="idle"
+  data-in-view="false"
+  aria-label="Section rail"
+  class="cnc-rail-aside hidden lg:block"
+>
+  <nav class="cnc-rail-nav" aria-label="Page sections">
+    <div class="cnc-rail-track" data-cnc-track aria-hidden="true">
+      <span class="cnc-rail-beam" data-cnc-beam></span>
+      <div class="cnc-rail-shuttle" data-cnc-shuttle>
+        <svg
+          viewBox="0 0 9 9"
+          width="18"
+          height="18"
+          shape-rendering="crispEdges"
+          class="cnc-shuttle-glyph pixel-crisp"
+        >
+          {stationGlyphs.map((g, idx) => (
+            <g data-shuttle-glyph={g.station} data-active={idx === 0 ? 'true' : 'false'}>
+              {g.shuttleRects.map((r) => (
+                <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+              ))}
+            </g>
+          ))}
+        </svg>
+        <span class="cnc-shuttle-led" data-cnc-led></span>
+      </div>
+    </div>
+
+    <ul class="cnc-rail-list">
+      {STATIONS.map((station, idx) => {
+        const iconRects = stationGlyphs[idx]?.iconRects ?? [];
+        return (
+          <li>
+            <a
+              href={station.href}
+              data-rail-link
+              data-station={station.id}
+              aria-current={idx === 0 ? 'location' : undefined}
+              class="cnc-rail-link"
+            >
+              <span class="cnc-station-tick" aria-hidden="true"></span>
+              <svg
+                viewBox="0 0 9 9"
+                width="18"
+                height="18"
+                shape-rendering="crispEdges"
+                class="cnc-station-icon pixel-crisp"
+                aria-hidden="true"
+              >
+                {iconRects.map((r) => (
+                  <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+                ))}
+              </svg>
+              <span>{station.label}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  type StationId = 'experience' | 'education' | 'projects' | 'certifications' | 'stack';
+  const STATION_ORDER: StationId[] = [
+    'experience',
+    'education',
+    'projects',
+    'certifications',
+    'stack',
+  ];
+  const HEADER_OFFSET = 82;
+  const SCROLL_DURATION_MS = 500;
+  const LOCK_DISPLAY_MS = 450;
+  const CANCEL_KEYS = new Set([
+    'Escape',
+    'ArrowUp',
+    'ArrowDown',
+    'PageUp',
+    'PageDown',
+    ' ',
+    'Spacebar',
+    'Home',
+    'End',
+  ]);
+
+  const railEl = document.getElementById('vertical-cnc-rail') as HTMLElement | null;
+  const trackEl = railEl?.querySelector<HTMLElement>('[data-cnc-track]') ?? null;
+  const beamEl = railEl?.querySelector<HTMLElement>('[data-cnc-beam]') ?? null;
+  const shuttleEl = railEl?.querySelector<HTMLElement>('[data-cnc-shuttle]') ?? null;
+  const links = railEl
+    ? Array.from(railEl.querySelectorAll<HTMLAnchorElement>('[data-rail-link]'))
+    : [];
+  const glyphGroups = railEl
+    ? Array.from(railEl.querySelectorAll<SVGGElement>('[data-shuttle-glyph]'))
+    : [];
+
+  let activeStation: StationId = 'experience';
+  const shuttleYByStation: Record<StationId, number> = {
+    experience: 0,
+    education: 44,
+    projects: 88,
+    certifications: 132,
+    stack: 176,
+  };
+  const beamScaleByStation: Record<StationId, number> = {
+    experience: 0.12,
+    education: 0.34,
+    projects: 0.56,
+    certifications: 0.78,
+    stack: 1,
+  };
+
+  let rafId = 0;
+  let isAnimatingScroll = false;
+  let lockTimer: number | null = null;
+  let lastLockedEl: HTMLElement | null = null;
+  let cancelAbort: AbortController | null = null;
+
+  const reducedMotionMq =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+
+  function easeOutCubic(t: number): number {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function resolveStation(targetId: string, explicitStation?: string): StationId {
+    if (
+      explicitStation === 'experience' ||
+      explicitStation === 'education' ||
+      explicitStation === 'projects' ||
+      explicitStation === 'certifications' ||
+      explicitStation === 'stack'
+    ) {
+      return explicitStation;
+    }
+    if (targetId === 'experience') return 'experience';
+    if (targetId === 'education') return 'education';
+    if (targetId === 'projects' || targetId.startsWith('proj-')) return 'projects';
+    if (targetId === 'certifications' || targetId.startsWith('certs-')) return 'certifications';
+    if (targetId === 'stack') return 'stack';
+    return 'experience';
+  }
+
+  function applyShuttleVisuals(station: StationId): void {
+    if (shuttleEl) {
+      shuttleEl.style.transform = `translate3d(0, ${shuttleYByStation[station]}px, 0)`;
+    }
+    if (beamEl) {
+      beamEl.style.transform = `scaleY(${beamScaleByStation[station]})`;
+    }
+  }
+
+  function measureShuttleOffsets(): void {
+    if (!railEl || railEl.offsetParent === null) return;
+    const halfShuttle = shuttleEl ? shuttleEl.offsetHeight / 2 : 13;
+    const trackHeight = trackEl ? Math.max(1, trackEl.offsetHeight - 8) : 200;
+
+    links.forEach((link) => {
+      const st = link.dataset.station as StationId | undefined;
+      if (!st) return;
+      const center = link.offsetTop + link.offsetHeight / 2;
+      shuttleYByStation[st] = Math.round(center - halfShuttle);
+      beamScaleByStation[st] = Number(Math.min(1, Math.max(0.08, center / trackHeight)).toFixed(3));
+    });
+    applyShuttleVisuals(activeStation);
+  }
+
+  function setActiveStation(station: StationId): void {
+    activeStation = station;
+    links.forEach((link) => {
+      if (link.dataset.station === station) {
+        link.setAttribute('aria-current', 'location');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+    glyphGroups.forEach((g) => {
+      g.setAttribute('data-active', g.dataset.shuttleGlyph === station ? 'true' : 'false');
+    });
+    applyShuttleVisuals(station);
+  }
+
+  function clearLockFeedback(): void {
+    if (lockTimer !== null) {
+      window.clearTimeout(lockTimer);
+      lockTimer = null;
+    }
+    if (lastLockedEl) {
+      lastLockedEl.removeAttribute('data-cnc-locked');
+      lastLockedEl = null;
+    }
+  }
+
+  function lockTarget(targetEl: HTMLElement, station: StationId): void {
+    clearLockFeedback();
+    setActiveStation(station);
+    if (railEl) railEl.dataset.state = 'lock';
+    targetEl.setAttribute('data-cnc-locked', 'true');
+    lastLockedEl = targetEl;
+    lockTimer = window.setTimeout(() => {
+      lockTimer = null;
+      if (lastLockedEl === targetEl) {
+        targetEl.removeAttribute('data-cnc-locked');
+        lastLockedEl = null;
+      }
+      if (railEl && !isAnimatingScroll) {
+        railEl.dataset.state = 'idle';
+      }
+    }, LOCK_DISPLAY_MS);
+  }
+
+  function stopCancelListeners(): void {
+    if (cancelAbort) {
+      cancelAbort.abort();
+      cancelAbort = null;
+    }
+  }
+
+  function cancelScroll(): void {
+    if (rafId) {
+      window.cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    isAnimatingScroll = false;
+    stopCancelListeners();
+    if (railEl) railEl.dataset.state = 'idle';
+  }
+
+  function startCancelListeners(): void {
+    stopCancelListeners();
+    cancelAbort = new AbortController();
+    const { signal } = cancelAbort;
+
+    window.addEventListener('wheel', cancelScroll, { passive: true, signal });
+    window.addEventListener('touchstart', cancelScroll, { passive: true, signal });
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (railEl && e.target instanceof Node && railEl.contains(e.target)) return;
+        cancelScroll();
+      },
+      { passive: true, signal },
+    );
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (CANCEL_KEYS.has(e.key)) {
+          cancelScroll();
+        }
+      },
+      { signal },
+    );
+  }
+
+  function scrollToTarget(targetId: string, explicitStation?: string): void {
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) return;
+
+    cancelScroll();
+    clearLockFeedback();
+
+    const station = resolveStation(targetId, explicitStation);
+    setActiveStation(station);
+
+    const rect = targetEl.getBoundingClientRect();
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const destY = Math.min(maxScroll, Math.max(0, Math.round(window.scrollY + rect.top - HEADER_OFFSET)));
+    const startY = window.scrollY;
+    const distance = destY - startY;
+
+    if (reducedMotionMq?.matches || Math.abs(distance) < 2) {
+      window.scrollTo({ top: destY, behavior: 'instant' });
+      lockTarget(targetEl, station);
+      return;
+    }
+
+    isAnimatingScroll = true;
+    if (railEl) railEl.dataset.state = 'transit';
+    startCancelListeners();
+
+    const startTime = performance.now();
+    const step = (now: number) => {
+      if (!isAnimatingScroll) return;
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / SCROLL_DURATION_MS);
+      const nextY = startY + distance * easeOutCubic(progress);
+      window.scrollTo({ top: nextY, behavior: 'instant' });
+
+      if (progress < 1) {
+        rafId = window.requestAnimationFrame(step);
+      } else {
+        rafId = 0;
+        isAnimatingScroll = false;
+        stopCancelListeners();
+        lockTarget(targetEl, station);
+      }
+    };
+
+    rafId = window.requestAnimationFrame(step);
+  }
+
+  // Listen for Hero ENGAGE_TAP navigation events
+  window.addEventListener('claux:cnc-navigate', (e) => {
+    const detail = (e as CustomEvent<{ targetId?: string; stationId?: string }>).detail;
+    if (detail?.targetId) {
+      scrollToTarget(detail.targetId, detail.stationId);
+    }
+  });
+
+  // Rail station clicks
+  links.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const mouseEvent = e as MouseEvent;
+      if (
+        mouseEvent.metaKey ||
+        mouseEvent.ctrlKey ||
+        mouseEvent.shiftKey ||
+        mouseEvent.altKey
+      ) {
+        return;
+      }
+      const href = link.getAttribute('href') || '';
+      const targetId = href.startsWith('#') ? href.slice(1) : '';
+      if (!targetId) return;
+      e.preventDefault();
+      scrollToTarget(targetId, link.dataset.station);
+    });
+  });
+
+  // Measure shuttle track offsets initially and on resize; pause idle animations off-screen
+  if (railEl) {
+    measureShuttleOffsets();
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => measureShuttleOffsets());
+      ro.observe(railEl);
+    }
+    if (typeof IntersectionObserver !== 'undefined') {
+      const railIo = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            railEl.setAttribute('data-in-view', String(entry.isIntersecting));
+          }
+        },
+        { rootMargin: '0px', threshold: 0.01 },
+      );
+      railIo.observe(railEl);
+    } else {
+      railEl.setAttribute('data-in-view', 'true');
+    }
+  }
+
+  // Passive IntersectionObserver + scroll-anchor scrollspy (prefers upper reading band over lower preview)
+  const READING_ANCHOR_Y = 100;
+  const sectionEls = STATION_ORDER.map((id) => ({
+    id,
+    el: document.getElementById(id),
+  })).filter((entry): entry is { id: StationId; el: HTMLElement } => entry.el !== null);
+
+  if (sectionEls.length > 0) {
+    const visibleStations = new Set<StationId>();
+    let scrollSpyRaf = 0;
+
+    const distanceToReadingAnchor = (rect: DOMRect): number => {
+      if (rect.top <= READING_ANCHOR_Y && rect.bottom > READING_ANCHOR_Y) {
+        return 0;
+      }
+      if (rect.bottom <= READING_ANCHOR_Y) {
+        return READING_ANCHOR_Y - rect.bottom + 1;
+      }
+      return rect.top - READING_ANCHOR_Y;
+    };
+
+    const updateActiveFromScroll = (): void => {
+      if (isAnimatingScroll) return;
+
+      const nearBottom =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 48;
+      if (nearBottom) {
+        if (activeStation !== 'stack') setActiveStation('stack');
+        return;
+      }
+
+      if (window.scrollY < 200 && visibleStations.size === 0) {
+        if (activeStation !== 'experience') setActiveStation('experience');
+        return;
+      }
+
+      const candidates =
+        visibleStations.size > 0
+          ? sectionEls.filter(({ id }) => visibleStations.has(id))
+          : sectionEls;
+
+      let bestStation: StationId = candidates[0].id;
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      for (const { id, el } of candidates) {
+        const dist = distanceToReadingAnchor(el.getBoundingClientRect());
+        if (dist < bestDistance) {
+          bestDistance = dist;
+          bestStation = id;
+        }
+      }
+
+      if (bestStation !== activeStation) {
+        setActiveStation(bestStation);
+      }
+    };
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const id = entry.target.id as StationId;
+            if (entry.isIntersecting) {
+              visibleStations.add(id);
+            } else {
+              visibleStations.delete(id);
+            }
+          });
+          updateActiveFromScroll();
+        },
+        { rootMargin: '-10% 0px -62% 0px', threshold: 0 },
+      );
+
+      sectionEls.forEach(({ el }) => observer.observe(el));
+    }
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (isAnimatingScroll || scrollSpyRaf) return;
+        scrollSpyRaf = window.requestAnimationFrame(() => {
+          scrollSpyRaf = 0;
+          updateActiveFromScroll();
+        });
+      },
+      { passive: true },
+    );
+  }
+</script>

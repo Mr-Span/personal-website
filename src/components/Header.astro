@@ -7,156 +7,221 @@ interface Props {
 
 const { currentPath } = Astro.props;
 
-const navItems = [
-  { label: 'Projects', href: withBase('/projects/'), match: '/projects' },
-  { label: 'Resume', href: withBase('/resume/'), match: '/resume' },
-  { label: 'Blog', href: withBase('/blog/'), match: '/blog' },
-];
-
-function isActive(match: string): boolean {
-  return currentPath.startsWith(match);
-}
+const normalizedPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
+const isBlogIndex = normalizedPath === '/blog' || normalizedPath === '/blog/';
+const isBlogRoute = isBlogIndex || normalizedPath.startsWith('/blog/');
 ---
 
-<header class="top-nav-shell">
-  <div class="mx-auto grid h-full max-w-[1660px] grid-cols-[auto_1fr] items-center gap-2 px-3 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
-    <!-- Left: Apple Hardware × Pixel-Art claux. Logo Home Button (full name sits solely in Hero) -->
-    <div class="flex items-center justify-self-start">
-      <a
-        href={withBase('/')}
-        class="brand-capsule group"
-        aria-label="claux. — Claudiu Șpan home"
-        title="claux. — Claudiu Șpan"
-      >
-        <span class="brand-pocket" aria-hidden="true">
-          <svg
-            viewBox="0 0 36 10"
-            width="72"
-            height="20"
-            shape-rendering="crispEdges"
-            class="brand-claux-svg pixel-crisp"
-          >
-            <!-- c (x:1..6, y:3..8) -->
-            <rect x="2" y="3" width="4" height="1" fill="currentColor" />
-            <rect x="1" y="4" width="2" height="1" fill="currentColor" />
-            <rect x="5" y="4" width="2" height="1" fill="currentColor" />
-            <rect x="1" y="5" width="2" height="2" fill="currentColor" />
-            <rect x="1" y="7" width="2" height="1" fill="currentColor" />
-            <rect x="5" y="7" width="2" height="1" fill="currentColor" />
-            <rect x="2" y="8" width="4" height="1" fill="currentColor" />
-            <!-- l (x:8..10, y:1..8) -->
-            <rect x="8" y="1" width="2" height="7" fill="currentColor" />
-            <rect x="9" y="8" width="2" height="1" fill="currentColor" />
-            <!-- a (x:12..17, y:3..8) -->
-            <rect x="13" y="3" width="4" height="1" fill="currentColor" />
-            <rect x="16" y="4" width="2" height="1" fill="currentColor" />
-            <rect x="13" y="5" width="5" height="1" fill="currentColor" />
-            <rect x="12" y="6" width="2" height="2" fill="currentColor" />
-            <rect x="16" y="6" width="2" height="2" fill="currentColor" />
-            <rect x="13" y="8" width="5" height="1" fill="currentColor" />
-            <!-- u (x:19..24, y:3..8) -->
-            <rect x="19" y="3" width="2" height="5" fill="currentColor" />
-            <rect x="23" y="3" width="2" height="5" fill="currentColor" />
-            <rect x="20" y="8" width="4" height="1" fill="currentColor" />
-            <!-- x (x:26..31, y:3..8) -->
-            <rect x="26" y="3" width="2" height="1" fill="currentColor" />
-            <rect x="30" y="3" width="2" height="1" fill="currentColor" />
-            <rect x="27" y="4" width="4" height="1" fill="currentColor" />
-            <rect x="28" y="5" width="2" height="2" fill="currentColor" />
-            <rect x="27" y="7" width="4" height="1" fill="currentColor" />
-            <rect x="26" y="8" width="2" height="1" fill="currentColor" />
-            <rect x="30" y="8" width="2" height="1" fill="currentColor" />
-            <!-- . signature burnt-orange pixel dot (x:33..34, y:7..8) -->
-            <rect x="33" y="7" width="2" height="1" style="fill: var(--hw-actuator);" />
-            <rect x="33" y="8" width="2" height="1" style="fill: var(--accent-vermilion);" />
-          </svg>
-        </span>
-        <span class="sr-only">Claudiu Șpan</span>
-      </a>
-    </div>
-
-    <!-- Center: Segmented Navigation Capsule (Desktop & Tablet) -->
-    <nav aria-label="Primary navigation" class="hidden justify-self-center lg:inline-flex">
-      <div class="nav-capsule gap-0.5">
-        {navItems.map((item) => (
+<header id="site-header" class="top-nav-shell">
+  <div
+    class:list={[
+      'mx-auto grid h-full max-w-[1660px] items-center gap-2 px-3 sm:px-6 lg:px-8',
+      isBlogRoute ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-[auto_1fr_auto]',
+    ]}
+  >
+    {isBlogRoute ? (
+      <>
+        <!-- Left: Back to Home capsule -->
+        <div class="flex items-center justify-self-start">
           <a
-            href={item.href}
-            aria-current={isActive(item.match) ? 'page' : undefined}
-            class="nav-seg-link"
+            href={withBase('/')}
+            class="home-back-capsule"
+            title="Back to Home"
           >
-            {item.label}
+            <span aria-hidden="true">&larr;</span>
+            <span class="sr-only sm:not-sr-only">Home</span>
           </a>
-        ))}
-      </div>
-    </nav>
+        </div>
 
-    <!-- Right: Compact Mobile Nav + Unified Utility Capsule + Anodized Burnt-Orange CTA -->
-    <div class="flex items-center justify-self-end gap-1.5 sm:gap-2">
-      <!-- Compact route links on < lg where center capsule collapses -->
-      <nav aria-label="Mobile navigation" class="flex items-center gap-0.5 lg:hidden">
-        {navItems.map((item) => (
+        <!-- Center: Unified [ claux. | blog ] capsule (single DOM instance for native view-transition morph) -->
+        <nav aria-label="Primary navigation" class="flex items-center justify-self-center">
+          <div class="brand-blog-union">
+            <a
+              href={withBase('/')}
+              class="brand-union-brand vt-brand-claux"
+              aria-label="claux. — Claudiu Șpan home"
+              title="claux. — Claudiu Șpan"
+            >
+              <span class="brand-pocket" aria-hidden="true">
+                <svg
+                  viewBox="0 0 36 10"
+                  width="72"
+                  height="20"
+                  shape-rendering="crispEdges"
+                  class="brand-claux-svg pixel-crisp"
+                >
+                  <!-- c (x:1..6, y:3..8) -->
+                  <rect x="2" y="3" width="4" height="1" fill="currentColor" />
+                  <rect x="1" y="4" width="2" height="1" fill="currentColor" />
+                  <rect x="5" y="4" width="2" height="1" fill="currentColor" />
+                  <rect x="1" y="5" width="2" height="2" fill="currentColor" />
+                  <rect x="1" y="7" width="2" height="1" fill="currentColor" />
+                  <rect x="5" y="7" width="2" height="1" fill="currentColor" />
+                  <rect x="2" y="8" width="4" height="1" fill="currentColor" />
+                  <!-- l (x:8..10, y:1..8) -->
+                  <rect x="8" y="1" width="2" height="7" fill="currentColor" />
+                  <rect x="9" y="8" width="2" height="1" fill="currentColor" />
+                  <!-- a (x:12..17, y:3..8) -->
+                  <rect x="13" y="3" width="4" height="1" fill="currentColor" />
+                  <rect x="16" y="4" width="2" height="1" fill="currentColor" />
+                  <rect x="13" y="5" width="5" height="1" fill="currentColor" />
+                  <rect x="12" y="6" width="2" height="2" fill="currentColor" />
+                  <rect x="16" y="6" width="2" height="2" fill="currentColor" />
+                  <rect x="13" y="8" width="5" height="1" fill="currentColor" />
+                  <!-- u (x:19..24, y:3..8) -->
+                  <rect x="19" y="3" width="2" height="5" fill="currentColor" />
+                  <rect x="23" y="3" width="2" height="5" fill="currentColor" />
+                  <rect x="20" y="8" width="4" height="1" fill="currentColor" />
+                  <!-- x (x:26..31, y:3..8) -->
+                  <rect x="26" y="3" width="2" height="1" fill="currentColor" />
+                  <rect x="30" y="3" width="2" height="1" fill="currentColor" />
+                  <rect x="27" y="4" width="4" height="1" fill="currentColor" />
+                  <rect x="28" y="5" width="2" height="2" fill="currentColor" />
+                  <rect x="27" y="7" width="4" height="1" fill="currentColor" />
+                  <rect x="26" y="8" width="2" height="1" fill="currentColor" />
+                  <rect x="30" y="8" width="2" height="1" fill="currentColor" />
+                  <!-- . signature burnt-orange pixel dot (x:33..34, y:7..8) -->
+                  <rect x="33" y="7" width="2" height="1" style="fill: var(--hw-actuator);" />
+                  <rect x="33" y="8" width="2" height="1" style="fill: var(--accent-vermilion);" />
+                </svg>
+              </span>
+              <span class="sr-only">Claudiu Șpan</span>
+            </a>
+
+            <span class="brand-union-sep" aria-hidden="true"></span>
+
+            {isBlogIndex ? (
+              <span class="brand-union-blog vt-nav-blog" aria-current="page">blog</span>
+            ) : (
+              <a href={withBase('/blog/')} class="brand-union-blog vt-nav-blog">blog</a>
+            )}
+          </div>
+        </nav>
+
+        <!-- Right: Theme toggle only (no Download CV on blog routes) -->
+        <div class="flex items-center justify-self-end">
+          <button
+            id="theme-toggle"
+            type="button"
+            class="header-theme-dial"
+            aria-label="Switch color theme"
+            title="Switch Warm Ceramic Light / Machined Charcoal Dark"
+          >
+            <span class="theme-opt-light items-center justify-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </span>
+            <span class="theme-opt-dark items-center justify-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </>
+    ) : (
+      <>
+        <!-- Left: Pixel-Art claux. Brand Home Capsule (single DOM instance) -->
+        <div class="flex items-center justify-self-start">
           <a
-            href={item.href}
-            aria-current={isActive(item.match) ? 'page' : undefined}
-            class:list={[
-              'inline-flex min-h-[38px] items-center rounded-lg px-1.5 text-xs font-medium transition-colors sm:px-2',
-              isActive(item.match) ? 'font-semibold text-ink bg-surface' : 'text-muted hover:text-ink',
-            ]}
+            href={withBase('/')}
+            class="brand-capsule group vt-brand-claux"
+            aria-label="claux. — Claudiu Șpan home"
+            title="claux. — Claudiu Șpan"
           >
-            {item.label}
+            <span class="brand-pocket" aria-hidden="true">
+              <svg
+                viewBox="0 0 36 10"
+                width="72"
+                height="20"
+                shape-rendering="crispEdges"
+                class="brand-claux-svg pixel-crisp"
+              >
+                <!-- c (x:1..6, y:3..8) -->
+                <rect x="2" y="3" width="4" height="1" fill="currentColor" />
+                <rect x="1" y="4" width="2" height="1" fill="currentColor" />
+                <rect x="5" y="4" width="2" height="1" fill="currentColor" />
+                <rect x="1" y="5" width="2" height="2" fill="currentColor" />
+                <rect x="1" y="7" width="2" height="1" fill="currentColor" />
+                <rect x="5" y="7" width="2" height="1" fill="currentColor" />
+                <rect x="2" y="8" width="4" height="1" fill="currentColor" />
+                <!-- l (x:8..10, y:1..8) -->
+                <rect x="8" y="1" width="2" height="7" fill="currentColor" />
+                <rect x="9" y="8" width="2" height="1" fill="currentColor" />
+                <!-- a (x:12..17, y:3..8) -->
+                <rect x="13" y="3" width="4" height="1" fill="currentColor" />
+                <rect x="16" y="4" width="2" height="1" fill="currentColor" />
+                <rect x="13" y="5" width="5" height="1" fill="currentColor" />
+                <rect x="12" y="6" width="2" height="2" fill="currentColor" />
+                <rect x="16" y="6" width="2" height="2" fill="currentColor" />
+                <rect x="13" y="8" width="5" height="1" fill="currentColor" />
+                <!-- u (x:19..24, y:3..8) -->
+                <rect x="19" y="3" width="2" height="5" fill="currentColor" />
+                <rect x="23" y="3" width="2" height="5" fill="currentColor" />
+                <rect x="20" y="8" width="4" height="1" fill="currentColor" />
+                <!-- x (x:26..31, y:3..8) -->
+                <rect x="26" y="3" width="2" height="1" fill="currentColor" />
+                <rect x="30" y="3" width="2" height="1" fill="currentColor" />
+                <rect x="27" y="4" width="4" height="1" fill="currentColor" />
+                <rect x="28" y="5" width="2" height="2" fill="currentColor" />
+                <rect x="27" y="7" width="4" height="1" fill="currentColor" />
+                <rect x="26" y="8" width="2" height="1" fill="currentColor" />
+                <rect x="30" y="8" width="2" height="1" fill="currentColor" />
+                <!-- . signature burnt-orange pixel dot (x:33..34, y:7..8) -->
+                <rect x="33" y="7" width="2" height="1" style="fill: var(--hw-actuator);" />
+                <rect x="33" y="8" width="2" height="1" style="fill: var(--accent-vermilion);" />
+              </svg>
+            </span>
+            <span class="sr-only">Claudiu Șpan</span>
           </a>
-        ))}
-      </nav>
+        </div>
 
-      <!-- Machined Utility Capsule -->
-      <div class="nav-capsule gap-0.5" role="group" aria-label="Workspace controls">
-        <button
-          id="theme-toggle"
-          type="button"
-          class="bevel-btn"
-          aria-label="Switch color theme"
-          title="Switch Warm Ceramic Light / Machined Charcoal Dark"
-        >
-          <span class="theme-opt-light items-center justify-center" aria-hidden="true">
-            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-            </svg>
-          </span>
-          <span class="theme-opt-dark items-center justify-center" aria-hidden="true">
-            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-          </span>
-        </button>
+        <!-- Center: Clean negative space -->
+        <div aria-hidden="true"></div>
 
-        <span class="nav-sep hidden md:block" aria-hidden="true"></span>
+        <!-- Right: Separate Blog Key, Circular Theme Dial, and Download CV CTA -->
+        <div class="flex items-center justify-self-end gap-2 sm:gap-2.5">
+          <nav aria-label="Primary navigation" class="flex items-center">
+            <a href={withBase('/blog/')} class="header-blog-key btn-press vt-nav-blog">Blog</a>
+          </nav>
 
-        <button
-          id="cmd-open-btn"
-          type="button"
-          class="bevel-btn hidden font-mono md:inline-flex"
-          title="Command Palette (Ctrl+K / ⌘K)"
-        >
-          <span class="sr-only">Command palette </span>
-          <span>⌘K</span>
-        </button>
-      </div>
+          <button
+            id="theme-toggle"
+            type="button"
+            class="header-theme-dial"
+            aria-label="Switch color theme"
+            title="Switch Warm Ceramic Light / Machined Charcoal Dark"
+          >
+            <span class="theme-opt-light items-center justify-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </span>
+            <span class="theme-opt-dark items-center justify-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </span>
+          </button>
 
-      <!-- Anodized Industrial Burnt-Orange CTA -->
-      <a
-        href={withBase('/Claudiu-Span-CV.pdf')}
-        class="cta-anodized btn-press"
-      >
-        <span class="sm:hidden">CV</span>
-        <span class="hidden sm:inline">Download CV</span>
-        <span
-          aria-hidden="true"
-          class="inline-flex h-5 w-5 items-center justify-center rounded-md border border-white/25 bg-white/15 text-[11px] leading-none"
-        >
-          &darr;
-        </span>
-      </a>
-    </div>
+          <a
+            href={withBase('/Claudiu-Span-CV.pdf')}
+            class="cta-anodized btn-press"
+          >
+            <span class="sm:hidden">CV</span>
+            <span class="hidden sm:inline">Download CV</span>
+            <span
+              aria-hidden="true"
+              class="inline-flex h-5 w-5 items-center justify-center rounded-md border border-white/25 bg-white/15 text-[11px] leading-none"
+            >
+              &darr;
+            </span>
+          </a>
+        </div>
+      </>
+    )}
   </div>
 </header>

@@ -79,7 +79,7 @@ const ICON_PATHS: Record<ModuleIconKey, string> = {
   <!-- Center Editorial Identity Stage (Readable Over Cleanroom Backdrop & Soft Radial Veil) -->
   <div
     data-hero-copy
-    class="relative z-[var(--z-hero-copy)] mx-auto my-auto flex max-w-3xl flex-col items-center px-4 py-4 text-center transition-[opacity,transform] duration-300 sm:px-6 lg:py-6"
+    class="relative z-[var(--z-hero-copy)] mx-auto my-auto flex max-w-3xl flex-col items-center px-4 pb-4 pt-16 text-center transition-[opacity,transform] duration-300 sm:px-6 sm:pt-5 lg:py-6"
   >
     <!-- Subtle cleanroom radial veil behind typography so foreground text stays >= 12:1 even when 3D arm sweeps behind -->
     <div
@@ -172,7 +172,8 @@ const ICON_PATHS: Record<ModuleIconKey, string> = {
           <a
             href={mod.href}
             data-station-index={idx}
-            data-station-href={mod.href}
+            data-target-id={mod.targetId}
+            data-rail-station={mod.railStation}
             class="tile-card group"
           >
             <!-- Zone 1: Integrated 3D Top Roof Plane with Recessed Center Robot Latch -->
@@ -250,7 +251,7 @@ const ICON_PATHS: Record<ModuleIconKey, string> = {
   </div>
 </section>
 
-<!-- Physically Hoisted S1 Monolith Proxy Synced 1:1 to 3D Gripper Jaws -->
+<!-- Physically Hoisted 3D Monolith Card Proxy Synced 1:1 to Robot Gripper Jaws -->
 <div id="hoist-card" class="hoist-card" aria-hidden="true"></div>
 
 <style>
@@ -338,6 +339,45 @@ const ICON_PATHS: Record<ModuleIconKey, string> = {
 <script>
   // Conditional Desktop-Only Dynamic Import (0 KB Three.js / cobot JS downloaded on mobile < 1024px or touch!)
   const stageEl = document.querySelector('[data-kinematic-stage]') as HTMLElement | null;
+  if (stageEl) {
+    const dockEl = stageEl.querySelector<HTMLElement>('[data-station-dock]');
+    const triggerCardPreview = (e: Event, card: HTMLAnchorElement) => {
+      const idx = Number(card.dataset.stationIndex);
+      if (!Number.isFinite(idx)) return;
+      const win = window as unknown as {
+        __openModulePreview?: (index: number) => void;
+      };
+      if (typeof win.__openModulePreview === 'function') {
+        e.preventDefault();
+        win.__openModulePreview(idx);
+      }
+    };
+
+    dockEl?.addEventListener('click', (e) => {
+      const mouseEvent = e as MouseEvent;
+      if (
+        mouseEvent.defaultPrevented ||
+        mouseEvent.button !== 0 ||
+        mouseEvent.metaKey ||
+        mouseEvent.ctrlKey ||
+        mouseEvent.shiftKey ||
+        mouseEvent.altKey
+      ) {
+        return;
+      }
+      const card = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[data-station-index]');
+      if (!card) return;
+      triggerCardPreview(e, card);
+    });
+
+    dockEl?.addEventListener('keydown', (e) => {
+      if (e.key !== ' ' || e.defaultPrevented) return;
+      const card = (e.target as Element | null)?.closest<HTMLAnchorElement>('a[data-station-index]');
+      if (!card) return;
+      triggerCardPreview(e, card);
+    });
+  }
+
   if (stageEl && typeof window.matchMedia === 'function') {
     const mq = window.matchMedia('(min-width: 1024px) and (pointer: fine)');
     let activeController: { destroy: () => void } | null = null;

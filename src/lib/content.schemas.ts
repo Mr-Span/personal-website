@@ -29,6 +29,8 @@ export const ProjectFrontmatterSchema = z
       .optional(),
     anonymizationNote: z.string().min(10).optional(),
     architectureFile: z.string().min(1).optional(),
+    visual: z.enum(['pipeline', 'uav', 'retrieval', 'rover']).optional(),
+    highlights: z.array(z.string().min(10)).max(3).optional(),
     isSideVenture: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
@@ -46,14 +48,6 @@ export const ProjectFrontmatterSchema = z
         code: z.ZodIssueCode.custom,
         path: ['anonymizationNote'],
         message: 'anonymizationNote is required when visibility is "anonymized".',
-      });
-    }
-
-    if (data.tier === 'case-study' && !data.architectureFile) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['architectureFile'],
-        message: 'Tier 1 case-study entries must reference a validated architectureFile.',
       });
     }
   });

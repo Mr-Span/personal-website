@@ -3,6 +3,13 @@ import { getCollection } from 'astro:content';
 import { absoluteUrl, SITE } from '@/data/site';
 import { getResumeData } from '@/lib/resume-loader';
 
+const PROJECT_ANCHORS: Record<string, string> = {
+  'enterprise-agentic-review': 'proj-flutter',
+  'quadyx-autonomy': 'proj-quadyx',
+  'electrocasnicu-rag': 'proj-electrocasnicu',
+  'agri-rover': 'proj-agri-rover',
+};
+
 export const GET: APIRoute = async () => {
   const resume = getResumeData();
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -28,13 +35,11 @@ export const GET: APIRoute = async () => {
       `- **Stack:** ${exp.stack.join(', ')}`,
       '',
     ]),
-    '## Selected Projects & Architectures',
+    '## Selected Projects',
     ...projects.flatMap((p) => {
       const slug = p.id.replace(/\.mdx$/, '');
-      const details: string[] = [];
-      if (p.data.tier === 'case-study') {
-        details.push(`Case Study: ${absoluteUrl(`/projects/${slug}/`)}`);
-      }
+      const anchorId = PROJECT_ANCHORS[slug] ?? `proj-${slug}`;
+      const details: string[] = [`Section: ${absoluteUrl(`/#${anchorId}`)}`];
       if (p.data.liveUrl) details.push(`Live: ${p.data.liveUrl}`);
       if (p.data.visibility === 'public' && p.data.repoUrl) {
         details.push(`Source: ${p.data.repoUrl}`);

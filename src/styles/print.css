@@ -21,10 +21,20 @@
   footer,
   .no-print,
   [data-kinematic-stage],
+  [data-cnc-rail],
+  [data-pixel-visual],
   [data-pixel-drone],
+  .cert-carousel-shell,
+  .cert-mode-switch,
   dialog,
   button {
     display: none !important;
+  }
+
+  #certs-list-panel,
+  #certs-list-panel[hidden] {
+    display: block !important;
+    content-visibility: visible !important;
   }
 
   section, article {

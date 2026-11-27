@@ -1,0 +1,212 @@
+---
+import type { ShowcaseModule } from '@/data/showcase-modules';
+
+interface Props {
+  modules: ShowcaseModule[];
+}
+
+const { modules } = Astro.props;
+---
+
+<!-- Native Top-Layer Concise Module Preview Modal (<dialog closedby="any">) -->
+<dialog
+  id="module-visor"
+  closedby="any"
+  class="dialog-visor"
+  aria-labelledby="visor-title"
+  data-modules={JSON.stringify(modules)}
+>
+  <div class="visor-clamp" aria-hidden="true">
+    <span class="visor-clamp-led"></span>
+    <span class="visor-clamp-bar"></span>
+  </div>
+
+  <div class="visor-header">
+    <span id="visor-cat" class="visor-category">PROFILE</span>
+    <form method="dialog">
+      <button
+        id="visor-close"
+        type="submit"
+        autofocus
+        aria-label="Close preview"
+        title="Close (Esc)"
+        class="visor-close-btn"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <div id="visor-panel-body" class="visor-body">
+    <h2 id="visor-title" class="visor-title">Module Title</h2>
+    <p id="visor-summary" class="visor-summary"></p>
+    <ul id="visor-facts" class="visor-facts clean-bullet-list"></ul>
+    <p id="visor-stack" class="visor-stack"></p>
+
+    <div class="visor-footer">
+      <button id="visor-see-more" type="button" class="cta-anodized btn-press">
+        <span>See more</span>
+        <span aria-hidden="true">&darr;</span>
+      </button>
+      <a id="visor-secondary-link" class="visor-secondary-link" hidden></a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import type { ShowcaseModule } from '@/data/showcase-modules';
+  import { attachLightDismissFallback } from '@/lib/dialog-utils';
+
+  type PreviewWindow = Window & {
+    __openModulePreview?: (idx: number) => void;
+    __cobotPickModule?: (idx: number, onLock: (i: number) => void) => void;
+    __cobotReleaseModule?: (immediateDock?: boolean) => void;
+    __cobotSetActiveSlot?: (idx: number) => void;
+  };
+
+  const dialog = document.getElementById('module-visor') as HTMLDialogElement | null;
+  const catEl = document.getElementById('visor-cat');
+  const titleEl = document.getElementById('visor-title');
+  const summaryEl = document.getElementById('visor-summary');
+  const factsEl = document.getElementById('visor-facts');
+  const stackEl = document.getElementById('visor-stack');
+  const seeMoreBtn = document.getElementById('visor-see-more') as HTMLButtonElement | null;
+  const secondaryLinkEl = document.getElementById('visor-secondary-link') as HTMLAnchorElement | null;
+
+  if (dialog) {
+    attachLightDismissFallback(dialog);
+
+    const win = window as unknown as PreviewWindow;
+    let modules: ShowcaseModule[] = [];
+    try {
+      modules = JSON.parse(dialog.dataset.modules || '[]') as ShowcaseModule[];
+    } catch {
+      modules = [];
+    }
+
+    let currentIdx = 0;
+    let pendingNavigate: {
+      targetId: string;
+      stationId: string;
+      moduleIndex: number;
+    } | null = null;
+
+    const renderModule = (idx: number) => {
+      const mod = modules[idx];
+      if (!mod) return;
+      currentIdx = idx;
+
+      if (catEl) catEl.textContent = mod.category;
+      if (titleEl) titleEl.textContent = mod.previewTitle || mod.title;
+      if (summaryEl) summaryEl.textContent = mod.previewSummary || mod.cardSummary;
+
+      if (factsEl) {
+        factsEl.replaceChildren();
+        const facts = mod.previewFacts ?? [];
+        factsEl.hidden = facts.length === 0;
+        for (const fact of facts) {
+          const li = document.createElement('li');
+          li.textContent = fact;
+          factsEl.appendChild(li);
+        }
+      }
+
+      if (stackEl) {
+        const stack = mod.stack ?? [];
+        stackEl.hidden = stack.length === 0;
+        stackEl.textContent = stack.join(' · ');
+      }
+
+      if (secondaryLinkEl) {
+        if (mod.secondaryLink) {
+          secondaryLinkEl.href = mod.secondaryLink.href;
+          secondaryLinkEl.textContent = mod.secondaryLink.label;
+          secondaryLinkEl.hidden = false;
+          if (mod.secondaryLink.external) {
+            secondaryLinkEl.target = '_blank';
+            secondaryLinkEl.rel = 'noopener noreferrer';
+          } else {
+            secondaryLinkEl.removeAttribute('target');
+            secondaryLinkEl.removeAttribute('rel');
+          }
+        } else {
+          secondaryLinkEl.hidden = true;
+          secondaryLinkEl.removeAttribute('href');
+          secondaryLinkEl.removeAttribute('target');
+          secondaryLinkEl.removeAttribute('rel');
+        }
+      }
+    };
+
+    const openPreviewImmediate = (idx: number) => {
+      if (!modules[idx]) return;
+      renderModule(idx);
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    };
+
+    const triggerModulePreview = (idx: number) => {
+      if (dialog.open || !modules[idx]) return;
+      if (typeof win.__cobotPickModule === 'function') {
+        win.__cobotPickModule(idx, openPreviewImmediate);
+      } else {
+        win.__cobotSetActiveSlot?.(idx);
+        openPreviewImmediate(idx);
+      }
+    };
+
+    win.__openModulePreview = triggerModulePreview;
+
+    seeMoreBtn?.addEventListener('click', () => {
+      const mod = modules[currentIdx];
+      if (!mod) return;
+      pendingNavigate = {
+        targetId: mod.targetId,
+        stationId: mod.railStation,
+        moduleIndex: currentIdx,
+      };
+      dialog.close('navigate');
+    });
+
+    const blurRestoredStationCard = () => {
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (activeEl && activeEl.hasAttribute('data-station-index')) {
+        activeEl.blur();
+      }
+    };
+
+    dialog.addEventListener('close', () => {
+      const isNavigate = dialog.returnValue === 'navigate';
+      dialog.returnValue = '';
+      blurRestoredStationCard();
+      queueMicrotask(blurRestoredStationCard);
+
+      if (isNavigate && pendingNavigate) {
+        const nav = pendingNavigate;
+        pendingNavigate = null;
+        win.__cobotReleaseModule?.(true);
+        window.dispatchEvent(new CustomEvent('claux:cnc-navigate', { detail: nav }));
+        if (!document.getElementById('vertical-cnc-rail')) {
+          const targetEl = document.getElementById(nav.targetId);
+          const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+          targetEl?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        }
+      } else {
+        pendingNavigate = null;
+        win.__cobotReleaseModule?.(false);
+      }
+    });
+  }
+</script>

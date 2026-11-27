@@ -1,15 +1,19 @@
 ---
-title: "ElectrocasNicu — Document RAG Agent"
+title: "Document RAG Agent — ElectrocasNicu"
 tier: "case-study"
 visibility: "public"
 category: ["ai"]
 featured: true
-order: 2
+order: 3
 outcomeBadge: "Verified Page Citations"
 summary: "Document RAG assistant for home-appliance manuals and warranties built with decoupled indexing/execution pipelines, ChromaDB local embeddings, Pydantic-validated tool schemas, explicit page citations, and automated tests."
 stack: ["Python", "ChromaDB", "Pydantic", "Streamlit", "RAG", "pytest"]
 repoUrl: "https://github.com/Mr-Span/SpanClaudiu_ElectrocasNicu"
-architectureFile: "electrocasnicu-rag.architecture.json"
+visual: "retrieval"
+highlights:
+  - "Decoupled offline page-aware indexing into local ChromaDB embeddings from the interactive Streamlit query runtime."
+  - "Typed Pydantic tool schemas verify every cited document name and page reference against retrieved manual context."
+  - "Explicit refusal guardrail prevents speculation on low-confidence retrieval, backed by automated pytest checks."
 ---
 
 ## Problem

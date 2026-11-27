@@ -6,7 +6,7 @@ const distDir = path.resolve(process.cwd(), 'dist');
 
 const MAX_DIST_BYTES = 30 * 1024 * 1024;
 const MAX_WOFF2_KB = 250;
-const MAX_CORE_JS_GZ_KB = 130;
+const MAX_CORE_JS_GZ_KB = 45;
 const MAX_LAZY_3D_JS_GZ_KB = 220;
 
 // Desktop-only lazy 3D chunks dynamically imported ONLY at >= 1024px & pointer:fine (0 KB on mobile)
@@ -24,8 +24,6 @@ const REQUIRED_ARTIFACTS = [
   'Claudiu-Span-CV.pdf',
   path.join('og', 'default.png'),
   'index.html',
-  path.join('projects', 'index.html'),
-  path.join('resume', 'index.html'),
   path.join('blog', 'index.html'),
 ];
 
@@ -81,7 +79,7 @@ function main() {
   }
 
   // Split JS gzip budget checks:
-  // (a) Non-3D core app gzipped JS <= 130 KB
+  // (a) Non-3D core app gzipped JS <= 45 KB
   // (b) Desktop-only lazy 3D chunk (kinematic-runtime + any Three.js chunks emitted by Vite) <= 220 KB
   const jsFiles = allFiles.filter((f) => f.endsWith('.js') || f.endsWith('.mjs'));
   const coreChunks = [];

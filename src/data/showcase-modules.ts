@@ -3,27 +3,17 @@ import type { ResumeData } from './resume.schema';
 import { SITE, withBase } from './site';
 
 export type ModuleIconKey = 'profile' | 'automation' | 'uav' | 'rag' | 'rover' | 'connect';
-
-export interface ShowcaseMetric {
-  label: string;
-  value: string;
-}
-
-export interface ShowcaseLensCopy {
-  summary: string;
-  bullets: string[];
-}
-
-export interface ShowcaseAction {
-  type: 'route' | 'external' | 'copy-email';
-  label: string;
-  href?: string;
-  primary: boolean;
-}
+export type RailStationId = 'experience' | 'education' | 'projects' | 'certifications' | 'stack';
 
 export interface ShowcaseHighlightItem {
   term: string;
   desc: string;
+}
+
+export interface ShowcaseSecondaryLink {
+  label: string;
+  href: string;
+  external?: boolean;
 }
 
 export interface ShowcaseModule {
@@ -35,14 +25,15 @@ export interface ShowcaseModule {
   cardHighlights?: ShowcaseHighlightItem[];
   chips: string[];
   proof: string;
-  readoutSummary: string;
   href: string;
+  targetId: string;
+  railStation: RailStationId;
   glyphId: string;
-  stats: ShowcaseMetric[];
-  recruiter: ShowcaseLensCopy;
-  engineer: ShowcaseLensCopy;
+  previewTitle?: string;
+  previewSummary: string;
+  previewFacts: string[];
   stack: string[];
-  actions: ShowcaseAction[];
+  secondaryLink?: ShowcaseSecondaryLink;
 }
 
 /**
@@ -163,38 +154,70 @@ export const CARGO_DRONE_GRID: readonly string[] = [
 ];
 
 /**
- * High-detail 17x17 retro pixel-art Quadrotor UAV sprite rendered at 34x34px (exact 2x integer pixel scale).
- * Includes alternating 2-phase spinning rotor discs ('r'/'p'), carbon arms, stereo depth optics, and tail LEDs.
+ * 9x9 pixel-art mortarboard glyph for the 5-station CNC rail & shuttle (rendered at 18x18px exact 2x scale).
  */
-export const DETAILED_UAV_GRID: readonly string[] = [
-  '.rmp.........pmr.',
-  'r...p.......p...r',
-  'm.k.m..kkk..m.k.m',
-  'p..k..kcbck..k..p',
-  '.pm.k.kwwwk.k.mp.',
-  '.....kkkkkkk.....',
-  '.....ksmwmsk.....',
-  '....kkwbobwkk....',
-  '....ksmwwwmsk....',
-  '.....kskkksk.....',
-  '.....kksmmkk.....',
-  '....k..kkk..k....',
-  '.rmk...o.o...kmr.',
-  'p..k.........k..p',
-  'm.k.m.......m.k.m',
-  'r...p.......p...r',
-  '.pmr.........rmp.',
+export const RAIL_EDUCATION_GLYPH: readonly string[] = [
+  '...kkk...',
+  '.kkbbbkk.',
+  'kkbbobbkk',
+  '.kkbbbko.',
+  '..ksssko.',
+  '..kwwwko.',
+  '..kkkkko.',
+  '......ooo',
+  '.........',
+];
+
+/**
+ * 23x15 multi-tone pixel-art graduation cap body for #education (rendered at 46x30px exact 2x scale).
+ */
+export const GRADUATION_CAP_GRID: readonly string[] = [
+  '.........kkkkk.........',
+  '......kkkwwwwwkkk......',
+  '....kkwwwbbcbbwwwkk....',
+  '..kkwwbbbccoccbbbwwkk..',
+  'kkwwbbbbbbboooooobbwwkk',
+  'kkssbbbbbbbbbbbbboooskk',
+  '..kkssbbbbbbbbbbbssko..',
+  '....kkkssssssssskkk....',
+  '.....ksssssssssssk.....',
+  '.....ksmwwwwwwwmsk.....',
+  '.....ksmwwwwwwwmsk.....',
+  '.....kssmmmmmmmssk.....',
+  '......kkkkkkkkkkk......',
+  '.......................',
+  '.......................',
+];
+
+/**
+ * Separate animated tassel rects anchored at mortarboard right rim (x=20, y=7) clear of the cap skull.
+ */
+export const GRADUATION_TASSEL_RECTS: readonly {
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  fill: 'k' | 'o' | 'v';
+}[] = [
+  { x: 20, y: 7, h: 2, fill: 'o' },
+  { x: 19, y: 9, fill: 'k' },
+  { x: 20, y: 9, fill: 'o' },
+  { x: 21, y: 9, fill: 'k' },
+  { x: 19, y: 10, h: 3, fill: 'o' },
+  { x: 20, y: 10, h: 3, fill: 'v' },
+  { x: 21, y: 10, h: 3, fill: 'o' },
+  { x: 19, y: 13, fill: 'o' },
+  { x: 21, y: 13, fill: 'o' },
 ];
 
 export function buildShowcaseModules(
   resume: ResumeData,
-  projects: CollectionEntry<'projects'>[],
+  projects?: CollectionEntry<'projects'>[],
 ): ShowcaseModule[] {
-  const bySlug = new Map(projects.map((p) => [p.id.replace(/\.mdx$/, ''), p]));
   const betfair = resume.experience[0];
-  const quadyxExp = resume.experience[1];
   const msc = resume.education[0];
   const bsc = resume.education[1];
+  const bySlug = new Map((projects ?? []).map((p) => [p.id.replace(/\.mdx$/, ''), p]));
 
   const enterpriseProj = bySlug.get('enterprise-agentic-review');
   const quadyxProj = bySlug.get('quadyx-autonomy');
@@ -210,37 +233,23 @@ export function buildShowcaseModules(
       cardSummary: 'Applied AI, Automation & Robotics · Betfair + UTCN MSc',
       chips: ['2022–2027', 'ATS PDF'],
       proof: betfair?.period ?? 'Mar 2022 – Jan 2027',
-      readoutSummary: `${resume.profile.headline} · ${resume.profile.location}`,
-      href: withBase('/resume/'),
+      href: '#experience',
+      targetId: 'experience',
+      railStation: 'experience',
       glyphId: 'chip',
-      stats: [
-        { label: 'TENURE', value: betfair?.period ?? 'Mar 2022 – Jan 2027' },
-        { label: 'DELIVERY', value: '40+ Workflows · ~70%' },
-        { label: 'EDUCATION', value: `${msc?.degree ?? 'MSc CPS'} · ${bsc?.degree ?? 'BSc Robotics'}` },
+      previewTitle: 'Profile & CV',
+      previewSummary: resume.profile.summary,
+      previewFacts: [
+        `${betfair?.company ?? 'Betfair Romania Development'} (${betfair?.period ?? 'Mar 2022 – Jan 2027'}) — 40+ E2E automation workflows`,
+        `${msc?.degree ?? 'MSc. Cyber-Physical Systems'} & ${bsc?.degree ?? 'BSc. Robotics'} — ${msc?.institution ?? 'Technical University of Cluj-Napoca'}`,
+        `${resume.certifications.length} verified certifications (AWS AIF-C01, UiPath Advanced, NVIDIA DL)`,
       ],
-      recruiter: {
-        summary: resume.profile.summary,
-        bullets: [
-          betfair?.highlights[0]?.text ?? 'Delivered 40+ production automation workflows end to end.',
-          betfair?.highlights[1]?.text ?? 'Cut operator review time by ~70% via Enterprise Agentic AI.',
-          `${resume.certifications.length} verified certifications including AWS Certified AI Practitioner (AIF-C01) & UiPath Advanced RPA.`,
-        ],
-      },
-      engineer: {
-        summary:
-          'Deterministic-first AI and systems engineer bridging governed enterprise automation (UiPath Maestro, Python, Redshift, LLM validation) with real-time robotics (ROS 2, ORB-SLAM3, C++).',
-        bullets: [
-          'Strict Pydantic schema validation, enterprise PII boundaries, and human-in-the-loop review gates.',
-          'Single Zod-validated resume.json compiling HTML, 1-page A4 ATS PDF, /llms.txt, and /index.md with zero drift.',
-          `Location & availability: ${resume.profile.location}.`,
-        ],
-      },
       stack: ['Python', 'TypeScript', 'C++', 'UiPath Maestro', 'ROS 2', 'RAG / LLMs'],
-      actions: [
-        { type: 'route', label: 'Open Full Resume →', href: withBase('/resume/'), primary: true },
-        { type: 'route', label: 'Download ATS PDF ↓', href: withBase('/Claudiu-Span-CV.pdf'), primary: false },
-        { type: 'copy-email', label: 'Copy Email', primary: false },
-      ],
+      secondaryLink: {
+        label: 'ATS PDF ↓',
+        href: withBase('/Claudiu-Span-CV.pdf'),
+        external: false,
+      },
     },
     {
       id: 'enterprise',
@@ -250,50 +259,26 @@ export function buildShowcaseModules(
       cardSummary: '40+ E2E workflows, Maestro Agentic AI review (-70% time), Python, REFramework & REST APIs',
       chips: ['UiPath', 'API', 'SQL'],
       proof: '40+ Flows · ~70%',
-      readoutSummary:
-        'Flutter UK&I (Betfair Romania Development) — 40+ E2E automation workflows, Maestro LLM review (-70% effort), Python, REST APIs & SQL.',
-      href: withBase('/projects/enterprise-agentic-review/'),
+      href: '#proj-flutter',
+      targetId: 'proj-flutter',
+      railStation: 'projects',
       glyphId: 'gripper',
-      stats: [
-        { label: 'PRODUCTION', value: '40+ Workflows' },
-        { label: 'IMPACT', value: '~70% Review Cut' },
-        { label: 'TENURE', value: '2022–2027 · Flutter' },
+      previewTitle: 'Flutter UK&I — Enterprise RPA & Agentic AI',
+      previewSummary:
+        enterpriseProj?.data.summary ??
+        'Unified three internal operational platforms and eight Amazon Redshift scripts into a single UiPath Studio Web review workspace with Maestro orchestration and validated LLM summaries.',
+      previewFacts: enterpriseProj?.data.highlights ?? [
+        'On-demand live aggregation across 3 internal platforms and 8 Redshift SQL scripts.',
+        'Deterministic SQL pre-aggregation before LLM synthesis inside the enterprise PII boundary.',
+        'Human-in-the-loop Studio Web workspace across 40+ production deliveries.',
       ],
-      recruiter: {
-        summary:
-          enterpriseProj?.data.summary ??
-          'Delivered 40+ production automations at Betfair Romania Development (Flutter UK&I), unifying three internal platforms and eight Amazon Redshift SQL scripts with Maestro Agentic AI.',
-        bullets: [
-          'Reduced operator data-review time by approximately 70% across target review workflows using validated LLM summaries.',
-          'Engineered resilient unattended/attended RPA, REST API integrations, and SQL pipelines across Salesforce and internal platforms.',
-          `Full end-to-end lifecycle ownership (${betfair?.period ?? 'Mar 2022 – Jan 2027'}) from discovery through CI/CD & hypercare.`,
-        ],
-      },
-      engineer: {
-        summary:
-          'Deterministic RPA & SQL/API extraction paired with Maestro orchestration and schema-validated LLM synthesis.',
-        bullets: [
-          'UiPath Maestro orchestrates core REFramework/API extraction flows feeding a schema-validated LLM summarizer in Studio Web.',
-          'Deterministic SQL arithmetic computed in Redshift prior to LLM input to prevent numerical hallucinations with zero external PII egress.',
-          'Interactive Nominal vs. Guardrail/Failure architecture diagram available on the full case study page.',
-        ],
-      },
-      stack: [
-        'UiPath Maestro',
-        'REFramework',
-        'Python',
-        'REST APIs',
-        'SQL / Redshift',
+      stack: enterpriseProj?.data.stack ?? [
+        'UiPath Studio Web',
+        'Maestro',
         'LLM Agents',
-      ],
-      actions: [
-        {
-          type: 'route',
-          label: 'Inspect Interactive Architecture →',
-          href: withBase('/projects/enterprise-agentic-review/'),
-          primary: true,
-        },
-        { type: 'route', label: 'View Role in Resume', href: withBase('/resume/#experience'), primary: false },
+        'Human-in-the-Loop',
+        'Amazon Redshift',
+        'Python',
       ],
     },
     {
@@ -309,41 +294,32 @@ export function buildShowcaseModules(
       ],
       chips: ['ROS 2', 'OpenCV', 'Python'],
       proof: 'ROS 2 · SLAM + Depth',
-      readoutSummary:
-        quadyxProj?.data.summary ??
-        'Co-founded UAV autonomy venture: spatial algorithms (ORB-SLAM3 + Depth V2), camera–IMU calibration & precision landing.',
-      href: withBase('/projects/quadyx-autonomy/'),
+      href: '#proj-quadyx',
+      targetId: 'proj-quadyx',
+      railStation: 'projects',
       glyphId: 'uav',
-      stats: [
-        { label: 'ROLE', value: 'Co-Founder · Autonomy' },
-        { label: 'ALGORITHMS', value: 'ORB-SLAM3 + Depth V2' },
-        { label: 'CALIBRATION', value: 'Camera–IMU · Precision Land' },
+      previewTitle: quadyxProj?.data.title ?? 'QUADYX — Autonomous UAV Perception & Resilient Telemetry',
+      previewSummary:
+        quadyxProj?.data.summary ??
+        'Technical side venture exploring real-time drone spatial perception (ORB-SLAM3 + Depth Anything V2), point-cloud obstacle clustering, and resilient multi-channel GSM/IP telemetry over ROS 2.',
+      previewFacts: quadyxProj?.data.highlights ?? [
+        'Real-time monocular spatial perception with ORB-SLAM3 and Depth Anything V2.',
+        'Hybrid C++/OpenCV point-cloud obstacle clustering with Python orchestration.',
+        'Multi-channel ROS 2, GSM, and IP telemetry with automatic link failover.',
       ],
-      recruiter: {
-        summary:
-          quadyxProj?.data.summary ??
-          'Technical side venture building autonomous drone perception algorithms, calibrated camera–IMU sensing, and visual precision landing over ROS 2.',
-        bullets: (quadyxExp?.highlights ?? []).map((h) => h.text),
-      },
-      engineer: {
-        summary:
-          'Hybrid C++/Python autonomy runtime uniting calibrated visual-inertial perception, monocular depth algorithms, and optical-flow precision landing.',
-        bullets: [
-          'Algorithms: ORB-SLAM3 localization fused with Depth Anything V2 monocular depth and OpenCV point-cloud obstacle clustering.',
-          'Sensor calibration: synchronized camera–IMU spatial alignment for stable onboard pose estimation and Gazebo validation.',
-          'Precision landing & failover: hybrid ORB + Lucas-Kanade optical-flow target tracking plus automatic GSM/IP telemetry failover.',
-        ],
-      },
-      stack: quadyxProj?.data.stack ?? ['ROS 2', 'ORB-SLAM3', 'Depth Anything V2', 'C++', 'Python', 'OpenCV'],
-      actions: [
-        {
-          type: 'route',
-          label: 'Inspect Interactive Architecture →',
-          href: withBase('/projects/quadyx-autonomy/'),
-          primary: true,
-        },
-        { type: 'external', label: 'Visit quadyx.com ↗', href: SITE.quadyxUrl, primary: false },
+      stack: quadyxProj?.data.stack ?? [
+        'ROS 2',
+        'ORB-SLAM3',
+        'Depth Anything V2',
+        'C++',
+        'Python',
+        'OpenCV',
       ],
+      secondaryLink: {
+        label: 'quadyx.com ↗',
+        href: SITE.quadyxUrl,
+        external: true,
+      },
     },
     {
       id: 'electrocasnicu',
@@ -353,48 +329,32 @@ export function buildShowcaseModules(
       cardSummary: 'Agentic AI RAG chat for appliance manuals & warranties — hybrid search with exact page citations',
       chips: ['ChromaDB', 'Pydantic'],
       proof: 'Agentic RAG · Cited',
-      readoutSummary:
-        'Agentic AI RAG chat assistant for home-appliance manuals & warranties with ChromaDB + BM25 hybrid retrieval and cited page proof.',
-      href: withBase('/projects/electrocasnicu-rag/'),
+      href: '#proj-electrocasnicu',
+      targetId: 'proj-electrocasnicu',
+      railStation: 'projects',
       glyphId: 'rag',
-      stats: [
-        { label: 'SYSTEM', value: 'Agentic AI RAG Chat' },
-        { label: 'RETRIEVAL', value: 'ChromaDB + BM25 Hybrid' },
-        { label: 'GROUNDING', value: 'Exact Page Citations' },
+      previewTitle: ragProj?.data.title ?? 'Document RAG Agent — ElectrocasNicu',
+      previewSummary:
+        ragProj?.data.summary ??
+        'Document RAG assistant for home-appliance manuals and warranties built with decoupled indexing/execution pipelines, ChromaDB local embeddings, Pydantic-validated tool schemas, and explicit page citations.',
+      previewFacts: ragProj?.data.highlights ?? [
+        'Decoupled offline page-aware indexing into local ChromaDB embeddings.',
+        'Typed Pydantic tool schemas verify every cited document name and page reference.',
+        'Explicit refusal guardrail prevents speculation on low-confidence retrieval.',
       ],
-      recruiter: {
-        summary:
-          'Independently engineered Agentic AI RAG chat assistant for home-appliance manuals and warranties, delivering verified answers with exact page citations and refusal guardrails.',
-        bullets: [
-          'Natural-language AI chat that inspects uploaded PDF/TXT appliance manuals and warranties to answer repair and model questions safely.',
-          'Eliminates unsafe hallucinations by anchoring every instruction to cited document pages and refusing cleanly when evidence is missing.',
-          'Backed by automated pytest checks validating tool routing, retrieval contracts, and citation integrity.',
-        ],
-      },
-      engineer: {
-        summary:
-          'Decoupled offline indexing and Streamlit Agentic AI chat runtime combining local ChromaDB vectors + BM25 lexical search under Pydantic tool schemas.',
-        bullets: [
-          'Page-aware PDF ingestion and multilingual embeddings in local ChromaDB fused with BM25 keyword retrieval.',
-          'Typed Pydantic function calling routes model lookups, safety constraints, and citation verification before rendering answers.',
-          'Inspect Nominal retrieval vs. Refusal Guardrail flows in the full interactive architecture diagram.',
-        ],
-      },
-      stack: ragProj?.data.stack ?? ['Python', 'ChromaDB', 'Pydantic', 'Streamlit', 'RAG', 'pytest'],
-      actions: [
-        {
-          type: 'route',
-          label: 'Inspect Interactive Architecture →',
-          href: withBase('/projects/electrocasnicu-rag/'),
-          primary: true,
-        },
-        {
-          type: 'external',
-          label: 'Source Repo ↗',
-          href: ragProj?.data.repoUrl ?? 'https://github.com/Mr-Span/SpanClaudiu_ElectrocasNicu',
-          primary: false,
-        },
+      stack: ragProj?.data.stack ?? [
+        'Python',
+        'ChromaDB',
+        'Pydantic',
+        'Streamlit',
+        'RAG',
+        'pytest',
       ],
+      secondaryLink: {
+        label: 'GitHub Repo ↗',
+        href: ragProj?.data.repoUrl ?? 'https://github.com/Mr-Span/SpanClaudiu_ElectrocasNicu',
+        external: true,
+      },
     },
     {
       id: 'agri-rover',
@@ -404,39 +364,24 @@ export function buildShowcaseModules(
       cardSummary: 'Completed BSc orchard rover · GPS/IMU C++ guidance',
       chips: ['C++', 'Embedded'],
       proof: 'UTCN BSc · C++',
-      readoutSummary:
-        roverProj?.data.summary ??
-        'Completed BSc Robotics orchard navigation rover fusing GPS & IMU compass via embedded C++ Haversine guidance.',
-      href: withBase('/projects/#agri-rover'),
+      href: '#proj-agri-rover',
+      targetId: 'proj-agri-rover',
+      railStation: 'projects',
       glyphId: 'rover',
-      stats: [
-        { label: 'STATUS', value: 'Completed Prototype' },
-        { label: 'NAVIGATION', value: 'GPS + IMU Haversine' },
-        { label: 'DEGREE', value: 'UTCN BSc Robotics' },
+      previewTitle: roverProj?.data.title ?? 'Agri-Rover — Autonomous Orchard Navigation Rover',
+      previewSummary:
+        roverProj?.data.summary ??
+        'Completed BSc Robotics hardware prototype for autonomous orchard waypoint navigation and environmental telemetry, fusing GPS fixes and digital compass IMU headings via embedded C++ Haversine guidance.',
+      previewFacts: roverProj?.data.highlights ?? [
+        'Fuses asynchronous GPS fixes and IMU headings via embedded C++ Haversine guidance.',
+        'Complete UTCN BSc Robotics hardware build and differential-drive control.',
+        'Streams environmental telemetry over Bluetooth with hardware failsafe motor stop.',
       ],
-      recruiter: {
-        summary:
-          roverProj?.data.summary ??
-          'Completed autonomous orchard navigation rover prototype built end to end as my UTCN BSc Robotics thesis.',
-        bullets: [
-          'Full mechanical, electrical, and embedded C++ ownership from physical assembly to autonomous outdoor navigation.',
-          'Navigated multi-point GPS routes while streaming environmental telemetry over Bluetooth.',
-          'Showcased alongside 4 additional AI, automation, and client web builds on /projects/.',
-        ],
-      },
-      engineer: {
-        summary:
-          'Closed-loop embedded C++ navigation controller fusing asynchronous GPS fixes with digital magnetometer headings.',
-        bullets: [
-          'Implemented great-circle Haversine distance and target bearing calculations directly in C++ firmware.',
-          'Complementary heading stabilization reduces magnetometer drift during differential-drive turns.',
-          'Bluetooth telemetry link paired with hardware failsafe motor stop on signal loss.',
-        ],
-      },
-      stack: roverProj?.data.stack ?? ['C++', 'Embedded Systems', 'GPS / IMU Fusion', 'Mechatronics'],
-      actions: [
-        { type: 'route', label: 'View in Projects Showcase →', href: withBase('/projects/#agri-rover'), primary: true },
-        { type: 'route', label: 'UTCN Education & Thesis', href: withBase('/resume/#education'), primary: false },
+      stack: roverProj?.data.stack ?? [
+        'C++',
+        'Embedded Systems',
+        'GPS / IMU Fusion',
+        'Mechatronics',
       ],
     },
     {
@@ -447,39 +392,23 @@ export function buildShowcaseModules(
       cardSummary: `${resume.certifications.length} verified certs (AWS, UiPath, NVIDIA, Simplilearn) · EU contact`,
       chips: ['RO', 'EN', 'DE'],
       proof: `${resume.certifications.length} Certs · RO/EN/DE`,
-      readoutSummary: `${resume.certifications.length} verified certifications (AWS AIF-C01, UiPath Advanced, NVIDIA, Simplilearn, Veoneer) · Languages: RO · EN · DE`,
-      href: withBase('/resume/#certifications'),
+      href: '#certifications',
+      targetId: 'certifications',
+      railStation: 'certifications',
       glyphId: 'terminal',
-      stats: [
-        { label: 'CERTIFIED', value: `${resume.certifications.length} Verified Credentials` },
-        { label: 'LANGUAGES', value: 'RO · EN · DE' },
-        { label: 'DIRECT', value: resume.profile.email },
+      previewTitle: 'Verified Certifications & Direct Contact',
+      previewSummary: `${resume.certifications.length} verified certifications across AWS, UiPath, NVIDIA, Simplilearn, and Veoneer. Fluent in RO, EN, and DE — ${resume.profile.location}.`,
+      previewFacts: [
+        'AWS Certified AI Practitioner (AIF-C01), UiPath Advanced RPA Developer & NVIDIA Deep Learning',
+        "Simplilearn AI Engineer Master's Program & Python / Agentic AI Engineering",
+        `Direct email: ${resume.profile.email}`,
       ],
-      recruiter: {
-        summary:
-          'Verified technical credentials, spoken languages (RO, EN, DE), and zero-friction direct contact channels — instant ATS PDF access.',
-        bullets: [
-          'AWS Certified AI Practitioner (AIF-C01), UiPath Advanced RPA Developer, NVIDIA Fundamentals of Deep Learning, Veoneer ML.',
-          "Simplilearn AI Engineer Master's Program (TensorFlow, ML & Python), plus Python & Agentic AI Engineering (Școala Informala de IT).",
-          `Languages: RO · EN · DE · Direct email: ${resume.profile.email} (${resume.profile.location}).`,
-        ],
+      stack: ['AWS AIF-C01', 'UiPath Advanced', 'NVIDIA DL', 'RO · EN · DE'],
+      secondaryLink: {
+        label: 'LinkedIn ↗',
+        href: SITE.linkedinUrl,
+        external: true,
       },
-      engineer: {
-        summary:
-          'Full stack matrix across Applied AI, Enterprise Automation, Backend/Web Software, and Cyber-Physical Robotics — plus machine-readable /llms.txt.',
-        bullets: resume.skillGroups.map((g) => `${g.title}: ${g.items.slice(0, 6).join(', ')}`),
-      },
-      stack: ['AWS AIF-C01', 'UiPath Advanced', 'NVIDIA DL', 'Python', 'C++', 'ROS 2'],
-      actions: [
-        { type: 'copy-email', label: 'Copy Email', primary: true },
-        {
-          type: 'route',
-          label: `All ${resume.certifications.length} Certifications →`,
-          href: withBase('/resume/#certifications'),
-          primary: false,
-        },
-        { type: 'external', label: 'LinkedIn ↗', href: SITE.linkedinUrl, primary: false },
-      ],
     },
   ];
 }

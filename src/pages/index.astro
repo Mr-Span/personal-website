@@ -2,11 +2,18 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import KinematicHero from '@/components/KinematicHero.astro';
-import ModuleVisorDialog from '@/components/ModuleVisorDialog.astro';
+import ModulePreviewDialog from '@/components/ModulePreviewDialog.astro';
 import PersonalBadgeDialog from '@/components/PersonalBadgeDialog.astro';
+import VerticalCncRail from '@/components/VerticalCncRail.astro';
+import ProjectPixelVisual from '@/components/ProjectPixelVisual.astro';
 import CertificationCarousel from '@/components/CertificationCarousel.astro';
-import { buildShowcaseModules } from '@/data/showcase-modules';
-import { SITE, withBase } from '@/data/site';
+import CertificationGrid from '@/components/CertificationGrid.astro';
+import {
+  buildShowcaseModules,
+  GRADUATION_CAP_GRID,
+  GRADUATION_TASSEL_RECTS,
+  PIXEL_GLYPHS,
+} from '@/data/showcase-modules';
 import { getResumeData } from '@/lib/resume-loader';
 
 const resume = getResumeData();
@@ -15,10 +22,44 @@ const showcaseModules = buildShowcaseModules(resume, allProjects);
 const caseStudies = allProjects.filter((p) => p.data.tier === 'case-study');
 const additionalProjects = allProjects.filter((p) => p.data.tier === 'showcase-card');
 
-const publishedPosts = (await getCollection('blog'))
-  .filter((post) => post.data.published)
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
-const latestPost = publishedPosts[0] ?? null;
+const PROJECT_ANCHORS: Record<string, string> = {
+  'enterprise-agentic-review': 'proj-flutter',
+  'quadyx-autonomy': 'proj-quadyx',
+  'electrocasnicu-rag': 'proj-electrocasnicu',
+  'agri-rover': 'proj-agri-rover',
+};
+
+const PIXEL_PALETTE: Record<string, string> = {
+  k: 'var(--ink-primary)',
+  s: 'var(--ink-secondary)',
+  m: 'var(--ink-muted)',
+  w: 'var(--bg-elevated)',
+  b: 'var(--accent-tech)',
+  c: 'var(--accent-tech-3d)',
+  o: 'var(--hw-actuator)',
+  v: 'var(--accent-vermilion)',
+};
+
+const STACK_GLYPH_IDS = ['chip', 'gripper', 'terminal', 'uav'] as const;
+
+function gridToRects(grid: readonly string[]) {
+  const rects: Array<{ x: number; y: number; fill: string }> = [];
+  grid.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const ch = row[x];
+      if (ch === '.') continue;
+      rects.push({ x, y, fill: PIXEL_PALETTE[ch] || 'var(--ink-primary)' });
+    }
+  });
+  return rects;
+}
+
+function glyphRects(glyphId: string) {
+  const glyph = PIXEL_GLYPHS.find((g) => g.id === glyphId) ?? PIXEL_GLYPHS[0];
+  return gridToRects(glyph.grid);
+}
+
+const graduationCapRects = gridToRects(GRADUATION_CAP_GRID);
 ---
 
 <BaseLayout
@@ -27,124 +68,290 @@ const latestPost = publishedPosts[0] ?? null;
   canonicalPath="/"
   fullBleedHero
 >
-  <!-- Hero Kinematic Stage + Overhead Cobot + Pixel-Art Intro -> Autonomous Drone -->
+  <!-- 1. Full-Bleed 3D Kinematic Hero + Right-Edge Personal Badge -->
   <KinematicHero resume={resume} modules={showcaseModules} />
-  <ModuleVisorDialog modules={showcaseModules} />
   <PersonalBadgeDialog />
+  <ModulePreviewDialog modules={showcaseModules} />
 
-  <!-- De-Duplicated Below-the-Fold Machined Hardware Editorial Ledger (SSR HTML, Zero Card Soup) -->
-  <div class="mx-auto w-full max-w-7xl space-y-16 px-4 pb-16 pt-14 sm:px-6 lg:px-8">
-    <!-- Selected Flagship Architectures + Completed Showcase Projects -->
-    <section id="home-systems" aria-labelledby="systems-heading">
-      <div class="flex flex-wrap items-end justify-between gap-4 pb-4">
-        <div>
-          <p class="hw-eyebrow">
-            <span class="px-beacon" aria-hidden="true"></span>
-            <span>System Architectures</span>
-          </p>
-          <h2 id="systems-heading" class="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-ink sm:text-[1.7rem]">
-            Selected Systems &amp; Interactive Architectures
-          </h2>
-          <p class="mt-1 text-sm text-ink-secondary">
-            Production Agentic AI, grounded RAG, UAV autonomy, and completed robotics hardware.
-          </p>
-        </div>
-        <a
-          href={withBase('/projects/')}
-          class="cta-secondary-bevel btn-press font-mono text-xs"
-        >
-          All {allProjects.length} Projects &rarr;
-        </a>
+  <!-- 2. Unified Editorial Grid with Sticky Desktop R1 CNC Vertical Rail Across All 5 Stations -->
+  <div class="editorial-shell pt-12 lg:pt-16">
+    <VerticalCncRail />
+
+    <!-- #experience: Experience -->
+    <section
+      id="experience"
+      aria-labelledby="experience-heading"
+      class="clean-section editorial-row-exp mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:mx-0 lg:max-w-none lg:px-0"
+    >
+      <div class="clean-section-head">
+        <h2 id="experience-heading" class="clean-section-title">Experience</h2>
       </div>
 
-      <!-- 3 Flagship Case Studies (Interactive SVG Architecture Visualizers) -->
-      <div class="hw-panel swiss-dim-list overflow-hidden divide-y divide-hairline">
-        {caseStudies.map((project) => {
-          const slug = project.id.replace(/\.mdx$/, '');
-          return (
-            <article class="swiss-dim-item group grid grid-cols-1 gap-3.5 px-5 py-5 transition-colors hover:bg-elevated/80 sm:px-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)_auto] md:items-center md:gap-6">
-              <div class="font-mono text-xs text-muted">
-                <span class="block font-semibold text-vermilion tabular-nums">{project.data.outcomeBadge}</span>
-                <span class="mt-1 block text-[11px] uppercase tracking-[0.06em]">
-                  {project.data.isSideVenture ? 'Side Venture · Architecture' : 'Interactive Case Study'}
-                </span>
-              </div>
+      <div class="mt-6 divide-y divide-hairline border-y border-hairline">
+        {resume.experience.map((exp) => (
+          <article class="clean-two-col py-7">
+            <div class="clean-col-meta font-mono text-xs text-muted">
+              <p class="font-medium text-ink tabular-nums">{exp.period}</p>
+              <p class="mt-1">{exp.location}</p>
+            </div>
 
-              <div class="min-w-0">
-                <h3 class="dim-title font-display text-lg font-bold tracking-[-0.025em] text-ink">
+            <div class="min-w-0">
+              <h3 class="font-display text-lg font-bold tracking-[-0.02em] text-ink">
+                {exp.url ? (
                   <a
-                    href={withBase(`/projects/${slug}/`)}
+                    href={exp.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    translate="no"
                     class="underline-offset-4 transition-colors hover:text-tech hover:underline"
                   >
-                    {project.data.title}
+                    {exp.company} <span aria-hidden="true">&#8599;</span>
                   </a>
-                </h3>
-                <p class="mt-1.5 text-sm leading-relaxed text-ink-secondary">
-                  {project.data.summary}
-                </p>
-                <p class="mt-2 font-mono text-xs text-muted">
-                  {project.data.stack.join(' · ')}
-                </p>
-              </div>
+                ) : (
+                  <span translate="no">{exp.company}</span>
+                )}
+                <span class="mx-1.5 font-normal text-muted" aria-hidden="true">&middot;</span>
+                <span class="font-semibold text-vermilion">{exp.role}</span>
+              </h3>
 
-              <div class="flex shrink-0 items-center md:justify-end">
-                <a
-                  href={withBase(`/projects/${slug}/`)}
-                  class="cta-secondary-bevel btn-press font-mono text-xs"
-                >
-                  <span>Inspect Diagram</span>
-                  <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">&rarr;</span>
-                </a>
-              </div>
-            </article>
-          );
-        })}
+              <ul class="clean-bullet-list mt-3.5 space-y-2 text-sm leading-relaxed text-ink-secondary">
+                {exp.highlights.map((h) => (
+                  <li>{h.text}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- #education: Education + Pixel-Art Graduation Cap Figurine -->
+    <section
+      id="education"
+      aria-labelledby="education-heading"
+      class="clean-section editorial-row-edu mx-auto w-full max-w-7xl border-t border-hairline px-4 py-14 sm:px-6 lg:mx-0 lg:max-w-none lg:px-0"
+    >
+      <div class="clean-section-head clean-section-head-edu">
+        <div class="flex items-center gap-3.5">
+          <h2 id="education-heading" class="clean-section-title">Education</h2>
+          <span
+            class="pv-shell pv-cap-frame"
+            data-pixel-visual="graduation"
+            data-in-view="false"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 23 15"
+              width="46"
+              height="30"
+              shape-rendering="crispEdges"
+              class="pixel-crisp"
+            >
+              {graduationCapRects.map((r) => (
+                <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+              ))}
+              <g class="pv-cap-tassel">
+                {GRADUATION_TASSEL_RECTS.map((r) => (
+                  <rect
+                    x={r.x}
+                    y={r.y}
+                    width={r.w ?? 1.03}
+                    height={r.h ?? 1.03}
+                    fill={
+                      r.fill === 'v'
+                        ? 'var(--accent-vermilion)'
+                        : r.fill === 'o'
+                          ? 'var(--hw-actuator)'
+                          : 'var(--ink-primary)'
+                    }
+                  />
+                ))}
+              </g>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <!-- Additional Completed Robotics, AI & Client Showcase Projects (Including Agri-Rover) -->
-      <div class="mt-9">
-        <h3 class="hw-eyebrow">
-          <span class="px-beacon px-beacon-tech" aria-hidden="true"></span>
-          <span>Completed Hardware, AI Tools &amp; Client Work ({additionalProjects.length})</span>
-        </h3>
-        <div class="swiss-dim-list mt-3.5 grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-          {additionalProjects.map((project) => {
+      <div class="mt-6 divide-y divide-hairline border-y border-hairline">
+        {resume.education.map((edu) => (
+          <article class="clean-two-col py-7">
+            <div class="clean-col-meta font-mono text-xs text-muted">
+              <p class="font-medium text-ink tabular-nums">{edu.period}</p>
+              <p class="mt-1">{edu.institution}</p>
+            </div>
+
+            <div class="min-w-0">
+              <h3 class="font-display text-base font-bold tracking-[-0.02em] text-ink">
+                {edu.degree}
+              </h3>
+
+              {edu.thesis && (
+                <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
+                  <span class="font-mono text-xs font-medium uppercase tracking-[0.06em] text-vermilion">
+                    Thesis:
+                  </span>{' '}
+                  {edu.thesis.projectSlug === 'agri-rover' ? (
+                    <a
+                      href="#proj-agri-rover"
+                      class="underline-offset-4 transition-colors hover:text-tech hover:underline"
+                    >
+                      {edu.thesis.title}
+                    </a>
+                  ) : (
+                    edu.thesis.title
+                  )}
+                </p>
+              )}
+
+              {edu.courses.length > 0 && (
+                <details class="clean-coursework mt-3">
+                  <summary class="clean-coursework-summary font-mono text-xs font-medium text-tech">
+                    <span>Coursework ({edu.courses.length})</span>
+                  </summary>
+                  <ul class="mt-2.5 space-y-2 border-l border-hairline pl-3.5 text-xs leading-relaxed text-ink-secondary">
+                    {edu.courses.map((course) => (
+                      <li>
+                        <span class="font-semibold text-ink">{course.name}</span>
+                        {' — '}
+                        <span>{course.focus}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+      <!-- #projects: 3 Flagships (with Pixel Micro-Schematics) + 5 Compact Ledger Rows -->
+      <section
+        id="projects"
+        aria-labelledby="projects-heading"
+        class="clean-section editorial-row-proj mx-auto w-full max-w-7xl border-t border-hairline px-4 py-14 sm:px-6 lg:mx-0 lg:max-w-none lg:px-0"
+      >
+        <div class="clean-section-head">
+          <h2 id="projects-heading" class="clean-section-title">Projects</h2>
+        </div>
+
+        <!-- 3 Flagship Systems -->
+        <div class="mt-6 divide-y divide-hairline border-y border-hairline">
+          {caseStudies.map((project) => {
             const slug = project.id.replace(/\.mdx$/, '');
+            const anchorId = PROJECT_ANCHORS[slug] ?? `proj-${slug}`;
+            const visualKind = project.data.visual ?? 'pipeline';
+
             return (
-              <article
-                id={`home-proj-${slug}`}
-                class="swiss-dim-item hw-cell group flex flex-col justify-between gap-3.5 p-5 hover:-translate-y-0.5"
-              >
-                <div>
-                  <div class="flex flex-wrap items-baseline justify-between gap-2 font-mono text-[11px]">
-                    <span class="font-semibold text-vermilion tabular-nums">{project.data.outcomeBadge}</span>
-                    <span class="uppercase tracking-[0.06em] text-muted">
-                      {project.data.visibility === 'public' && !project.data.repoUrl
-                        ? 'Hardware Prototype'
-                        : project.data.visibility === 'public'
-                          ? 'Public'
-                          : 'Private'}
+              <article id={anchorId} class="clean-flagship-band py-8">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <h3 class="font-display text-xl font-bold tracking-[-0.025em] text-ink">
+                      {project.data.title}
+                    </h3>
+                    <span class="font-mono text-xs font-medium text-vermilion tabular-nums">
+                      {project.data.outcomeBadge}
                     </span>
                   </div>
-                  <h4 class="dim-title mt-2 font-display text-base font-bold tracking-[-0.02em] text-ink">
-                    {project.data.title}
-                  </h4>
-                  <p class="mt-1.5 text-sm leading-relaxed text-ink-secondary">
+
+                  <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">
+                    {project.data.summary}
+                  </p>
+
+                  {project.data.highlights && project.data.highlights.length > 0 && (
+                    <ul class="clean-bullet-list mt-3 space-y-1.5 text-[13.5px] leading-relaxed text-ink-secondary">
+                      {project.data.highlights.map((item) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div class="mt-4 flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
+                    <p class="font-mono text-xs text-muted">
+                      {project.data.stack.join(' · ')}
+                    </p>
+
+                    <div class="flex shrink-0 items-center gap-4 font-mono text-xs">
+                      {project.data.liveUrl && (
+                        <a
+                          href={project.data.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="inline-flex min-h-[32px] items-center gap-1 font-medium text-tech underline-offset-4 hover:underline"
+                        >
+                          <span>Live</span>
+                          <span aria-hidden="true">&#8599;</span>
+                        </a>
+                      )}
+                      {project.data.visibility === 'public' && project.data.repoUrl && (
+                        <a
+                          href={project.data.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="inline-flex min-h-[32px] items-center gap-1 font-medium text-ink underline-offset-4 hover:text-tech hover:underline"
+                        >
+                          <span>Repo</span>
+                          <span aria-hidden="true">&#8599;</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {project.data.visibility === 'anonymized' && project.data.anonymizationNote && (
+                    <p class="mt-2 font-mono text-[11px] leading-relaxed text-muted">
+                      {project.data.anonymizationNote}
+                    </p>
+                  )}
+                </div>
+
+                <div class="clean-visual-band shrink-0">
+                  <ProjectPixelVisual visual={visualKind} />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <!-- 5 Compact Ledger Rows (Agri-Rover first with inline mini rover) -->
+        <div class="swiss-dim-list mt-6 divide-y divide-hairline border-b border-hairline">
+          {additionalProjects.map((project) => {
+            const slug = project.id.replace(/\.mdx$/, '');
+            const anchorId = PROJECT_ANCHORS[slug] ?? `proj-${slug}`;
+            const isRover = project.data.visual === 'rover';
+
+            return (
+              <article id={anchorId} class="swiss-dim-item clean-ledger-row py-4">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h3 class="dim-title font-display text-base font-bold tracking-[-0.02em] text-ink">
+                      {project.data.title}
+                    </h3>
+                    {isRover && <ProjectPixelVisual visual="rover" variant="compact" />}
+                    <span class="font-mono text-xs font-medium text-vermilion tabular-nums">
+                      {project.data.outcomeBadge}
+                    </span>
+                  </div>
+
+                  <p class="mt-1 text-sm leading-relaxed text-ink-secondary">
                     {project.data.summary}
                   </p>
                 </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-hairline pt-3 font-mono text-xs">
-                  <span class="min-w-0 truncate text-muted">{project.data.stack.slice(0, 4).join(' · ')}</span>
-                  <div class="flex shrink-0 items-center gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-xs lg:flex-col lg:items-end lg:justify-center">
+                  <span class="text-muted">
+                    {project.data.stack.slice(0, 4).join(' · ')}
+                  </span>
+
+                  <div class="flex shrink-0 items-center gap-3.5">
                     {project.data.liveUrl && (
                       <a
                         href={project.data.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="font-semibold text-tech underline-offset-4 hover:underline"
+                        class="inline-flex min-h-[32px] items-center gap-1 font-medium text-tech underline-offset-4 hover:underline"
                       >
-                        Live &#8599;
+                        <span>Live</span>
+                        <span aria-hidden="true">&#8599;</span>
                       </a>
                     )}
                     {project.data.visibility === 'public' && project.data.repoUrl && (
@@ -152,10 +359,16 @@ const latestPost = publishedPosts[0] ?? null;
                         href={project.data.repoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="font-semibold text-ink underline-offset-4 hover:text-tech hover:underline"
+                        class="inline-flex min-h-[32px] items-center gap-1 font-medium text-ink underline-offset-4 hover:text-tech hover:underline"
                       >
-                        Repo &#8599;
+                        <span>Repo</span>
+                        <span aria-hidden="true">&#8599;</span>
                       </a>
+                    )}
+                    {!project.data.liveUrl && !(project.data.visibility === 'public' && project.data.repoUrl) && (
+                      <span class="text-[11px] uppercase tracking-[0.06em] text-muted">
+                        {project.data.visibility === 'public' ? 'Hardware Prototype' : 'Private'}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -163,210 +376,147 @@ const latestPost = publishedPosts[0] ?? null;
             );
           })}
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Experience & Education Ledger -->
-    <section id="home-experience" aria-labelledby="exp-edu-heading" class="grid grid-cols-1 gap-8 lg:grid-cols-12">
-      <div class="lg:col-span-7">
-        <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3.5">
-          <h2 id="exp-edu-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
-            Experience
-          </h2>
-          <a
-            href={withBase('/resume/#experience')}
-            class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
+  <!-- 3. Certifications Band (Right-Bleed from Reading Column on Desktop, Full-Bleed on Mobile) -->
+  <section
+    id="certifications"
+    aria-labelledby="certifications-heading"
+    data-cert-mode="drones"
+    class="clean-section editorial-row-certs border-t border-hairline py-14"
+  >
+    <div class="certs-header-wrap mx-auto w-full max-w-7xl px-4 sm:px-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-5">
+        <h2 id="certifications-heading" class="clean-section-title">
+          Certifications ({resume.certifications.length})
+        </h2>
+
+        <div class="cert-mode-switch" role="group" aria-label="Certifications display mode">
+          <button
+            id="cert-mode-drones"
+            type="button"
+            class="cert-mode-btn font-mono text-xs"
+            aria-pressed="true"
+            aria-controls="cert-drone-carousel"
+            data-cert-toggle="drones"
           >
-            Full Resume &rarr;
-          </a>
+            Drones
+          </button>
+          <button
+            id="cert-mode-list"
+            type="button"
+            class="cert-mode-btn font-mono text-xs"
+            aria-pressed="false"
+            aria-controls="certs-list-panel"
+            data-cert-toggle="list"
+          >
+            List
+          </button>
         </div>
+      </div>
+    </div>
 
-        <div class="hw-panel overflow-hidden divide-y divide-hairline">
-          {resume.experience.map((exp) => (
-            <article class="p-5 sm:p-6">
-              <div class="flex flex-col justify-between gap-1.5 sm:flex-row sm:items-baseline">
-                <div>
-                  <h3 class="font-display text-lg font-bold tracking-[-0.02em] text-ink">
-                    {exp.url ? (
-                      <a
-                        href={exp.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        translate="no"
-                        class="underline-offset-4 transition-colors hover:text-tech hover:underline"
-                      >
-                        {exp.company} &#8599;
-                      </a>
-                    ) : (
-                      <span translate="no">{exp.company}</span>
-                    )}
-                  </h3>
-                  <p class="mt-0.5 text-sm font-semibold text-vermilion">{exp.role}</p>
-                </div>
-                <div class="font-mono text-xs text-muted sm:text-right">
-                  <p class="font-medium tabular-nums text-ink">{exp.period}</p>
-                  <p class="mt-0.5">{exp.location}</p>
-                </div>
+    <CertificationCarousel certifications={resume.certifications} />
+
+    <div id="certs-list-panel" hidden="until-found">
+      <div class="certs-list-wrap mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6">
+        <CertificationGrid certifications={resume.certifications} />
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Technical Stack (4-Row Horizontal Matrix Aligned to Reading Column) -->
+  <section
+    id="stack"
+    aria-labelledby="stack-heading"
+    class="clean-section editorial-row-stack mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:mx-0 lg:max-w-none lg:px-0"
+  >
+    <div class="min-w-0 border-t border-hairline pt-12">
+      <h2 id="stack-heading" class="clean-section-title">Technical Stack</h2>
+
+      <div class="mt-6 divide-y divide-hairline border-y border-hairline">
+        {resume.skillGroups.map((group, idx) => {
+          const glyphId = STACK_GLYPH_IDS[idx % STACK_GLYPH_IDS.length];
+          const rects = glyphRects(glyphId);
+
+          return (
+            <div class="clean-stack-row py-4">
+              <div class="flex items-center gap-3">
+                <svg
+                  viewBox="0 0 9 9"
+                  width="18"
+                  height="18"
+                  shape-rendering="crispEdges"
+                  aria-hidden="true"
+                  class="pixel-crisp shrink-0"
+                >
+                  {rects.map((r) => (
+                    <rect x={r.x} y={r.y} width="1.03" height="1.03" fill={r.fill} />
+                  ))}
+                </svg>
+                <h3 class="font-display text-sm font-semibold tracking-[-0.015em] text-ink">
+                  {group.title}
+                </h3>
               </div>
 
-              <ul class="mt-3.5 list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink-secondary marker:text-vermilion">
-                {exp.highlights.map((h) => (
-                  <li>{h.text}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
+              <p class="font-mono text-xs leading-relaxed text-ink-secondary">
+                {group.items.join(' · ')}
+              </p>
+            </div>
+          );
+        })}
       </div>
-
-      <div class="lg:col-span-5">
-        <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3.5">
-          <h2 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">Education</h2>
-          <a
-            href={withBase('/resume/#education')}
-            class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
-          >
-            Coursework &rarr;
-          </a>
-        </div>
-
-        <div class="hw-panel overflow-hidden divide-y divide-hairline">
-          {resume.education.map((edu) => (
-            <article class="p-5 sm:p-6">
-              <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 class="font-display text-base font-bold tracking-[-0.02em] text-ink">{edu.degree}</h3>
-                <span class="font-mono text-xs font-semibold text-vermilion tabular-nums">{edu.period}</span>
-              </div>
-              <p class="mt-1 text-sm text-ink-secondary">{edu.institution}</p>
-              {edu.thesis && (
-                <p class="mt-3 rounded-[8px] border border-hairline bg-recessed/80 px-3.5 py-2.5 text-xs leading-relaxed text-ink-secondary">
-                  <strong class="font-mono uppercase text-ink">Thesis:</strong> {edu.thesis.title}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
-
-        {latestPost && (
-          <div class="hw-cell mt-4 p-5">
-            <p class="hw-eyebrow text-vermilion">
-              <span class="px-beacon" aria-hidden="true"></span>
-              <span>Latest Note</span>
-            </p>
-            <h3 class="mt-1.5 font-display text-base font-bold tracking-[-0.02em] text-ink">
-              <a
-                href={withBase(`/blog/${latestPost.id.replace(/\.mdx$/, '')}/`)}
-                class="underline-offset-4 transition-colors hover:text-tech hover:underline"
-              >
-                {latestPost.data.title}
-              </a>
-            </h3>
-            <p class="mt-1.5 text-xs leading-relaxed text-ink-secondary">{latestPost.data.summary}</p>
-          </div>
-        )}
-      </div>
-    </section>
-
-    <!-- All Verified Certifications Carried by 2D Retro Pixel Cargo Drones (Organic Right-to-Left Carousel) -->
-    <section id="home-certifications" aria-labelledby="certs-home-heading">
-      <div class="flex flex-wrap items-baseline justify-between gap-3 pb-3">
-        <h2 id="certs-home-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
-          Verified Certifications ({resume.certifications.length})
-        </h2>
-        <a
-          href={withBase('/resume/#certifications')}
-          class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
-        >
-          Full List &rarr;
-        </a>
-      </div>
-      <CertificationCarousel certifications={resume.certifications} />
-    </section>
-
-    <!-- Technical Stack Matrix (4 Typographic Hardware Columns — Zero Pill Soup) -->
-    <section id="home-skills" aria-labelledby="skills-home-heading">
-      <div class="flex flex-wrap items-baseline justify-between gap-2 pb-4">
-        <h2 id="skills-home-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink">
-          Technical Stack
-        </h2>
-        <a
-          href={withBase('/resume/#skills')}
-          class="font-mono text-xs font-semibold text-tech underline-offset-4 hover:underline"
-        >
-          Full Breakdown &rarr;
-        </a>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-        {resume.skillGroups.map((group) => (
-          <div class="hw-cell p-5">
-            <h3 class="flex items-center gap-2 border-b border-hairline pb-2.5 font-display text-sm font-semibold tracking-[-0.02em] text-ink">
-              <span class="px-beacon px-beacon-tech" aria-hidden="true"></span>
-              <span>{group.title}</span>
-            </h3>
-            <ul class="mt-3 space-y-1.5 font-mono text-xs text-ink-secondary">
-              {group.items.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <!-- Direct Contact Dock -->
-    <section
-      id="home-contact"
-      aria-labelledby="contact-heading"
-      class="hw-panel flex flex-col items-start justify-between gap-6 p-6 sm:p-8 lg:flex-row lg:items-center"
-    >
-      <div>
-        <p class="hw-eyebrow">
-          <span class="px-beacon px-beacon-signal" aria-hidden="true"></span>
-          <span>Availability &amp; Direct Channels</span>
-        </p>
-        <h2 id="contact-heading" class="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
-          Direct Contact &amp; ATS Channels
-        </h2>
-        <p class="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-secondary">
-          Open to Applied AI, Automation, and Cyber-Physical / Robotics Engineering roles across EU ({resume.profile.location}).
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2.5">
-        <a
-          href={`mailto:${resume.profile.email}`}
-          class="cta-anodized btn-press"
-        >
-          Email Directly
-        </a>
-        <a
-          href={withBase('/Claudiu-Span-CV.pdf')}
-          class="cta-secondary-bevel btn-press"
-        >
-          Download ATS PDF &darr;
-        </a>
-        <a
-          href={SITE.linkedinUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="cta-secondary-bevel btn-press"
-        >
-          LinkedIn &#8599;
-        </a>
-        <a
-          href={SITE.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="cta-secondary-bevel btn-press"
-        >
-          GitHub &#8599;
-        </a>
-      </div>
-    </section>
+    </div>
+  </section>
   </div>
 
-  <!-- Preserve Legacy v1.0 hash/query forwarding (e.g., /?category=ai -> /projects/?category=ai) -->
+  <!-- Certifications [Drones | List] Toggle + Ctrl+F beforematch + Safari Fallback -->
+  <script>
+    const certsSection = document.getElementById('certifications');
+    const dronesBtn = document.getElementById('cert-mode-drones') as HTMLButtonElement | null;
+    const listBtn = document.getElementById('cert-mode-list') as HTMLButtonElement | null;
+    const carouselEl = document.getElementById('cert-drone-carousel');
+    const listPanel = document.getElementById('certs-list-panel');
+
+    if (certsSection && dronesBtn && listBtn && carouselEl && listPanel) {
+      const supportsBeforeMatch = 'onbeforematch' in HTMLElement.prototype;
+
+      const setCertMode = (mode: 'drones' | 'list') => {
+        certsSection.setAttribute('data-cert-mode', mode);
+        dronesBtn.setAttribute('aria-pressed', String(mode === 'drones'));
+        listBtn.setAttribute('aria-pressed', String(mode === 'list'));
+
+        if (mode === 'list') {
+          carouselEl.hidden = true;
+          carouselEl.setAttribute('data-paused', 'true');
+          listPanel.removeAttribute('hidden');
+        } else {
+          carouselEl.hidden = false;
+          carouselEl.setAttribute('data-paused', 'false');
+          if (supportsBeforeMatch) {
+            listPanel.setAttribute('hidden', 'until-found');
+          } else {
+            // Safari fallback: keep full list accessible below carousel for Cmd+F search
+            listPanel.removeAttribute('hidden');
+          }
+        }
+      };
+
+      dronesBtn.addEventListener('click', () => setCertMode('drones'));
+      listBtn.addEventListener('click', () => setCertMode('list'));
+
+      listPanel.addEventListener('beforematch', () => {
+        setCertMode('list');
+      });
+
+      if (!supportsBeforeMatch) {
+        certsSection.setAttribute('data-beforematch-fallback', 'true');
+        listPanel.removeAttribute('hidden');
+      }
+    }
+  </script>
+
+  <!-- Preserve Legacy v1.0 hash/query forwarding -->
   <script>
     import { resolveLegacyRedirect } from '@/lib/legacy-bridge';
 

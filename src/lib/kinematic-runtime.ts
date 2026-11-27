@@ -63,7 +63,7 @@ type ArmPhase =
 export interface KinematicController {
   destroy: () => void;
   requestPickModule: (idx: number, onLockCallback: (idx: number) => void) => void;
-  releaseModule: () => void;
+  releaseModule: (immediateDock?: boolean) => void;
   setActiveSlot: (idx: number) => void;
   requestPickBadge: (onLockCallback: () => void) => void;
   releaseBadge: () => void;
@@ -415,8 +415,8 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
   }
 
   function getVisorClampWorld(): Point2D {
-    // Align cleanly with top center gripper clamp of enlarged centered Inspection Visor
-    const clampScreenY = Math.max(132, Math.min(188, stageH * 0.21));
+    // Align cleanly with top center gripper clamp of compact centered Preview Visor
+    const clampScreenY = Math.max(136, Math.min(212, stageH * 0.245));
     return stageToWorld(stageW / 2, clampScreenY);
   }
 
@@ -1755,10 +1755,43 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
   }
 
   function requestPickModule(idx: number, cb: (i: number) => void): void {
+    if (
+      activeIdx === idx &&
+      (armPhase === 'APPROACHING' ||
+        armPhase === 'DESCENDING' ||
+        armPhase === 'CLAMPING' ||
+        armPhase === 'HOISTING')
+    ) {
+      onLockCb = cb;
+      return;
+    }
+
     clearPickSafetyTimer();
     clearReleasedHighlightSuppression();
+    clearBadgeReleaseSuppression();
     badgeHovered = false;
     badgeTriggerEl?.classList.remove('is-hovered');
+
+    if (badgeActive || armPhase.startsWith('BADGE_')) {
+      clearBadgeProxyFadeTimer();
+      detachBadgeProxy(true);
+      badgeTriggerEl?.classList.remove('is-picked', 'is-grabbing', 'is-hovered');
+      document.body.classList.remove('arm-hoisting');
+      badgeActive = false;
+      badgePickupHoleWorld = null;
+      badgeReturnDockWorld = null;
+      onBadgeLockCb = null;
+    }
+
+    if (hoistCard?.classList.contains('active') || activeIdx >= 0) {
+      clearHoistFadeTimer();
+      detachHoistCard(true);
+      document.body.classList.remove('arm-hoisting');
+      cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing'));
+      activeIdx = -1;
+      onLockCb = null;
+    }
+
     cardDock?.classList.remove('is-releasing');
     // Instant open if WebGL unavailable, paused, or reduced-motion
     if (!webglReady || userPaused || prefersReduced || !cardAnchorsWorld[idx]) {
@@ -1813,11 +1846,16 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
 
   function requestPickBadge(cb: () => void): void {
     clearPickSafetyTimer();
+    clearHoistFadeTimer();
+    detachHoistCard(true);
+    document.body.classList.remove('arm-hoisting');
+    onLockCb = null;
+    activeIdx = -1;
     clearBadgeReleaseSuppression();
     clearReleasedHighlightSuppression();
     cardDock?.classList.remove('is-releasing', 'has-hover');
     hoveredIdx = -1;
-    cardEls.forEach((el) => el.classList.remove('is-hovered', 'is-grabbing'));
+    cardEls.forEach((el) => el.classList.remove('is-picked', 'is-hovered', 'is-grabbing'));
 
     if (!webglReady || userPaused || prefersReduced || !badgeTriggerEl) {
       badgeActive = true;
@@ -1902,12 +1940,13 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
     wakeLoop();
   }
 
-  function releaseModule(): void {
+  function releaseModule(immediateDock = false): void {
     clearPickSafetyTimer();
+    clearHoistFadeTimer();
     onLockCb = null;
     const releasedIdx = activeIdx;
 
-    // Immediately scrub hover/focus highlight state so Esc NEVER leaves the returned card highlighted
+    // Immediately scrub hover/focus highlight state so Esc or See more NEVER leaves the returned card highlighted
     hoveredIdx = -1;
     suppressHoverUntil = performance.now() + 600;
     clearReleasedHighlightSuppression();
@@ -1919,7 +1958,13 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
     cardDock?.classList.remove('has-hover');
     cardEls.forEach((el) => el.classList.remove('is-hovered', 'is-grabbing'));
 
-    if (releasedIdx < 0) return;
+    if (releasedIdx < 0) {
+      detachHoistCard(true);
+      cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing', 'is-hovered'));
+      cardDock?.classList.remove('is-releasing');
+      document.body.classList.remove('arm-hoisting');
+      return;
+    }
 
     if (!webglReady || userPaused || prefersReduced || !cardAnchorsWorld[releasedIdx]) {
       detachHoistCard(true);
@@ -1929,6 +1974,36 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
       activeIdx = -1;
       armPhase = 'IDLE';
       needsSingleRender = true;
+      wakeLoop();
+      return;
+    }
+
+    if (immediateDock || !heroInView) {
+      // Instant bay-dock seat (See more scroll or off-screen hero) so #hoist-card NEVER freezes mid-screen
+      detachHoistCard(true);
+      cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing', 'is-hovered'));
+      cardDock?.classList.remove('is-releasing');
+      document.body.classList.remove('arm-hoisting');
+      activeIdx = -1;
+
+      const fk = computeCurrentTipFK();
+      const idleTarget = getIdleTipTarget();
+      releaseStartWristTilt = 0;
+      segStart = { x: fk.x, y: fk.y };
+      if (!heroInView) {
+        segEnd = { x: idleTarget.x, y: idleTarget.y };
+        armPhase = 'RETURNING';
+      } else {
+        segEnd = { x: fk.x, y: Math.min(railY - 80, fk.y + 36) };
+        armPhase = 'RELEASING';
+      }
+      phaseTime = 0;
+      releaseWarmupFrame = true;
+      armActive = true;
+      needsSingleRender = true;
+      const now = performance.now();
+      timer.update(now);
+      lastFrameWallMs = now;
       wakeLoop();
       return;
     }
@@ -2195,6 +2270,16 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
         if (heroInView) {
           needsSingleRender = true;
           wakeLoop();
+        } else if (armPhase === 'PLACING' || hoistCard?.classList.contains('active')) {
+          clearPickSafetyTimer();
+          clearHoistFadeTimer();
+          detachHoistCard(true);
+          cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing', 'is-hovered'));
+          cardDock?.classList.remove('is-releasing', 'has-hover');
+          document.body.classList.remove('arm-hoisting');
+          activeIdx = -1;
+          onLockCb = null;
+          armPhase = 'IDLE';
         }
       },
       { threshold: 0.05 },
@@ -2216,7 +2301,7 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
   // Expose hooks cleanly for ModuleVisorDialog, PersonalBadgeDialog & CommandPalette
   const win = window as unknown as {
     __cobotPickModule?: (idx: number, cb: (i: number) => void) => void;
-    __cobotReleaseModule?: () => void;
+    __cobotReleaseModule?: (immediateDock?: boolean) => void;
     __cobotSetActiveSlot?: (idx: number) => void;
     __cobotPickBadge?: (cb: () => void) => void;
     __cobotReleaseBadge?: () => void;

@@ -4,6 +4,8 @@ import { chromium } from '@playwright/test';
 import { createDistServer } from './serve-dist.mjs';
 
 const distDir = path.resolve(process.cwd(), 'dist');
+const resumePath = path.resolve(process.cwd(), 'src', 'data', 'resume.json');
+const resume = JSON.parse(fs.readFileSync(resumePath, 'utf-8'));
 const rawBase = process.env.BASE_PATH !== undefined ? process.env.BASE_PATH : '/personal-website';
 const normBase = !rawBase || rawBase === '/' ? '' : `/${rawBase.replace(/^\/+|\/+$/g, '')}`;
 
@@ -76,12 +78,12 @@ async function main() {
               </div>
               <h1 style="margin:18px 0 8px;font-size:66px;font-weight:800;line-height:1.03;letter-spacing:-0.036em;color:#17181B;">Claudiu Șpan</h1>
               <div style="margin:0 0 16px;font-size:31px;font-weight:600;line-height:1.18;letter-spacing:-0.025em;color:#3E424A;">Engineering Systems in <span style="color:#52565E;">Motion</span><span style="color:#B33D0E;">.</span></div>
-              <p style="margin:0;color:#52565E;font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:20px;line-height:1.45;max-width:960px;">40+ production automation workflows · ~70% operator review-time cut via Agentic AI · QUADYX UAV Autonomy · Agri-Rover · 6 Verified Certifications</p>
+              <p style="margin:0;color:#52565E;font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:20px;line-height:1.45;max-width:960px;">40+ production automation workflows · ~70% operator review-time cut via Agentic AI · QUADYX UAV Autonomy · Agri-Rover · ${resume.certifications.length} Verified Certifications</p>
             </div>
 
             <!-- Bottom Machined Telemetry Footer -->
             <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #D8D4CC;padding-top:16px;font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;">
-              <span style="color:#025F92;font-weight:600;">Interactive 3D Hardware Showcase · System Architectures · ATS PDF · /llms.txt</span>
+              <span style="color:#025F92;font-weight:600;">Interactive 3D Hardware Showcase · Engineering Case Studies · ATS PDF · /llms.txt</span>
               <span style="color:#52565E;">github.com/Mr-Span</span>
             </div>
           </div>

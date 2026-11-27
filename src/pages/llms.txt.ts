@@ -3,6 +3,13 @@ import { getCollection } from 'astro:content';
 import { absoluteUrl, SITE } from '@/data/site';
 import { getResumeData } from '@/lib/resume-loader';
 
+const PROJECT_ANCHORS: Record<string, string> = {
+  'enterprise-agentic-review': 'proj-flutter',
+  'quadyx-autonomy': 'proj-quadyx',
+  'electrocasnicu-rag': 'proj-electrocasnicu',
+  'agri-rover': 'proj-agri-rover',
+};
+
 export const GET: APIRoute = async () => {
   const resume = getResumeData();
   const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -15,20 +22,24 @@ export const GET: APIRoute = async () => {
     `> ${resume.profile.headline} · ${resume.profile.location}`,
     `> ${resume.profile.summary}`,
     '',
-    '## Core Pages',
+    '## Core Pages & Anchors',
     `- [Home & Kinematic Portfolio](${absoluteUrl('/')})`,
-    `- [Structured Resume & Verified Certifications](${absoluteUrl('/resume/')})`,
+    `- [Experience](${absoluteUrl('/#experience')})`,
+    `- [Education](${absoluteUrl('/#education')})`,
+    `- [Flagship Systems & Projects](${absoluteUrl('/#projects')})`,
+    `- [Verified Certifications (${resume.certifications.length})](${absoluteUrl('/#certifications')})`,
+    `- [Technical Stack](${absoluteUrl('/#stack')})`,
     `- [ATS-Clean PDF Resume](${absoluteUrl('/Claudiu-Span-CV.pdf')})`,
-    `- [Projects & System Architectures](${absoluteUrl('/projects/')})`,
     `- [Full Markdown CV Mirror](${absoluteUrl('/index.md')})`,
     `- [Engineering Notes & RSS](${absoluteUrl('/blog/')}) (${absoluteUrl('/rss.xml')})`,
     '',
-    '## Flagship Case Studies (Interactive Architectures)',
+    '## Flagship Case Studies',
     ...caseStudies.map((p) => {
       const slug = p.id.replace(/\.mdx$/, '');
+      const anchorId = PROJECT_ANCHORS[slug] ?? `proj-${slug}`;
       const repoSuffix =
         p.data.visibility === 'public' && p.data.repoUrl ? ` | Source: ${p.data.repoUrl}` : '';
-      return `- [${p.data.title}](${absoluteUrl(`/projects/${slug}/`)}) — ${p.data.outcomeBadge}. ${p.data.summary}${repoSuffix}`;
+      return `- [${p.data.title}](${absoluteUrl(`/#${anchorId}`)}) — ${p.data.outcomeBadge}. ${p.data.summary}${repoSuffix}`;
     }),
     '',
     '## Completed Robotics, AI & Client Showcase Projects',

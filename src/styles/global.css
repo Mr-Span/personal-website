@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "./fonts.css";
 @import "./tokens.css";
+@import "./header-morph.css";
+@import "./vertical-rail.css";
+@import "./sections-cleanroom.css";
 
 @theme inline {
   --color-canvas: var(--bg-canvas);
@@ -104,14 +107,6 @@
     flex-shrink: 0;
   }
 
-  .px-beacon-tech {
-    background: var(--accent-tech);
-  }
-
-  .px-beacon-signal {
-    background: var(--accent-signal);
-  }
-
   .px-sep {
     display: inline-block;
     width: 3.5px;
@@ -122,46 +117,34 @@
     flex-shrink: 0;
   }
 
-  .hw-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border-hairline);
-    background: var(--bg-surface);
-    box-shadow: var(--shadow-bevel);
-    font-family: var(--family-mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-  }
-
   /* Apple × Industrial Hardware Domain Capsule (Matches Top-Panel Satin Capsules) */
   .pixel-caption-bar {
     position: relative;
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    gap: 7px 10px;
-    padding: 6px 14px;
+    gap: 5px;
+    max-width: calc(100vw - 24px);
+    padding: 5px 9px;
     border-radius: 11px;
     border: 1px solid var(--nav-capsule-border);
     background: var(--nav-capsule-bg);
     box-shadow: var(--nav-capsule-shadow);
     font-family: var(--family-mono);
-    font-size: 10.5px;
+    font-size: 9px;
     font-weight: 500;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    white-space: nowrap;
     color: var(--ink-secondary);
   }
 
   @media (min-width: 640px) {
     .pixel-caption-bar {
+      flex-wrap: wrap;
+      gap: 7px 10px;
+      max-width: none;
       font-size: 11px;
       letter-spacing: 0.11em;
       padding: 7px 16px;
@@ -833,12 +816,9 @@
   overflow: hidden;
   background: var(--mono-face-mid);
   border: 1px solid var(--mono-shell-ring-hoist);
-  transform-origin: center top;
   box-shadow: var(--mono-shadow-hoist);
-  transition:
-    opacity 135ms ease-out,
-    border-color 140ms ease-out,
-    box-shadow 160ms ease-out;
+  transform-origin: center top;
+  transition: opacity 140ms ease, border-color 160ms ease, box-shadow 180ms ease;
   will-change: transform, opacity;
 }
 
@@ -959,13 +939,13 @@ body.arm-hoisting .badge-pull-proxy.active {
 .personal-badge-mobile-tab {
   position: absolute;
   right: 0;
-  top: 14px;
+  top: 10px;
   z-index: var(--z-badge);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 38px;
-  height: 44px;
+  height: 40px;
   padding-left: 4px;
   border-radius: 10px 0 0 10px;
   background: linear-gradient(180deg, var(--badge-plate-top) 0%, var(--badge-plate-bot) 100%);
@@ -973,6 +953,13 @@ body.arm-hoisting .badge-pull-proxy.active {
   border-right: none;
   color: var(--ink-primary);
   box-shadow: -4px 6px 16px -4px var(--badge-shadow), var(--inner-highlight);
+}
+
+@media (min-width: 640px) {
+  .personal-badge-mobile-tab {
+    top: 14px;
+    height: 44px;
+  }
 }
 
 .personal-badge-mobile-tab::before {
@@ -1352,26 +1339,6 @@ dialog.dialog-badge[open] {
   }
 }
 
-/* Reusable Tactile Hardware Surface for Below-the-Fold & Subpages */
-.hw-panel {
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
-  border: 1px solid var(--border-strong);
-  box-shadow: var(--shadow-card);
-}
-
-.hw-cell {
-  border-radius: 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-hairline);
-  box-shadow: var(--shadow-bevel);
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.hw-cell:hover {
-  border-color: var(--border-interactive);
-}
-
 /* Color-Step Sibling Dimming for Below-the-Fold Lists */
 @media (hover: hover) and (pointer: fine) {
   .swiss-dim-list:has(.swiss-dim-item:is(:hover, :focus-visible))
@@ -1431,52 +1398,48 @@ dialog::backdrop {
   }
 }
 
-/* Frosted Inspection Visor (<dialog class="dialog-visor">) */
+/* Concise Frosted Inspection Visor (<dialog id="module-visor" closedby="any">) */
 dialog.dialog-visor {
   padding: 0;
-  margin: max(74px, env(safe-area-inset-top) + 68px) auto auto;
-  width: min(790px, calc(100vw - 32px));
-  max-height: calc(100dvh - 88px);
+  margin: auto;
+  width: min(520px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
   overflow: visible;
   border: 1px solid var(--border-strong);
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--visor-bg);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(155%);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
   color: var(--ink-primary);
   box-shadow: var(--shadow-visor);
   opacity: 0;
-  transition: opacity 180ms ease-out;
-}
-
-@media (min-width: 768px) {
-  dialog.dialog-visor {
-    margin: auto;
-    min-height: min(460px, calc(100dvh - 120px));
-    max-height: calc(100dvh - 40px);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  dialog.dialog-visor {
-    transform: scale(0.95) translateY(6px);
-    transition: opacity 190ms ease-out, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
+  transition: none;
 }
 
 dialog.dialog-visor[open] {
   display: flex;
   flex-direction: column;
   opacity: 1;
+  transition: opacity 150ms ease-out, transform 190ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   dialog.dialog-visor[open] {
     transform: scale(1) translateY(0);
+
     @starting-style {
       opacity: 0;
-      transform: scale(0.95) translateY(6px);
+      transform: scale(0.97) translateY(6px);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.dialog-visor,
+  dialog.dialog-visor::backdrop {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
   }
 }
 
@@ -1513,84 +1476,110 @@ dialog.dialog-visor[open] {
   background: var(--ink-muted);
 }
 
-/* Apple-Style Sliding Segmented Control */
-.segmented-control {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 3px;
-  border-radius: 10px;
+.visor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 22px 12px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.visor-category {
+  font-family: var(--family-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-vermilion);
+}
+
+.visor-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-secondary);
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+.visor-close-btn:hover {
+  color: var(--ink-primary);
   background: var(--bg-recessed);
-  border: 1px solid var(--border-hairline);
-  user-select: none;
+  border-color: var(--border-hairline);
 }
 
-.segmented-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  height: calc(100% - 6px);
-  border-radius: 7px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
-  box-shadow: 0 2px 6px rgba(23, 24, 27, 0.10), var(--inner-highlight);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
+.visor-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 22px 20px;
 }
 
-.segmented-control[data-active="engineer"] .segmented-thumb {
-  transform: translateX(100%);
-}
-
-/* Spotlight Command Palette (<dialog class="dialog-cmd">) — 0ms instant open */
-dialog.dialog-cmd {
-  padding: 0;
-  margin: clamp(48px, 11vh, 108px) auto auto;
-  width: min(560px, calc(100vw - 24px));
-  max-height: calc(100dvh - 120px);
-  border: 1px solid var(--border-strong);
-  border-radius: 16px;
-  background: var(--visor-bg);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+.visor-title {
+  font-family: var(--family-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.48rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
   color: var(--ink-primary);
-  box-shadow: var(--shadow-visor);
-  transition: none;
-  animation: none;
 }
 
-dialog.dialog-cmd[open] {
+.visor-summary {
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.58;
+  color: var(--ink-secondary);
+}
+
+.visor-facts {
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
 }
 
-/* Mobile Architecture Inspector bottom sheet */
-dialog.inspector-modal {
-  padding: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 16px 16px 0 0;
-  background: var(--visor-bg);
-  backdrop-filter: blur(24px) saturate(155%);
-  color: var(--ink-primary);
-  width: 100%;
-  max-width: 100%;
-  max-height: 82dvh;
-  margin: auto 0 0 0;
+.visor-stack {
+  margin-top: 14px;
+  font-family: var(--family-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-muted);
 }
 
-dialog.inspector-modal[open] {
+.visor-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-hairline);
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-/* Pure CSS stroke trace animation for ArchitectureVisualizer */
-@media (prefers-reduced-motion: no-preference) {
-  .arch-trace-path {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: arch-edge-draw 420ms ease-out forwards;
-  }
+.visor-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 4px;
+  font-family: var(--family-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent-tech);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.visor-secondary-link:hover {
+  color: var(--ink-primary);
 }
 
 /* Mobile 2D Linear Rail Carriage Indicator (< 1024px, 0 KB Three.js) */
@@ -1923,12 +1912,6 @@ dialog.inspector-modal[open] {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-}
-
-@keyframes arch-edge-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
 }
 
 @keyframes pixel-bar-unfold {

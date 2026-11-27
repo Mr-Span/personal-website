@@ -286,13 +286,16 @@ const enriched = certifications.map((cert, idx) => ({
 
   if (carousel) {
     // Pause all off-screen drone & propeller compositor animations until carousel approaches viewport
+    // and keep paused whenever List mode hides the carousel.
     if (typeof IntersectionObserver !== 'undefined') {
       const io = new IntersectionObserver(
         (entries) => {
           const entry = entries[0];
-          if (entry) {
-            carousel.setAttribute('data-in-view', String(entry.isIntersecting));
-          }
+          if (!entry) return;
+          const isListMode =
+            carousel.hasAttribute('hidden') ||
+            carousel.closest('[data-cert-mode]')?.getAttribute('data-cert-mode') === 'list';
+          carousel.setAttribute('data-in-view', String(entry.isIntersecting && !isListMode));
         },
         { rootMargin: '120px 0px', threshold: 0.01 },
       );

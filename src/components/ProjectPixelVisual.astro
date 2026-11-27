@@ -1,0 +1,767 @@
+---
+export type ProjectVisualKind = 'pipeline' | 'uav' | 'retrieval' | 'rover';
+
+interface Props {
+  visual: ProjectVisualKind;
+  variant?: 'full' | 'compact';
+  class?: string;
+}
+
+interface RleRect {
+  x: number;
+  y: number;
+  w: number;
+  h: string;
+  fill: string;
+}
+
+const { visual, variant = 'full', class: className = '' } = Astro.props;
+
+const PV_PALETTE: Record<string, string> = {
+  k: 'var(--ink-primary)',
+  s: 'var(--ink-secondary)',
+  m: 'var(--ink-muted)',
+  w: 'var(--bg-elevated)',
+  b: 'var(--accent-tech)',
+  c: 'var(--accent-tech-3d)',
+  o: 'var(--hw-actuator)',
+  v: 'var(--accent-vermilion)',
+  g: 'var(--accent-signal)',
+};
+
+function gridToRleRects(grid: readonly string[], ox = 0, oy = 0): RleRect[] {
+  const rects: RleRect[] = [];
+  grid.forEach((row, dy) => {
+    let x = 0;
+    while (x < row.length) {
+      const ch = row[x];
+      if (ch === '.') {
+        x++;
+        continue;
+      }
+      let run = 1;
+      while (x + run < row.length && row[x + run] === ch) {
+        run++;
+      }
+      rects.push({
+        x: ox + x,
+        y: oy + dy,
+        w: Number((run + 0.03).toFixed(2)),
+        h: '1.03',
+        fill: PV_PALETTE[ch] ?? 'var(--ink-primary)',
+      });
+      x += run;
+    }
+  });
+  return rects;
+}
+
+const ROVER_COMPACT = [
+  '......cb................',
+  '......k.................',
+  '......k.................',
+  '..kkkkkkkkkkkkkkkkkkk...',
+  '.kwwwwwwwwoowwwwwwwcbk..',
+  '.kssmmmmmmmmmmmmmmsssk..',
+  '..kkkkkkkkkkkkkkkkkkk...',
+  '...kkk.kkk...kkk.kkk....',
+  '...kwk.kwk...kwk.kwk....',
+  '...kkk.kkk...kkk.kkk....',
+];
+
+const FLAG_COMPACT = [
+  '.k.....',
+  '.kvvvv.',
+  '.kvoov.',
+  '.kvvv..',
+  '.k.....',
+  '.k.....',
+  '.k.....',
+  '.k.....',
+  '.k.....',
+  'mmm....',
+];
+
+const PIPELINE_TERMINALS = [
+  'kkkkkkkkkkk..',
+  'kwwwwwwwwbk..',
+  'kwssmmsswok..',
+  'kwwwwwwwwbk..',
+  'kkkkkkkkkkkk.',
+  '...........k.',
+  'kkkkkkkkkk.k.',
+  'kwwwwwwwok.k.',
+  'kwssmsswskkk.',
+  'kwwwwwwwbk.k.',
+  'kkkkkkkkkk.k.',
+  '...........k.',
+  'kkkkkkkkkk.k.',
+  'kwwwwwwwbk.k.',
+  'kwssmmssok.k.',
+  'kwwwwwwwskkk.',
+  'kkkkkkkkkk...',
+];
+
+const PIPELINE_LEFT_BELT = [
+  'kkkkkkkkkkkkkkkkk',
+  'sssssssssssssssss',
+  'kmkmmkmkmmkmkmmkm',
+  'kkkkkkkkkkkkkkkkk',
+];
+
+const PIPELINE_RIGHT_BELT = [
+  'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk',
+  'ssssssssssssssssssssssssssssss',
+  'kmkmmkmkmmkmkmmkmkmmkmkmmkmkmm',
+  'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk',
+];
+
+const PIPELINE_IN_BLOCK = ['kkkkkk', 'kwwwwk', 'kwsowk', 'kwwwwk', 'kkkkkk'];
+
+const PIPELINE_ROBOT_BODY = [
+  '..........oo..........',
+  '..........kk..........',
+  '..........kk..........',
+  '....kkkkkkkkkkkkkk....',
+  '...kwwwwwwwwwwwwwwk...',
+  '...kwsssssssssssswk...',
+  '...kws..........swk...',
+  '...kws..........swk...',
+  '...kwsssssssssssswk...',
+  '....kkkkkkkkkkkkkk....',
+  '........kkkkkk........',
+  '...kkkkkkkkkkkkkkkk...',
+  '..kwwwwwwwwwwwwwwwwk..',
+  '..kwwbwwwoooowwbwwwk..',
+  '..kwwwwwwoooowwwwwwk..',
+  '..kwwswwwoooowwswwwk..',
+  'kkkwwsssssssssssswwkkk',
+  'kskwwwwwwwwwwwwwwwwksk',
+  'kskwwssmmmmmmmmsswwksk',
+  'k.kwwwwwwwwwwwwwwwwk.k',
+  '...kkkkkkkkkkkkkkkk...',
+  '...kssmmmmmmmmmmssk...',
+  '...kmmkmmkmmkmmkmmk...',
+  '...kkkkkkkkkkkkkkkk...',
+];
+
+const PIPELINE_ROBOT_EYES = ['cc....cc', 'bb....bb'];
+
+const PIPELINE_GATE_FRAME = [
+  '..kkkkk..',
+  '.kvooovk.',
+  'kvv...vvk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kv.....vk',
+  'kkk...kkk',
+];
+
+const PIPELINE_GATE_BEAM = [
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+  'vo',
+  'ov',
+];
+
+const PIPELINE_OUT_PACKET = ['kkkkkk', 'kwccwk', 'kcbbck', 'kwccwk', 'kkkkkk'];
+
+const PIPELINE_DOC = [
+  'kkkkkkkkkkkkkkkkk....',
+  'kwwwwwwwwwwwwwwwkk...',
+  'kwbbbbbbbbbbbwwkwkk..',
+  'kwwwwwwwwwwwwwwkkkkk.',
+  'kwsssssssssswwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwmmmmmmmmmmmswwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwooooowmmmmmwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwssssssssswwwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwmmmmmmmmmmmmwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwbbbbwwsssssssswwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwk.',
+  'kkkkkkkkkkkkkkkkkkkk.',
+];
+
+const PIPELINE_CHECK = [
+  '..kkkkk..',
+  '.kgggggk.',
+  'kgggggwgk',
+  'kggggwwgk',
+  'kgwgwwggk',
+  'kgwwwgggk',
+  '.kgggggk.',
+  '..kkkkk..',
+];
+
+const UAV_GROUND_STATION = [
+  '..v...........',
+  '..v.......bbb.',
+  '..s......bwwk.',
+  '..s.....bwk...',
+  '..s......k....',
+  'kkkkkkkkkkkkkk',
+  'kwwwwwwwwwwwwk',
+  'kwssscgwsssmwk',
+  'kwssmmmmmmsswk',
+  'kwwwwwwwwwwwwk',
+  'kssmmmmmmmmssk',
+  'kkkkkkkkkkkkkk',
+];
+
+const UAV_LINK_IP = ['..bb....cc..', 'bb..ccbb..cc'];
+const UAV_LINK_GSM = ['vv..oo..vv..', '..vv..oo..vv'];
+
+const UAV_CRAFT = [
+  '.v.......................',
+  '.k...k.............k.....',
+  '.k..kkk...........kkk....',
+  '.kkkkkkkkkkkkkkkkkkkkk...',
+  '..kwwwwwwwwwwwwwwwwwwk...',
+  '..kwsswwooowwwsswwcbwk...',
+  '..kkkkkkkkkkkkkkkkcbwk...',
+  '....kssmmmmmmmmsskkkk....',
+  '.....k..........k........',
+  '....k............k.......',
+  '...kk............kk......',
+];
+
+const UAV_PROP_A = ['mkkkkkk.......kkkkkkm'];
+const UAV_PROP_B = ['.cc..ss.......ss..cc.'];
+
+const UAV_SCAN_CONE = [
+  '............................bbbb',
+  '........................bbbb....',
+  '....................bbbb..cc....',
+  '................bbbb....cc......',
+  '............bbbb....cc....cc....',
+  '........bbbb....cc......cc......',
+  '....bbbb....cc....cc....cc......',
+  'bbbb....cc......cc......cc......',
+  '....bbbb....cc....cc....cc......',
+  '........bbbb....cc......cc......',
+  '............bbbb....cc....cc....',
+  '................bbbb....cc......',
+  '....................bbbb..cc....',
+  '........................bbbb....',
+  '............................bbbb',
+];
+
+const UAV_OBSTACLES = [
+  '..mvvvm....',
+  '.mvvoovm...',
+  '.mvvvvvm...',
+  '..mvvvm....',
+  '...........',
+  '.....mvvvm.',
+  '....mvvoovm',
+  '....mvvvvvm',
+  '.....mvvvm.',
+  '...........',
+  '.mvvvm.....',
+  'mvvoovm....',
+  'mvvvvvm....',
+  '.mvvvm.....',
+];
+
+const RETRIEVAL_MANUALS = [
+  '.kkkkkkk.kkkkkkk.kkkkkkk.',
+  '.kwwwwwk.kwwwwwk.kwwwwwk.',
+  '.kwmmmwk.kwooowk.kvvvvvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kwbbbwk.kwoowwk.kwsssvk.',
+  '.kwbwbwk.kwwwwwk.kwwwwvk.',
+  '.kwbbbwk.kwssswk.kwmmmvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kwssswk.kwmmmwk.kwvvsvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kwmmmwk.kwssswk.kwsssvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kwssswk.kwwwwwk.kwmmmvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kwmmmwk.kwmmmwk.kwsssvk.',
+  '.kwwwwwk.kwwwwwk.kwwwwvk.',
+  '.kkkkkkk.kkkkkkk.kkkkkkk.',
+  'kkkkkkkkkkkkkkkkkkkkkkkkk',
+  'sssssssssssssssssssssssss',
+];
+
+const RETRIEVAL_BOT = [
+  '.....kkkkk.....',
+  '....kwwwwwk....',
+  '...kwssssswk...',
+  '...kwccssswk...',
+  '...kwssssswk...',
+  '....kkkkkkk....',
+  '..kkkkkkkkkkk..',
+  '.kwwwwwwwwwwwk.',
+  '.kwwwoooowwwwk.',
+  '.kwwssmmsswwwk.',
+  '..kkkkkkkkkkk..',
+  '..kkk.....kkk..',
+  '..kwk.....kwk..',
+  '..kkk.....kkk..',
+];
+
+const RETRIEVAL_SCAN = ['ccbb', 'bbcc'];
+
+const RETRIEVAL_PAGE = [
+  'vvvvvvvvvv...',
+  'vwwwwwwwwvv..',
+  'vwwvvvvwwvvv.',
+  'vwwwwwwwwwwv.',
+  'vwwsssssswwv.',
+  'vwwwwwwwwwwv.',
+  'vwwmmmmmmwwv.',
+  'vwwwwwwwwwwv.',
+  'vwwssssswwwv.',
+  'vwwwwwwwwwwv.',
+  'vvvvvvvvvvvv.',
+];
+
+const RETRIEVAL_BRACES = [
+  '...bbbb.....bbbb...',
+  '..bbcc.......ccbb..',
+  '..bb...........bb..',
+  '..bb...........bb..',
+  '.bb.............bb.',
+  'bb...............bb',
+  '.bb.............bb.',
+  '..bb...........bb..',
+  '..bb...........bb..',
+  '..bbcc.......ccbb..',
+  '...bbbb.....bbbb...',
+];
+
+const RETRIEVAL_GATE = ['.g.', 'gvg', '.g.'];
+
+const RETRIEVAL_ANSWER = [
+  'kkkkkkkkkkkkkkkkkkkkk.',
+  'kbbbbbbbbbbbbbbbbbbbk.',
+  'kwwwwwwwwwwwwwwwwwwwk.',
+  'kwsssssssssssssswwwwk.',
+  'kwwwwwwwwwwwwwwwwwwwk.',
+  'kwmmmmmmmmmmmswwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwwk.',
+  'kwsssssssssswwwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwwk.',
+  'kwvvvvvvvwwwwwwwwwwwk.',
+  'kwvvvvvvvwwwwwwwwwwwk.',
+  'kwwwwwwwwwwwwwwwwwwwk.',
+  'kkkkkkkkkkkkkkkkkkkkk.',
+];
+
+const RETRIEVAL_CITE = ['gggg', 'gwwg', 'gggg'];
+
+const ROVER_ORCHARD_BG = [
+  '......mmmm........mmmm.......',
+  '.....msggsm......msggsm......',
+  '....mggggggm....mggggggm.....',
+  '....msggggsm....msggggsm.....',
+  '.....mmmmmm......mmmmmm......',
+  '.......ss..........ss........',
+  '.......ss..........ss........',
+  '.......ss..........ss........',
+  '.......ss..........ss........',
+];
+
+const ROVER_GROUND = [
+  '..g...........g..............g.................g..............g................g...........',
+  'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk',
+  'ssssssssssssmmmmssssssssssssssmmmmsssssssssssssmmmmssssssssssssssmmmmsssssssssssssmmmmsssss',
+];
+
+const ROVER_CRAFT = [
+  '........cc..........',
+  '........kk..........',
+  '........kk..........',
+  '........kk..........',
+  '..kkkkkkkkkkkkkkkk..',
+  '.kwwwwwwwwwwwwwwwwk.',
+  '.kwwwoooowwwwsscbwk.',
+  '.kwwwoooowwwwsscbwk.',
+  '.kwwwwwwwwwwwwwwwwk.',
+  '..kkkkkkkkkkkkkkkk..',
+  '..kkkkk......kkkkk..',
+  '.kssmssk....kssmssk.',
+  '.ksmwmskm..mksmwmsk.',
+  '.kssmssk....kssmssk.',
+  '..kkkkk......kkkkk..',
+];
+
+const ROVER_GPS = ['...bbbbb...', '.bb.....bb.', '....ccc....', '..cc...cc..'];
+
+const ROVER_FLAG_BASE = [
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '...k..',
+  '..kkk.',
+  '.kkkkk',
+];
+
+const ROVER_FLAG_A = [
+  'vvvvvvvvvv.',
+  'vvoooovvvv.',
+  'vvvvvvvvv..',
+  'vvvvvvv....',
+  'vvvv.......',
+];
+
+const ROVER_FLAG_B = [
+  '.vvvvvvv...',
+  'vvvoooovvv.',
+  'vvvvvvvvvvv',
+  'vvvvvvv....',
+  '.vvvv......',
+];
+---
+
+{variant === 'compact' && visual === 'rover' ? (
+  <span
+    class:list={['pv-shell pv-compact-track', className]}
+    data-pixel-visual={visual}
+    data-variant="compact"
+    data-in-view="false"
+    aria-hidden="true"
+  >
+    <svg
+      class="pv-rover-compact pixel-crisp"
+      viewBox="0 0 24 10"
+      width="24"
+      height="10"
+      shape-rendering="crispEdges"
+    >
+      {gridToRleRects(ROVER_COMPACT).map((r) => (
+        <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+      ))}
+    </svg>
+    <svg
+      class="pv-flag-compact pixel-crisp"
+      viewBox="0 0 7 10"
+      width="7"
+      height="10"
+      shape-rendering="crispEdges"
+    >
+      {gridToRleRects(FLAG_COMPACT).map((r) => (
+        <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+      ))}
+    </svg>
+  </span>
+) : (
+  <div
+    class:list={['pv-shell pv-full-frame', className]}
+    data-pixel-visual={visual}
+    data-variant="full"
+    data-in-view="false"
+    aria-hidden="true"
+  >
+    {visual === 'pipeline' && (
+      <svg
+        class="pv-svg pixel-crisp"
+        viewBox="0 0 110 44"
+        width="220"
+        height="88"
+        shape-rendering="crispEdges"
+      >
+        <g>
+          {gridToRleRects(PIPELINE_TERMINALS, 3, 12).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          {gridToRleRects(PIPELINE_LEFT_BELT, 15, 30).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          {gridToRleRects(PIPELINE_RIGHT_BELT, 54, 30).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-pipeline-in-block">
+          {gridToRleRects(PIPELINE_IN_BLOCK, 16, 25).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g>
+          {gridToRleRects(PIPELINE_ROBOT_BODY, 32, 6).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-pipeline-eyes">
+            {gridToRleRects(PIPELINE_ROBOT_EYES, 39, 12).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+
+        <g>
+          {gridToRleRects(PIPELINE_GATE_FRAME, 64, 5).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-pipeline-gate">
+            {gridToRleRects(PIPELINE_GATE_BEAM, 67, 8).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+
+        <g class="pv-pipeline-packet">
+          {gridToRleRects(PIPELINE_OUT_PACKET, 55, 25).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g>
+          {gridToRleRects(PIPELINE_DOC, 85, 13).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-pipeline-check">
+            {gridToRleRects(PIPELINE_CHECK, 98, 7).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+      </svg>
+    )}
+
+    {visual === 'uav' && (
+      <svg
+        class="pv-svg pixel-crisp"
+        viewBox="0 0 110 44"
+        width="220"
+        height="88"
+        shape-rendering="crispEdges"
+      >
+        <g>
+          {gridToRleRects(UAV_GROUND_STATION, 3, 25).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-uav-link-ip">
+          {gridToRleRects(UAV_LINK_IP, 18, 19).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+        <g class="pv-uav-link-gsm">
+          {gridToRleRects(UAV_LINK_GSM, 18, 25).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-uav-craft">
+          <g class="pv-uav-prop-a">
+            {gridToRleRects(UAV_PROP_A, 34, 13).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+          <g class="pv-uav-prop-b">
+            {gridToRleRects(UAV_PROP_B, 34, 13).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+          {gridToRleRects(UAV_CRAFT, 32, 14).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-uav-scan-cone">
+          {gridToRleRects(UAV_SCAN_CONE, 59, 13).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-uav-obstacles">
+          {gridToRleRects(UAV_OBSTACLES, 94, 13).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+      </svg>
+    )}
+
+    {visual === 'retrieval' && (
+      <svg
+        class="pv-svg pixel-crisp"
+        viewBox="0 0 110 44"
+        width="220"
+        height="88"
+        shape-rendering="crispEdges"
+      >
+        <g>
+          {gridToRleRects(RETRIEVAL_MANUALS, 4, 15).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          {gridToRleRects(RETRIEVAL_BOT, 33, 21).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-retrieval-scan">
+          {gridToRleRects(RETRIEVAL_SCAN, 29, 24).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-retrieval-page">
+          {gridToRleRects(RETRIEVAL_PAGE, 41, 8).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g>
+          {gridToRleRects(RETRIEVAL_BRACES, 58, 14).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-retrieval-gate">
+            {gridToRleRects(RETRIEVAL_GATE, 66, 18).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+
+        <g>
+          {gridToRleRects(RETRIEVAL_ANSWER, 82, 13).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-retrieval-cite">
+            {gridToRleRects(RETRIEVAL_CITE, 95, 22).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+      </svg>
+    )}
+
+    {visual === 'rover' && (
+      <svg
+        class="pv-svg pixel-crisp"
+        viewBox="0 0 110 44"
+        width="220"
+        height="88"
+        shape-rendering="crispEdges"
+      >
+        <g>
+          {gridToRleRects(ROVER_ORCHARD_BG, 53, 25).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          {gridToRleRects(ROVER_GROUND, 6, 34).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g class="pv-rover-full">
+          <g class="pv-rover-gps">
+            {gridToRleRects(ROVER_GPS, 14, 14).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+          {gridToRleRects(ROVER_CRAFT, 10, 19).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+        </g>
+
+        <g>
+          {gridToRleRects(ROVER_FLAG_BASE, 86, 12).map((r) => (
+            <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+          ))}
+          <g class="pv-rover-flag-a">
+            {gridToRleRects(ROVER_FLAG_A, 90, 12).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+          <g class="pv-rover-flag-b">
+            {gridToRleRects(ROVER_FLAG_B, 90, 12).map((r) => (
+              <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.fill} />
+            ))}
+          </g>
+        </g>
+      </svg>
+    )}
+  </div>
+)}
+
+<script>
+  const visuals = document.querySelectorAll<HTMLElement>('[data-pixel-visual]');
+
+  if (visuals.length > 0) {
+    if (typeof IntersectionObserver !== 'undefined') {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            entry.target.setAttribute('data-in-view', String(entry.isIntersecting));
+          }
+        },
+        { rootMargin: '80px 0px', threshold: 0.01 },
+      );
+      visuals.forEach((el) => io.observe(el));
+    } else {
+      visuals.forEach((el) => el.setAttribute('data-in-view', 'true'));
+    }
+  }
+</script>
