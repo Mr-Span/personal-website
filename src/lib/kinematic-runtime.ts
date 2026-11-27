@@ -1325,6 +1325,27 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
     wakeLoop();
   }
 
+  function completePlaceDock(): void {
+    clearPickSafetyTimer();
+    if (armPhase !== 'PLACING' || activeIdx < 0) return;
+    const home = cardAnchorsWorld[activeIdx];
+    const liveTip = computeCurrentTipFK();
+    // Snap hoist card to exact flush slot position, reveal real docked card underneath, then detach proxy cleanly
+    syncHoistCardToGripper(1, true);
+    cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing', 'is-hovered'));
+    cardDock?.classList.remove('has-hover');
+    document.body.classList.remove('arm-hoisting');
+    detachHoistCard(true);
+    releaseStartWristTilt = 0;
+    segStart = { x: liveTip.x, y: liveTip.y };
+    segEnd = home ? { x: home.x, y: home.y + 56 } : { x: liveTip.x, y: liveTip.y + 56 };
+    armPhase = 'RELEASING';
+    phaseTime = 0;
+    armActive = true;
+    needsSingleRender = true;
+    wakeLoop();
+  }
+
   function onFrame(timestamp: number): void {
     if (!tabVisible) {
       stopLoop();
@@ -1454,18 +1475,8 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
           const tipDist = Math.hypot(liveTip.x - home.x, liveTip.y - (home.y + 1));
           // Release cleanly the instant the fast-tracked 3D gripper physically seats the card into the bay
           if ((phaseTime >= 0.36 && tipDist < 12) || phaseTime >= 0.48) {
-            // Snap hoist card to exact flush slot position, reveal real docked card underneath, then crossfade proxy out
-            syncHoistCardToGripper(1, true);
-            cardEls.forEach((el) => el.classList.remove('is-picked', 'is-grabbing', 'is-hovered'));
-            cardDock?.classList.remove('has-hover');
-            document.body.classList.remove('arm-hoisting');
-            detachHoistCard(true);
+            completePlaceDock();
             hoistSyncMode = null;
-            releaseStartWristTilt = 0;
-            segStart = { x: liveTip.x, y: liveTip.y };
-            segEnd = { x: home.x, y: home.y + 56 };
-            armPhase = 'RELEASING';
-            phaseTime = 0;
           }
         } else if (armPhase === 'RELEASING') {
           const p = quinticEase(phaseTime / 0.20);
@@ -2024,6 +2035,13 @@ export function mountKinematicRuntime(stageEl: HTMLElement): KinematicController
     const now = performance.now();
     timer.update(now);
     lastFrameWallMs = now;
+    // Hard safety guard so low-FPS software WebGL never leaves #hoist-card floating during PLACING
+    pickSafetyTimer = window.setTimeout(() => {
+      pickSafetyTimer = null;
+      if (armPhase === 'PLACING') {
+        completePlaceDock();
+      }
+    }, 750);
     wakeLoop();
   }
 
