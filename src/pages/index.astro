@@ -225,6 +225,53 @@ const graduationCapRects = gridToRects(GRADUATION_CAP_GRID);
       </div>
     </section>
 
+    <!-- #certifications: Certifications Band (Right-Bleed from Reading Column on Desktop, Full-Bleed on Mobile) -->
+    <section
+      id="certifications"
+      aria-labelledby="certifications-heading"
+      data-cert-mode="drones"
+      class="clean-section editorial-row-certs border-t border-hairline py-14"
+    >
+      <div class="certs-header-wrap mx-auto w-full max-w-7xl px-4 sm:px-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-5">
+          <h2 id="certifications-heading" class="clean-section-title">
+            Certifications ({resume.certifications.length})
+          </h2>
+
+          <div class="cert-mode-switch" role="group" aria-label="Certifications display mode">
+            <button
+              id="cert-mode-drones"
+              type="button"
+              class="cert-mode-btn font-mono text-xs"
+              aria-pressed="true"
+              aria-controls="cert-drone-carousel"
+              data-cert-toggle="drones"
+            >
+              Drones
+            </button>
+            <button
+              id="cert-mode-list"
+              type="button"
+              class="cert-mode-btn font-mono text-xs"
+              aria-pressed="false"
+              aria-controls="certs-list-panel"
+              data-cert-toggle="list"
+            >
+              List
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <CertificationCarousel certifications={resume.certifications} />
+
+      <div id="certs-list-panel" hidden="until-found">
+        <div class="certs-list-wrap mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6">
+          <CertificationGrid certifications={resume.certifications} />
+        </div>
+      </div>
+    </section>
+
       <!-- #projects: 3 Flagships (with Pixel Micro-Schematics) + 5 Compact Ledger Rows -->
       <section
         id="projects"
@@ -378,54 +425,7 @@ const graduationCapRects = gridToRects(GRADUATION_CAP_GRID);
         </div>
       </section>
 
-  <!-- 3. Certifications Band (Right-Bleed from Reading Column on Desktop, Full-Bleed on Mobile) -->
-  <section
-    id="certifications"
-    aria-labelledby="certifications-heading"
-    data-cert-mode="drones"
-    class="clean-section editorial-row-certs border-t border-hairline py-14"
-  >
-    <div class="certs-header-wrap mx-auto w-full max-w-7xl px-4 sm:px-6">
-      <div class="flex flex-wrap items-center justify-between gap-4 pb-5">
-        <h2 id="certifications-heading" class="clean-section-title">
-          Certifications ({resume.certifications.length})
-        </h2>
-
-        <div class="cert-mode-switch" role="group" aria-label="Certifications display mode">
-          <button
-            id="cert-mode-drones"
-            type="button"
-            class="cert-mode-btn font-mono text-xs"
-            aria-pressed="true"
-            aria-controls="cert-drone-carousel"
-            data-cert-toggle="drones"
-          >
-            Drones
-          </button>
-          <button
-            id="cert-mode-list"
-            type="button"
-            class="cert-mode-btn font-mono text-xs"
-            aria-pressed="false"
-            aria-controls="certs-list-panel"
-            data-cert-toggle="list"
-          >
-            List
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <CertificationCarousel certifications={resume.certifications} />
-
-    <div id="certs-list-panel" hidden="until-found">
-      <div class="certs-list-wrap mx-auto w-full max-w-7xl px-4 pt-2 sm:px-6">
-        <CertificationGrid certifications={resume.certifications} />
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. Technical Stack (4-Row Horizontal Matrix Aligned to Reading Column) -->
+  <!-- 3. Technical Stack (4-Row Horizontal Matrix Aligned to Reading Column) -->
   <section
     id="stack"
     aria-labelledby="stack-heading"

@@ -36,15 +36,15 @@
     grid-row: 2;
   }
 
-  .editorial-row-proj {
-    grid-column: 4;
-    grid-row: 3;
-  }
-
   .editorial-row-certs {
     grid-column: 4 / -1;
-    grid-row: 4;
+    grid-row: 3;
     min-width: 0;
+  }
+
+  .editorial-row-proj {
+    grid-column: 4;
+    grid-row: 4;
   }
 
   .certs-header-wrap,

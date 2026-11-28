@@ -11,8 +11,8 @@ interface RailStation {
 const STATIONS: readonly RailStation[] = [
   { id: 'experience', label: 'Experience', href: '#experience', glyphId: 'gripper' },
   { id: 'education', label: 'Education', href: '#education', glyphId: 'education' },
-  { id: 'projects', label: 'Projects', href: '#projects', glyphId: 'chip' },
   { id: 'certifications', label: 'Certs', href: '#certifications', glyphId: 'uav' },
+  { id: 'projects', label: 'Projects', href: '#projects', glyphId: 'chip' },
   { id: 'stack', label: 'Stack', href: '#stack', glyphId: 'terminal' },
 ];
 
@@ -137,8 +137,8 @@ const stationGlyphs = STATIONS.map((station) => {
   const STATION_ORDER: StationId[] = [
     'experience',
     'education',
-    'projects',
     'certifications',
+    'projects',
     'stack',
   ];
   const HEADER_OFFSET = 82;
@@ -171,15 +171,15 @@ const stationGlyphs = STATIONS.map((station) => {
   const shuttleYByStation: Record<StationId, number> = {
     experience: 0,
     education: 44,
-    projects: 88,
-    certifications: 132,
+    certifications: 88,
+    projects: 132,
     stack: 176,
   };
   const beamScaleByStation: Record<StationId, number> = {
     experience: 0.12,
     education: 0.34,
-    projects: 0.56,
-    certifications: 0.78,
+    certifications: 0.56,
+    projects: 0.78,
     stack: 1,
   };
 

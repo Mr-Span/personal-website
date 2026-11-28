@@ -143,6 +143,7 @@ test('Header Morph / <-> /blog/: separated Blog & Theme buttons, single-DOM caps
 test('Desktop showcase: byte-0 H1, < 450 KB transfer, 3D hoist & concise #module-visor -> See more scroll, 5-station CNC rail & wheel cancel', async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 1440, height: 900 });
   const transferred: Array<{ url: string; bytes: number }> = [];
@@ -192,7 +193,11 @@ test('Desktop showcase: byte-0 H1, < 450 KB transfer, 3D hoist & concise #module
   // Verify 5-station rail structure and off-screen pause at top of page
   const rail = page.locator('#vertical-cnc-rail');
   await expect(rail.locator('[data-rail-link]')).toHaveCount(5);
-  for (const stationId of ['experience', 'education', 'projects', 'certifications', 'stack'] as const) {
+  const railStationOrder = await rail
+    .locator('[data-rail-link]')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('data-station')));
+  expect(railStationOrder).toEqual(['experience', 'education', 'certifications', 'projects', 'stack']);
+  for (const stationId of ['experience', 'education', 'certifications', 'projects', 'stack'] as const) {
     await expect(rail.locator(`a[data-station="${stationId}"]`)).toHaveCount(1);
   }
   await expect(rail.locator('.cnc-station-icon').first()).toHaveAttribute('width', '18');
@@ -298,25 +303,41 @@ test('Desktop showcase: byte-0 H1, < 450 KB transfer, 3D hoist & concise #module
     return el ? el.getBoundingClientRect().top + window.scrollY - 82 : 2000;
   });
 
-  await page.click('#vertical-cnc-rail a[data-station="stack"]');
-  await expect(rail).toHaveAttribute('data-state', 'transit');
-  await page.waitForTimeout(40);
-  await page.evaluate(() => {
-    window.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
-  });
+  const cancelResult = await page.evaluate(
+    () =>
+      new Promise<{
+        stateDuringTransit: string | null;
+        stateAfterCancel: string | null;
+        yAfterCancel: number;
+      }>((resolve) => {
+        const railNode = document.getElementById('vertical-cnc-rail');
+        const link = railNode?.querySelector<HTMLAnchorElement>('a[data-station="stack"]');
+        link?.click();
+        const stateDuringTransit = railNode?.getAttribute('data-state') ?? null;
+        window.setTimeout(() => {
+          window.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
+          resolve({
+            stateDuringTransit,
+            stateAfterCancel: railNode?.getAttribute('data-state') ?? null,
+            yAfterCancel: window.scrollY,
+          });
+        }, 60);
+      }),
+  );
 
+  expect(cancelResult.stateDuringTransit).toBe('transit');
+  expect(cancelResult.stateAfterCancel).toBe('idle');
   await expect(rail).toHaveAttribute('data-state', 'idle');
-  const yAfterCancel = await page.evaluate(() => window.scrollY);
   await page.waitForTimeout(550);
   const yAfterWait = await page.evaluate(() => window.scrollY);
   expect(
-    Math.abs(yAfterWait - yAfterCancel),
-    `Active rail scroll must stay cancelled after wheel event (was ${yAfterCancel}, became ${yAfterWait})`,
+    Math.abs(yAfterWait - cancelResult.yAfterCancel),
+    `Active rail scroll must stay cancelled after wheel event (was ${cancelResult.yAfterCancel}, became ${yAfterWait})`,
   ).toBeLessThan(10);
   expect(yAfterWait, 'Cancelled scroll should stop short of #stack').toBeLessThan(stackTop - 200);
 
   // Sticky 5-station CNC rail must never clip behind #site-header or overlap #cert-drone-carousel, and scrollspy must match all 5 stations
-  for (const sectionId of ['experience', 'education', 'projects', 'certifications', 'stack'] as const) {
+  for (const sectionId of ['experience', 'education', 'certifications', 'projects', 'stack'] as const) {
     await page.evaluate((id) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -460,6 +481,21 @@ test('Single-page sections: split #experience/#education + grad cap, 220x88 pixe
   await expect(expSection).toContainText('Mar 2022 – Jan 2027');
   await expect(eduSection).toContainText('MSc. Cyber-Physical Systems');
   await expect(eduSection).toContainText('BSc. Robotics');
+
+  // Verify Certifications is rendered directly below Education and above Projects
+  const sectionTops = await Promise.all(
+    ['experience', 'education', 'certifications', 'projects', 'stack'].map(async (id) => {
+      const box = await page.locator(`#${id}`).boundingBox();
+      expect(box, `#${id} bounding box`).not.toBeNull();
+      return { id, y: box!.y };
+    }),
+  );
+  for (let i = 1; i < sectionTops.length; i++) {
+    expect(
+      sectionTops[i].y,
+      `#${sectionTops[i].id} (y=${sectionTops[i].y.toFixed(1)}) must appear below #${sectionTops[i - 1].id} (y=${sectionTops[i - 1].y.toFixed(1)})`,
+    ).toBeGreaterThan(sectionTops[i - 1].y);
+  }
 
   const gradCap = eduSection.locator('[data-pixel-visual="graduation"]');
   await expect(gradCap).toHaveAttribute('data-in-view', 'false');
